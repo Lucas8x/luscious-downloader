@@ -1,0 +1,8 @@
+{
+  "dir": "./",
+  "login": "",
+  "password": "",
+  "multiprocess": "true",
+  "poolLinks": "3",
+  "poolDown": "3"
+}
