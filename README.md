@@ -1,2 +1,2 @@
-# luscious-downloader
+# Luscious Downloader
 Auto Download Luscious Albums
