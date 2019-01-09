@@ -217,12 +217,16 @@ def download(albumURL):
     '''
 
 def multiGetLinks(url):
-  return html.fromstring(requests.get(url).content).xpath('//*[@class="icon-download"]/@href')[0]
+  try:
+    return html.fromstring(requests.get(url).content).xpath('//*[@class="icon-download"]/@href')[0]
+  except: print("Failed to get link:",url)
 
 def multiDown(url,dir,albumName):
   picName = (str(url).rsplit('/', 1)[1])
-  if ((os.path.exists(dir+albumName+'/'+str(picName))) == False):
-    wget.download(url,dir+albumName+'/'+str(picName))
+  try:
+    if ((os.path.exists(dir+albumName+'/'+str(picName))) == False):
+      wget.download(url,dir+albumName+'/'+str(picName))
+  except: print("Failed to download:",url) # Value Error
 
 if __name__ == "__main__":
   menu = True
