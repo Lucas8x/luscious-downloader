@@ -1,4 +1,4 @@
-#!.\venv\Scripts\python3.exe
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Auto Download Luscious Pictures for you
 pip install lxml selenium tqdm urllib3 wget

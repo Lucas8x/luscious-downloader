@@ -1,4 +1,13 @@
 @echo off
-.\venv\Scripts\python3.exe luscious-downloader.py
-taskkill /f /im chromedriver.exe
-cmd /k
+setlocal enabledelayedexpansion
+
+if not exist python\python.exe (
+	echo Python portable wasn't detected; we'll download and install it for you.
+	PowerShell -ExecutionPolicy Unrestricted -File "downloadpython.ps1"
+)
+
+cls
+echo The script can be terminated at any time by pressing Ctrl-C or clicking X
+echo -------------------------------------------------------------------------
+
+python\python.exe luscious-downloader.py
