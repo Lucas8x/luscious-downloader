@@ -48,14 +48,14 @@ def defaultFiles():
         "poolLinks": "3",
         "poolDown": "3"
       }
-    with open('./config.json', 'w+') as x:
+    with open('./config.json', 'a+') as x:
       json.dump(data, x, indent=2)
   if not (os.path.exists('./list.xt')):
-    open('./list.txt', 'w+')
+    open('./list.txt', 'a+')
   if not (os.path.exists('./list_removed.txt')):
-    open('./list_removed.txt', 'w+')
+    open('./list_removed.txt', 'a+')
   if not (os.path.exists('./list_blocked.xt')):
-    open('./list_blocked.txt', 'w+')
+    open('./list_blocked.txt', 'a+')
 
 def createFolder(directory):
   try:
@@ -257,8 +257,8 @@ if __name__ == "__main__":
     if (escolha == 1): pageChecker(albumURL = str(input('Album URL: ')))
     elif (escolha == 2):
       print("Checking List...")
-      with open('lista.txt', 'r') as lista:
-        qnt = len(open('lista.txt').readlines())
+      with open('list.txt', 'r') as lista:
+        qnt = len(open('list.txt').readlines())
         print("Number of links:",qnt)
         for url in lista:
           pageChecker(url)
