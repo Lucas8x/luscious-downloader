@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+﻿#!/usr/bin/venv python
 # -*- coding: utf-8 -*-
 """Auto Download Luscious Pictures for you
 pip install lxml selenium tqdm urllib3 wget
@@ -37,6 +37,25 @@ options.add_argument('test-type')
 options.add_argument("--disable-plugins-discovery")
 options.add_argument("--start-maximized")
 driver = webdriver.Chrome('./chromedriver.exe', options=options)
+
+def defaultFiles():
+  if not (os.path.exists('./config.json')):
+    data = {
+        "dir": "./Albums/",
+        "login": "",
+        "password": "",
+        "multiprocess": "true",
+        "poolLinks": "3",
+        "poolDown": "3"
+      }
+    with open('./config.json', 'w+') as x:
+      json.dump(data, x, indent=2)
+  if not (os.path.exists('./list.xt')):
+    open('./list.txt', 'w+')
+  if not (os.path.exists('./list_removed.txt')):
+    open('./list_removed.txt', 'w+')
+  if not (os.path.exists('./list_blocked.xt')):
+    open('./list_blocked.txt', 'w+')
 
 def createFolder(directory):
   try:
@@ -229,6 +248,7 @@ def multiDown(url,dir,albumName):
   except: print("Failed to download:",url) # Value Error
 
 if __name__ == "__main__":
+  defaultFiles()
   menu = True
   while menu == True:
     print("Options:\n1-Enter URL\n2-From lista.txt\n3-Configs\n0-Sair")
@@ -238,7 +258,7 @@ if __name__ == "__main__":
     elif (escolha == 2):
       print("Checking List...")
       with open('lista.txt', 'r') as lista:
-        qnt = 0; qnt = len(open('lista.txt').readlines())
+        qnt = len(open('lista.txt').readlines())
         print("Number of links:",qnt)
         for url in lista:
           pageChecker(url)
