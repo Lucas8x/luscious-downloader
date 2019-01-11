@@ -52,8 +52,8 @@ def defaultFiles():
       json.dump(data, x, indent=2)
   if not (os.path.exists('./list.xt')):
     open('./list.txt', 'a+')
-  if not (os.path.exists('./list_removed.txt')):
-    open('./list_removed.txt', 'a+')
+  if not (os.path.exists('./list_completed.txt')):
+    open('./list_completed.txt', 'a+')
   if not (os.path.exists('./list_blocked.xt')):
     open('./list_blocked.txt', 'a+')
 
@@ -109,8 +109,32 @@ def pageChecker(albumURL):
   check = str(*check)
   if(check == "404 Not Found"):
     print("Blocked Album:", albumURL)
+    organizeList(albumURL,1)
   else:
     download(albumURL)
+
+def organizeList(albumURL,type):
+  x = open("./list.txt", "r")
+  tmp = []
+  for line in x:
+    if albumURL in line:
+      line = line.replace(albumURL,'')
+    tmp.append(line)
+  x.close()
+  x = open("./list.txt", "w")
+  for line in tmp:
+    x.write(line)
+  x.close()
+
+  if(type == 1):
+    b = open("./list_blocked.txt", "a")
+    b.write("{}\n".format(albumURL))
+    b.close()
+  if(type == 2):
+    c = open("./list_completed.txt", "a")
+    c.write("{}\n".format(albumURL))
+    c.close()
+
 
 def download(albumURL):
   html_source = driver.page_source
@@ -215,6 +239,7 @@ def download(albumURL):
 
   time.sleep(1)
   print("\nAlbum: ",albumName," Download Completed ",str(len(imgPageLink))," pictures has saved\nURL =",albumURL)
+  organizeList(albumURL,2)
 
   #if(escolha == 2):
     #if(baixados < qnt): print("Downloading Next Album...\n")
