@@ -13,6 +13,8 @@ import requests
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from colorama import init
 init()
 from tqdm import tqdm
@@ -21,22 +23,31 @@ from multiprocessing import Pool, Process, Manager, freeze_support, RLock, cpu_c
 freeze_support()
 import json
 locale.setlocale(locale.LC_ALL, '')
-options = webdriver.ChromeOptions()
-options.add_argument("--headless")
-options.add_argument('--hide-scrollbars')
-options.add_argument("no-sandbox")
-options.add_argument("--ignore-certificate-errors")
-options.add_argument('--disable-popup-blocking')
-options.add_argument("--log-level=3")
-options.add_argument("--silent")
-options.add_argument('window-size=1920x1080')
-options.add_argument("--disable-gpu")
-options.add_argument("--lang=en")
-options.add_argument("--disable-extensions")
-options.add_argument('test-type')
-options.add_argument("--disable-plugins-discovery")
-options.add_argument("--start-maximized")
-driver = webdriver.Chrome('./chromedriver.exe', options=options)
+
+if(1 == 2):
+  options = webdriver.ChromeOptions()
+  options.add_argument("--headless")
+  options.add_argument('--hide-scrollbars')
+  options.add_argument("no-sandbox")
+  options.add_argument("--ignore-certificate-errors")
+  options.add_argument('--disable-popup-blocking')
+  options.add_argument("--log-level=3")
+  options.add_argument("--silent")
+  options.add_argument('window-size=1920x1080')
+  options.add_argument("--disable-gpu")
+  options.add_argument("--lang=en")
+  options.add_argument("--disable-extensions")
+  options.add_argument('test-type')
+  options.add_argument("--disable-plugins-discovery")
+  options.add_argument("--start-maximized")
+  driver = webdriver.Chrome('./chromedriver.exe', options=options)
+
+if(1 == 1):
+  options = Options()
+  options.headless = True
+  firefox_capabilities = DesiredCapabilities.FIREFOX
+  firefox_capabilities['marionette'] = True
+  driver = webdriver.Firefox(options=options, executable_path='./geckodriver.exe', capabilities=firefox_capabilities)
 
 def defaultFiles():
   if not (os.path.exists('./config.json')):
@@ -134,7 +145,6 @@ def organizeList(albumURL,type):
     c = open("./list_completed.txt", "a")
     c.write("{}\n".format(albumURL))
     c.close()
-
 
 def download(albumURL):
   html_source = driver.page_source
@@ -244,21 +254,6 @@ def download(albumURL):
   #if(escolha == 2):
     #if(baixados < qnt): print("Downloading Next Album...\n")
     #else: print("All albums downloaded")
-
-  '''
-  if(escolha == 2):
-    tmp = []
-    r = open('lista.txt','r')
-    for line in r:
-      tmp.append(line)
-    r.close()
-    r = open('lista.txt', 'r')
-    for lin in tmp:
-      if not albumURL in line:
-        r.write(line)
-        print("Link:",line,"removed")
-    r.close()
-    '''
 
 def multiGetLinks(url):
   try:
