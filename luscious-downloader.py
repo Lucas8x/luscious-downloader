@@ -24,7 +24,7 @@ freeze_support()
 import json
 locale.setlocale(locale.LC_ALL, '')
 
-if(1 == 2):
+if(1 == 1):
   options = webdriver.ChromeOptions()
   options.add_argument("--headless")
   options.add_argument('--hide-scrollbars')
@@ -42,7 +42,7 @@ if(1 == 2):
   options.add_argument("--start-maximized")
   driver = webdriver.Chrome('./chromedriver.exe', options=options)
 
-if(1 == 1):
+if(1 == 2):
   options = Options()
   options.headless = True
   firefox_capabilities = DesiredCapabilities.FIREFOX
@@ -225,8 +225,8 @@ def download(albumURL):
 
   elif (multiprocess == "true"):
     print("Getting Direct Imgs Links with MultiProcess...")
-    pool = Pool(poolLinks)
-    directImgLinks = (p_umap(multiGetLinks, imgPageLink, total=len(imgPageLink)))
+    directImgLinks = (p_umap(multiGetLinks, imgPageLink, total=len(imgPageLink), num_cpus = poolLinks))
+
   time.sleep(1)
 
   # Download pictures
@@ -235,17 +235,15 @@ def download(albumURL):
     print("Starting Download Pictures...")
     #for url in directImgLinks:
     for url in tqdm(directImgLinks):
-      picName = (str(url).rsplit('/', 1)[1])
       #print("[" + str(n) + "/" + str(len(imgPageLink)) + "]", "Downloading...", picName)
-      if( (os.path.exists(dir+albumName+'/'+str(picName))) == False):
-        wget.download(url, dir+albumName+'/'+str(picName))
+      if ((os.path.exists(dir+albumName+'/'+str(str(url).rsplit('/', 1)[1]))) == False):
+        wget.download(url, dir+albumName+'/'+str(str(url).rsplit('/', 1)[1]))
       else: continue
 
   elif(multiprocess == "true"):
     print("\rStarting Download Pictures with MultiProcess...")
-    pool = Pool(poolDowns)
     #for _ in tqdm(pool.starmap(multiDown, zip(directImgLinks, repeat(dir),repeat(albumName))), total=len(directImgLinks)): pass
-    p_umap(multiDown, directImgLinks, dir, albumName, total=len(directImgLinks))
+    p_umap(multiDown, directImgLinks, dir, albumName, total=len(directImgLinks),num_cpus = poolDowns)
 
   time.sleep(1)
   print("\nAlbum: ",albumName," Download Completed ",str(len(imgPageLink))," pictures has saved\nURL =",albumURL)
@@ -261,10 +259,9 @@ def multiGetLinks(url):
   except: print("Failed to get link:",url)
 
 def multiDown(url,dir,albumName):
-  picName = (str(url).rsplit('/', 1)[1])
   try:
-    if ((os.path.exists(dir+albumName+'/'+str(picName))) == False):
-      wget.download(url,dir+albumName+'/'+str(picName))
+    if ((os.path.exists(dir+albumName+'/'+str(str(url).rsplit('/', 1)[1]))) == False):
+      wget.download(url,dir+albumName+'/'+str(str(url).rsplit('/', 1)[1]))
   except: print("Failed to download:",url) # Value Error
 
 if __name__ == "__main__":
