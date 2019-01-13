@@ -138,12 +138,20 @@ def organizeList(albumURL,type):
   x.close()
 
   if(type == 1):
-    b = open("./list_blocked.txt", "a")
-    b.write("{}\n".format(albumURL))
+    with open("./list_completed.txt") as b:
+      text = b.read()
+    with open("./list_blocked.txt", 'a') as b:
+      if not text.endswith("\n"):
+        b.write('\n')
+      b.write(albumURL)
     b.close()
   if(type == 2):
-    c = open("./list_completed.txt", "a")
-    c.write("{}\n".format(albumURL))
+    with open("./list_completed.txt") as c:
+      text = c.read()
+    with open("./list_completed.txt", 'a') as c:
+      if not text.endswith("\n"):
+        c.write('\n')
+      c.write(albumURL)
     c.close()
 
 def download(albumURL):
