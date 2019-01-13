@@ -112,8 +112,10 @@ def myJson():
     if(escolhaJ == 5):
       if (data['driver'] == 'chrome'):
         data['driver'] = 'firefox'
+        print("Switched to Firefox/Geckodriver")
       if (data['driver'] == 'firefox'):
         data['driver'] = 'chrome'
+        print("Switched to ChromeDriver")
 
     j.seek(0)
     json.dump(data, j, indent=2)
@@ -283,7 +285,7 @@ if __name__ == "__main__":
         for url in lista:
           pageChecker(url)
 
-    elif (escolha == 3): myJson(escolha)
+    elif (escolha == 3): myJson()
 
     elif(escolha == 0):
       menu = False
