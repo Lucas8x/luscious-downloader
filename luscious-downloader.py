@@ -15,39 +15,43 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from colorama import init
-init()
-from tqdm import tqdm
+#from colorama import init
+#init()
+#from tqdm import tqdm
 from p_tqdm import *
-from multiprocessing import Pool, Process, Manager, freeze_support, RLock, cpu_count
-freeze_support()
+#from multiprocessing import Pool, Process, Manager, freeze_support, RLock, cpu_count
+#freeze_support()
 import json
 locale.setlocale(locale.LC_ALL, '')
 
-if(1 == 1):
-  options = webdriver.ChromeOptions()
-  options.add_argument("--headless")
-  options.add_argument('--hide-scrollbars')
-  options.add_argument("no-sandbox")
-  options.add_argument("--ignore-certificate-errors")
-  options.add_argument('--disable-popup-blocking')
-  options.add_argument("--log-level=3")
-  options.add_argument("--silent")
-  options.add_argument('window-size=1920x1080')
-  options.add_argument("--disable-gpu")
-  options.add_argument("--lang=en")
-  options.add_argument("--disable-extensions")
-  options.add_argument('test-type')
-  options.add_argument("--disable-plugins-discovery")
-  options.add_argument("--start-maximized")
-  driver = webdriver.Chrome('./chromedriver.exe', options=options)
+with open('config.json', 'r') as j:
+  data = json.load(j)
+  driver = data['driver']
+  j.close()
+  if(driver == "chrome"):
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    options.add_argument('--hide-scrollbars')
+    options.add_argument("no-sandbox")
+    options.add_argument("--ignore-certificate-errors")
+    options.add_argument('--disable-popup-blocking')
+    options.add_argument("--log-level=3")
+    options.add_argument("--silent")
+    options.add_argument('window-size=1920x1080')
+    options.add_argument("--disable-gpu")
+    options.add_argument("--lang=en")
+    options.add_argument("--disable-extensions")
+    options.add_argument('test-type')
+    options.add_argument("--disable-plugins-discovery")
+    options.add_argument("--start-maximized")
+    driver = webdriver.Chrome('./chromedriver.exe', options=options)
 
-if(1 == 2):
-  options = Options()
-  options.headless = True
-  firefox_capabilities = DesiredCapabilities.FIREFOX
-  firefox_capabilities['marionette'] = True
-  driver = webdriver.Firefox(options=options, executable_path='./geckodriver.exe', capabilities=firefox_capabilities)
+  if(driver == "firefox"):
+    options = Options()
+    options.headless = True
+    firefox_capabilities = DesiredCapabilities.FIREFOX
+    firefox_capabilities['marionette'] = True
+    driver = webdriver.Firefox(options=options, executable_path='./geckodriver.exe', capabilities=firefox_capabilities)
 
 def defaultFiles():
   if not (os.path.exists('./config.json')):
@@ -57,7 +61,8 @@ def defaultFiles():
         "password": "",
         "multiprocess": "true",
         "poolLinks": "3",
-        "poolDown": "3"
+        "poolDown": "3",
+        "driver": "chrome"
       }
     with open('./config.json', 'a+') as x:
       json.dump(data, x, indent=2)
@@ -76,37 +81,39 @@ def createFolder(directory):
   except OSError:
     print('Error: Creating directory. ' + directory)
 
-config = 'config.json'
-def myjson(escolha):
-  with open(config, 'r+') as j:
+def myJson():
+  with open('config.json', 'r+') as j:
     data = json.load(j)
-    if(escolha == 3):
-      print("1-Change Directory\n2-Login\n3-MultiProcess\n4-CPU Pool")
-      escolhaJ = int(input(">"))
-      if(escolhaJ == 1):
-        print("For default write 0")
-        dir = str(input('Directory:'))
-        if(dir == '0'): dir = './'
+    print("1-Change Directory\n2-Login\n3-MultiProcess\n4-CPU Pool\n5-Switch Driver")
+    escolhaJ = int(input(">"))
+    if(escolhaJ == 1):
+      print("For default write 0")
+      dir = str(input("Directory:"))
+      if(dir == '0'):
+        dir = './Albums/'
         data['dir'] = dir
-      if(escolhaJ == 2): pass
-      if(escolhaJ == 3):
-        if (data['multiprocess'] == 'true'):
-          status = 'false'
-          print("MultiProcess Disabled")
-        if (data['multiprocess'] == 'false'):
-          status = 'true'
-          print("MultiProcess Enabled")
-        data['multiprocess'] = status
-      if(escolhaJ == 4):
-        print("You have:", os.cpu_count(),"cpus")
-        print("Enter CPU Pool for Geting Direct Imgs Links")
-        data['poolLinks'] = str(input('> '))
-        print("Enter CPU Pool for Geting Direct Imgs Links")
-        data['poolDown'] = str(input('> '))
-
-    if(escolha == 4):
-      data['login'] = str(input('Login:'))
-      data['password'] = str(input('Login:'))
+    if(escolhaJ == 2):
+      data['login'] = str(input("Login:"))
+      data['password'] = str(input("Login:"))
+    if(escolhaJ == 3):
+      if (data['multiprocess'] == 'true'):
+        status = 'false'
+        print("MultiProcess Disabled")
+      if (data['multiprocess'] == 'false'):
+        status = 'true'
+        print("MultiProcess Enabled")
+    data['multiprocess'] = status
+    if(escolhaJ == 4):
+      print("You have:", os.cpu_count(),"cpus")
+      print("Enter CPU Pool for Geting Direct Imgs Links")
+      data['poolLinks'] = str(input("> "))
+      print("Enter CPU Pool for Geting Direct Imgs Links")
+      data['poolDown'] = str(input("> "))
+    if(escolhaJ == 5):
+      if (data['driver'] == 'chrome'):
+        data['driver'] = 'firefox'
+      if (data['driver'] == 'firefox'):
+        data['driver'] = 'chrome'
 
     j.seek(0)
     json.dump(data, j, indent=2)
@@ -194,7 +201,7 @@ def download(albumURL):
   print("Total of",len(imgPageLink),"real links found")
 
   #Define Json Variables
-  with open(config, 'r+') as j:
+  with open('config.json', 'r') as j:
     data = json.load(j)
     dir = data['dir']
     multiprocess = data['multiprocess']
@@ -206,34 +213,26 @@ def download(albumURL):
   albumName = re.sub('[^\w\-_\. ]', '_', albumName)
   createFolder(dir+albumName+'/')
 
-  '''
-  # Acess imgPageLink and download from direct link
-  n = 1
-  for url in imgPageLink:
-    driver.get(url)
-    downLink = driver.find_element_by_class_name('icon-download').get_attribute('href')
-    picName = downLink.rsplit('/', 1)[1]
-    print("[" + str(n) + "/" + str(len(imgPageLink)) + "]", "Downloading...", picName)
-    wget.download(downLink, './' + albumName + '/' + picName)
-    n += 1
-  '''
+  time.sleep(1)
+
+  # Acess imgPageLink > get direct link and download # Legacy Mode
+  if(multiprocess == "legacy"):
+    print("Downloading with Legacy Mode...")
+    time.sleep(1)
+    for url in tqdm(imgPageLink, total=(len(imgPageLink))):
+      downPic(getLink(url), dir, albumName)
 
   #Get Direct Img Link
   directImgLinks = []
   time.sleep(1)
   if (multiprocess == "false"):
     print("Getting Direct Imgs Links...")
-    #for url in imgPageLink:
     for url in tqdm(imgPageLink, total=(len(imgPageLink))):
-      driver.get(url)
-      if(driver.find_element_by_class_name('icon-download').get_attribute('href')):
-        downLink = driver.find_element_by_class_name('icon-download').get_attribute('href')
-        directImgLinks.append(downLink)
-      else: continue
+      directImgLinks.append(getLink(url))
 
   elif (multiprocess == "true"):
     print("Getting Direct Imgs Links with MultiProcess...")
-    directImgLinks = (p_umap(multiGetLinks, imgPageLink, total=len(imgPageLink), num_cpus = poolLinks))
+    directImgLinks = (p_umap(getLink, imgPageLink, total=len(imgPageLink), num_cpus = poolLinks))
 
   time.sleep(1)
 
@@ -241,17 +240,13 @@ def download(albumURL):
   time.sleep(1)
   if(multiprocess == "false"):
     print("Starting Download Pictures...")
-    #for url in directImgLinks:
     for url in tqdm(directImgLinks):
-      #print("[" + str(n) + "/" + str(len(imgPageLink)) + "]", "Downloading...", picName)
-      if ((os.path.exists(dir+albumName+'/'+str(str(url).rsplit('/', 1)[1]))) == False):
-        wget.download(url, dir+albumName+'/'+str(str(url).rsplit('/', 1)[1]))
-      else: continue
+      downPic(url, dir, albumName)
 
   elif(multiprocess == "true"):
     print("\rStarting Download Pictures with MultiProcess...")
     #for _ in tqdm(pool.starmap(multiDown, zip(directImgLinks, repeat(dir),repeat(albumName))), total=len(directImgLinks)): pass
-    p_umap(multiDown, directImgLinks, dir, albumName, total=len(directImgLinks),num_cpus = poolDowns)
+    p_umap(downPic, directImgLinks, dir, albumName, total=len(directImgLinks), num_cpus = poolDowns)
 
   time.sleep(1)
   print("\nAlbum: ",albumName," Download Completed ",str(len(imgPageLink))," pictures has saved\nURL =",albumURL)
@@ -261,12 +256,12 @@ def download(albumURL):
     #if(baixados < qnt): print("Downloading Next Album...\n")
     #else: print("All albums downloaded")
 
-def multiGetLinks(url):
+def getLink(url):
   try:
     return html.fromstring(requests.get(url).content).xpath('//*[@class="icon-download"]/@href')[0]
   except: print("Failed to get link:",url)
 
-def multiDown(url,dir,albumName):
+def downPic(url,dir,albumName):
   try:
     if ((os.path.exists(dir+albumName+'/'+str(str(url).rsplit('/', 1)[1]))) == False):
       wget.download(url,dir+albumName+'/'+str(str(url).rsplit('/', 1)[1]))
@@ -288,7 +283,7 @@ if __name__ == "__main__":
         for url in lista:
           pageChecker(url)
 
-    elif (escolha == 3): myjson(escolha)
+    elif (escolha == 3): myJson(escolha)
 
     elif(escolha == 0):
       menu = False
