@@ -266,7 +266,7 @@ def getLink(url):
 def downPic(url,dir,albumName):
   try:
     if ((os.path.exists(dir+albumName+'/'+str(str(url).rsplit('/', 1)[1]))) == False):
-      wget.download(url,dir+albumName+'/'+str(str(url).rsplit('/', 1)[1]))
+      wget.download(url,dir+albumName+'/'+str(str(url).rsplit('/', 1)[1]), bar=None)
   except: print("Failed to download:",url) # Value Error
 
 if __name__ == "__main__":
