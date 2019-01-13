@@ -46,7 +46,7 @@ with open('config.json', 'r') as j:
     options.add_argument("--start-maximized")
     driver = webdriver.Chrome('./chromedriver.exe', options=options)
 
-  if(driver == "firefox"):
+  elif(driver == "firefox"):
     options = Options()
     options.headless = True
     firefox_capabilities = DesiredCapabilities.FIREFOX
@@ -92,28 +92,28 @@ def myJson():
       if(dir == '0'):
         dir = './Albums/'
         data['dir'] = dir
-    if(escolhaJ == 2):
+    elif(escolhaJ == 2):
       data['login'] = str(input("Login:"))
       data['password'] = str(input("Login:"))
-    if(escolhaJ == 3):
+    elif(escolhaJ == 3):
       if (data['multiprocess'] == 'true'):
         status = 'false'
         print("MultiProcess Disabled")
-      if (data['multiprocess'] == 'false'):
+      elif (data['multiprocess'] == 'false'):
         status = 'true'
         print("MultiProcess Enabled")
-    data['multiprocess'] = status
-    if(escolhaJ == 4):
+      data['multiprocess'] = status
+    elif(escolhaJ == 4):
       print("You have:", os.cpu_count(),"cpus")
       print("Enter CPU Pool for Geting Direct Imgs Links")
       data['poolLinks'] = str(input("> "))
       print("Enter CPU Pool for Geting Direct Imgs Links")
       data['poolDown'] = str(input("> "))
-    if(escolhaJ == 5):
+    elif(escolhaJ == 5):
       if (data['driver'] == 'chrome'):
         data['driver'] = 'firefox'
         print("Switched to Firefox/Geckodriver")
-      if (data['driver'] == 'firefox'):
+      elif (data['driver'] == 'firefox'):
         data['driver'] = 'chrome'
         print("Switched to ChromeDriver")
 
