@@ -24,9 +24,22 @@ from p_tqdm import *
 import json
 locale.setlocale(locale.LC_ALL, '')
 
+def jsonVariables():
+  with open('config.json', 'r') as j:
+    data = json.load(j)
+    driver = data['driver']
+    dir = data['dir']
+    multiprocess = data['multiprocess']
+    poolLinks =  int(data['poolLinks'])
+    poolDowns = int(data['poolDown'])
+    doLogin = data['doLogin']
+    username = data['username']
+    password = data['password']
+    j.close()
+  return driver,dir,multiprocess,poolLinks,poolDowns,doLogin,username,password
+
 with open('config.json', 'r') as j:
-  data = json.load(j)
-  driver = data['driver']
+  driver = jsonVariables()[0]
   j.close()
   if(driver == "chrome"):
     options = webdriver.ChromeOptions()
@@ -57,12 +70,13 @@ def defaultFiles():
   if not (os.path.exists('./config.json')):
     data = {
         "dir": "./Albums/",
-        "login": "",
-        "password": "",
         "multiprocess": "true",
         "poolLinks": "3",
         "poolDown": "3",
-        "driver": "chrome"
+        "driver": "firefox",
+        "doLogin": "0",
+        "username": "",
+        "password": ""
       }
     with open('./config.json', 'a+') as x:
       json.dump(data, x, indent=2)
@@ -128,8 +142,11 @@ def pageChecker(albumURL):
   check = tree.xpath('//*[@id="frontpage"]/h1/text()')
   check = str(*check)
   if(check == "404 Not Found"):
-    print("Blocked Album:", albumURL)
-    organizeList(albumURL,1)
+    doLogin = jsonVariables()[5]
+    if (doLogin == "1"):
+      download(albumURL, 1)
+    print("Blocked Album:", albumURL, "try turn on auto-login and write account info")
+    organizeList(albumURL, 1)
   else:
     download(albumURL)
 
@@ -196,20 +213,16 @@ def download(albumURL):
   default = "https://members.luscious.net/"
 
   # Combine default + imgPages for get Individual Img Page Link
-  #print("Combining Links...")
   for x in imgPages:
     imgPageLink = [default + x for x in imgPages]
 
   print("Total of",len(imgPageLink),"real links found")
 
   #Define Json Variables
-  with open('config.json', 'r') as j:
-    data = json.load(j)
-    dir = data['dir']
-    multiprocess = data['multiprocess']
-    poolLinks =  int(data['poolLinks'])
-    poolDowns = int(data['poolDown'])
-    j.close()
+  dir = jsonVariables()[1]
+  multiprocess = jsonVariables()[2]
+  poolLinks = jsonVariables()[3]
+  poolDowns = jsonVariables()[4]
 
   # Create Album Folder
   albumName = re.sub('[^\w\-_\. ]', '_', albumName)
@@ -247,16 +260,11 @@ def download(albumURL):
 
   elif(multiprocess == "true"):
     print("\rStarting Download Pictures with MultiProcess...")
-    #for _ in tqdm(pool.starmap(multiDown, zip(directImgLinks, repeat(dir),repeat(albumName))), total=len(directImgLinks)): pass
     p_umap(downPic, directImgLinks, dir, albumName, total=len(directImgLinks), num_cpus = poolDowns)
 
   time.sleep(1)
   print("\nAlbum: ",albumName," Download Completed ",str(len(imgPageLink))," pictures has saved\nURL =",albumURL)
   organizeList(albumURL,2)
-
-  #if(escolha == 2):
-    #if(baixados < qnt): print("Downloading Next Album...\n")
-    #else: print("All albums downloaded")
 
 def getLink(url):
   try:
