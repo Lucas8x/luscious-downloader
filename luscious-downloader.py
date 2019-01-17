@@ -95,6 +95,36 @@ def createFolder(directory):
   except OSError:
     print('Error: Creating directory. ' + directory)
 
+def organizeList(albumURL,type):
+  x = open("./list.txt", "r")
+  tmp = []
+  for line in x:
+    if albumURL in line:
+      line = line.replace(albumURL,'')
+    tmp.append(line)
+  x.close()
+  x = open("./list.txt", "w")
+  for line in tmp:
+    x.write(line)
+  x.close()
+
+  if(type == 1):
+    with open("./list_completed.txt") as b:
+      text = b.read()
+    with open("./list_blocked.txt", 'a') as b:
+      if not text.endswith("\n"):
+        b.write('\n')
+      b.write(albumURL)
+    b.close()
+  elif(type == 2):
+    with open("./list_completed.txt") as c:
+      text = c.read()
+    with open("./list_completed.txt", 'a') as c:
+      if not text.endswith("\n"):
+        c.write('\n')
+      c.write(albumURL)
+    c.close()
+
 def myJson():
   with open('config.json', 'r+') as j:
     data = json.load(j)
@@ -144,41 +174,24 @@ def pageChecker(albumURL):
   if(check == "404 Not Found"):
     doLogin = jsonVariables()[5]
     if (doLogin == "1"):
-      download(albumURL, 1)
+      login(albumURL, 1)
     print("Blocked Album:", albumURL, "try turn on auto-login and write account info")
     organizeList(albumURL, 1)
   else:
     download(albumURL)
 
-def organizeList(albumURL,type):
-  x = open("./list.txt", "r")
-  tmp = []
-  for line in x:
-    if albumURL in line:
-      line = line.replace(albumURL,'')
-    tmp.append(line)
-  x.close()
-  x = open("./list.txt", "w")
-  for line in tmp:
-    x.write(line)
-  x.close()
-
-  if(type == 1):
-    with open("./list_completed.txt") as b:
-      text = b.read()
-    with open("./list_blocked.txt", 'a') as b:
-      if not text.endswith("\n"):
-        b.write('\n')
-      b.write(albumURL)
-    b.close()
-  if(type == 2):
-    with open("./list_completed.txt") as c:
-      text = c.read()
-    with open("./list_completed.txt", 'a') as c:
-      if not text.endswith("\n"):
-        c.write('\n')
-      c.write(albumURL)
-    c.close()
+def login(albumURL,doLogin):
+  if (doLogin == "1"):
+    if not (os.path.exists('./cookies.txt')):
+      driver.get("https://members.luscious.net/login/")
+      username, password = jsonVariables()[6], jsonVariables()[7]
+      driver.find_element_by_id("id_login").send_keys(username)
+      driver.find_element_by_id("id_password").send_keys(password)
+      driver.find_element_by_xpath("//input[@value='Sign In']").click()
+      cookies = driver.get_cookies()
+      with open('./cookies.txt', 'w+') as cookie:
+        cookie.write(str(cookies))
+        cookie.close()
 
 def download(albumURL):
   html_source = driver.page_source
@@ -249,10 +262,9 @@ def download(albumURL):
     print("Getting Direct Imgs Links with MultiProcess...")
     directImgLinks = (p_umap(getLink, imgPageLink, total=len(imgPageLink), num_cpus = poolLinks))
 
-  time.sleep(1)
+  time.sleep(2)
 
   # Download pictures
-  time.sleep(1)
   if(multiprocess == "false"):
     print("Starting Download Pictures...")
     for url in tqdm(directImgLinks):
@@ -273,7 +285,7 @@ def getLink(url):
 
 def downPic(url,dir,albumName):
   try:
-    if ((os.path.exists(dir+albumName+'/'+str(str(url).rsplit('/', 1)[1]))) == False):
+    if not((os.path.exists(dir+albumName+'/'+str(str(url).rsplit('/', 1)[1])))):
       wget.download(url,dir+albumName+'/'+str(str(url).rsplit('/', 1)[1]), bar=None)
   except: print("Failed to download:",url) # Value Error
 
