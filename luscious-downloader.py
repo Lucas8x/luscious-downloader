@@ -15,6 +15,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+import pickle
 #from colorama import init
 #init()
 #from tqdm import tqdm
@@ -174,26 +175,29 @@ def pageChecker(albumURL):
   if(check == "404 Not Found"):
     doLogin = jsonVariables()[5]
     if (doLogin == "1"):
-      login(albumURL, 1)
+      login(albumURL, doLogin)
     print("Blocked Album:", albumURL, "try turn on auto-login and write account info")
     organizeList(albumURL, 1)
   else:
-    download(albumURL)
+    download(albumURL,0)
 
 def login(albumURL,doLogin):
   if (doLogin == "1"):
-    if not (os.path.exists('./cookies.txt')):
+    if not (os.path.exists('./cookies.pkl')):
+      print("Logging in...")
       driver.get("https://members.luscious.net/login/")
       username, password = jsonVariables()[6], jsonVariables()[7]
       driver.find_element_by_id("id_login").send_keys(username)
       driver.find_element_by_id("id_password").send_keys(password)
       driver.find_element_by_xpath("//input[@value='Sign In']").click()
-      cookies = driver.get_cookies()
-      with open('./cookies.txt', 'w+') as cookie:
-        cookie.write(str(cookies))
-        cookie.close()
+      pickle.dump(driver.get_cookies(), open("./cookies.pkl", "wb"))
+    for cookie in pickle.load(open("./cookies.pkl", "rb")):
+      driver.add_cookie(cookie)
+  download(albumURL,doLogin)
 
-def download(albumURL):
+def download(albumURL,doLogin):
+  if(doLogin == "1"): driver.get(albumURL)
+
   html_source = driver.page_source
   tree = html.fromstring(html_source)
 
@@ -202,7 +206,6 @@ def download(albumURL):
   uploader = tree.xpath('//*[@class="user_lnk"]/text()')
   pictures = tree.xpath('//*[@id="single_album_details"]/li[2]/div/p[1]/text()')
 
-  #albumName = "".join(albumName)
   albumName = str(*albumName)
   print("Album Name:", albumName)
   print("Uploader:", str(*uploader))
@@ -248,7 +251,7 @@ def download(albumURL):
     print("Downloading with Legacy Mode...")
     time.sleep(1)
     for url in tqdm(imgPageLink, total=(len(imgPageLink))):
-      downPic(getLink(url), dir, albumName)
+      downPicture(getDirectLink(url), dir, albumName)
 
   #Get Direct Img Link
   directImgLinks = []
@@ -256,11 +259,11 @@ def download(albumURL):
   if (multiprocess == "false"):
     print("Getting Direct Imgs Links...")
     for url in tqdm(imgPageLink, total=(len(imgPageLink))):
-      directImgLinks.append(getLink(url))
+      directImgLinks.append(getDirectLink(url))
 
   elif (multiprocess == "true"):
     print("Getting Direct Imgs Links with MultiProcess...")
-    directImgLinks = (p_umap(getLink, imgPageLink, total=len(imgPageLink), num_cpus = poolLinks))
+    directImgLinks = (p_umap(getDirectLink, imgPageLink, doLogin, total=len(imgPageLink), num_cpus = poolLinks))
 
   time.sleep(2)
 
@@ -268,22 +271,25 @@ def download(albumURL):
   if(multiprocess == "false"):
     print("Starting Download Pictures...")
     for url in tqdm(directImgLinks):
-      downPic(url, dir, albumName)
+      downPicture(url, dir, albumName)
 
   elif(multiprocess == "true"):
     print("\rStarting Download Pictures with MultiProcess...")
-    p_umap(downPic, directImgLinks, dir, albumName, total=len(directImgLinks), num_cpus = poolDowns)
+    p_umap(downPicture, directImgLinks, dir, albumName, total=len(directImgLinks), num_cpus = poolDowns)
 
   time.sleep(1)
   print("\nAlbum: ",albumName," Download Completed ",str(len(imgPageLink))," pictures has saved\nURL =",albumURL)
   organizeList(albumURL,2)
 
-def getLink(url):
-  try:
-    return html.fromstring(requests.get(url).content).xpath('//*[@class="icon-download"]/@href')[0]
-  except: print("Failed to get link:",url)
+def getDirectLink(url,doLogin):
+  if(doLogin == "1"):
+    try: return driver.get(url).find_element_by_class_name("icon-download").get_attribute('href')
+    except: print("[1]Failed to get link:",url)
+  else:
+    try: return html.fromstring(requests.get(url).content).xpath('//*[@class="icon-download"]/@href')[0]
+    except: print("Failed to get link:",url)
 
-def downPic(url,dir,albumName):
+def downPicture(url,dir,albumName):
   try:
     if not((os.path.exists(dir+albumName+'/'+str(str(url).rsplit('/', 1)[1])))):
       wget.download(url,dir+albumName+'/'+str(str(url).rsplit('/', 1)[1]), bar=None)
@@ -306,6 +312,8 @@ if __name__ == "__main__":
           pageChecker(url)
 
     elif (escolha == 3): myJson()
+    elif (escolha == 8): pageChecker("https://luscious.net/albums/1_332500/")
+    elif (escolha == 9): pageChecker("https://members.luscious.net/albums/small-breast-hentaiecchi_276584/")
 
     elif(escolha == 0):
       menu = False
