@@ -175,6 +175,7 @@ def pageChecker(albumURL):
   if(check == "404 Not Found"):
     doLogin = jsonVariables()[5]
     if (doLogin == "1"):
+      print("Auto-Login is enabled")
       login(albumURL, doLogin)
     print("Blocked Album:", albumURL, "try turn on auto-login and write account info")
     organizeList(albumURL, 1)
@@ -253,9 +254,9 @@ def download(albumURL,doLogin):
     for url in tqdm(imgPageLink, total=(len(imgPageLink))):
       downPicture(getDirectLink(url), dir, albumName)
 
+  time.sleep(1)
   #Get Direct Img Link
   directImgLinks = []
-  time.sleep(1)
   if (multiprocess == "false"):
     print("Getting Direct Imgs Links...")
     for url in tqdm(imgPageLink, total=(len(imgPageLink))):
@@ -263,7 +264,7 @@ def download(albumURL,doLogin):
 
   elif (multiprocess == "true"):
     print("Getting Direct Imgs Links with MultiProcess...")
-    directImgLinks = (p_umap(getDirectLink, imgPageLink, doLogin, total=len(imgPageLink), num_cpus = poolLinks))
+    directImgLinks = (p_umap(getDirectLink, imgPageLink, total=len(imgPageLink), num_cpus = poolLinks))
 
   time.sleep(2)
 
@@ -274,18 +275,14 @@ def download(albumURL,doLogin):
       downPicture(url, dir, albumName)
 
   elif(multiprocess == "true"):
-    print("\rStarting Download Pictures with MultiProcess...")
+    print("Starting Download Pictures with MultiProcess...")
     p_umap(downPicture, directImgLinks, dir, albumName, total=len(directImgLinks), num_cpus = poolDowns)
 
   time.sleep(1)
   print("\nAlbum: ",albumName," Download Completed ",str(len(imgPageLink))," pictures has saved\nURL =",albumURL)
   organizeList(albumURL,2)
 
-def getDirectLink(url,doLogin):
-  if(doLogin == "1"):
-    try: return driver.get(url).find_element_by_class_name("icon-download").get_attribute('href')
-    except: print("[1]Failed to get link:",url)
-  else:
+def getDirectLink(url):
     try: return html.fromstring(requests.get(url).content).xpath('//*[@class="icon-download"]/@href')[0]
     except: print("Failed to get link:",url)
 
@@ -312,8 +309,6 @@ if __name__ == "__main__":
           pageChecker(url)
 
     elif (escolha == 3): myJson()
-    elif (escolha == 8): pageChecker("https://luscious.net/albums/1_332500/")
-    elif (escolha == 9): pageChecker("https://members.luscious.net/albums/small-breast-hentaiecchi_276584/")
 
     elif(escolha == 0):
       menu = False
