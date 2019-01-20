@@ -39,34 +39,35 @@ def jsonVariables():
     j.close()
   return driver,dir,multiprocess,poolLinks,poolDowns,doLogin,username,password
 
-with open('config.json', 'r') as j:
-  driver = jsonVariables()[0]
-  j.close()
-  if(driver == "chrome"):
-    options = webdriver.ChromeOptions()
-    options.add_argument("--headless")
-    options.add_argument('--hide-scrollbars')
-    options.add_argument("no-sandbox")
-    options.add_argument("--ignore-certificate-errors")
-    options.add_argument('--disable-popup-blocking')
-    options.add_argument("--log-level=3")
-    options.add_argument("--silent")
-    options.add_argument('window-size=1920x1080')
-    options.add_argument("--disable-gpu")
-    options.add_argument("--lang=en")
-    options.add_argument("--disable-extensions")
-    options.add_argument('test-type')
-    options.add_argument("--disable-plugins-discovery")
-    options.add_argument("--start-maximized")
-    driver = webdriver.Chrome('./chromedriver.exe', options=options)
+if (os.path.exists('./config.json')):
+  with open('config.json', 'r') as j:
+    driver = jsonVariables()[0]
+    j.close()
+    if(driver == "chrome"):
+      options = webdriver.ChromeOptions()
+      options.add_argument("--headless")
+      options.add_argument('--hide-scrollbars')
+      options.add_argument("no-sandbox")
+      options.add_argument("--ignore-certificate-errors")
+      options.add_argument('--disable-popup-blocking')
+      options.add_argument("--log-level=3")
+      options.add_argument("--silent")
+      options.add_argument('window-size=1920x1080')
+      options.add_argument("--disable-gpu")
+      options.add_argument("--lang=en")
+      options.add_argument("--disable-extensions")
+      options.add_argument('test-type')
+      options.add_argument("--disable-plugins-discovery")
+      options.add_argument("--start-maximized")
+      driver = webdriver.Chrome('./chromedriver.exe', options=options)
 
-  elif(driver == "firefox"):
-    options = Options()
-    options.headless = True
-    firefox_capabilities = DesiredCapabilities.FIREFOX
-    firefox_capabilities['marionette'] = True
-    driver = webdriver.Firefox(options=options, executable_path='./geckodriver.exe', capabilities=firefox_capabilities)
-
+    elif(driver == "firefox"):
+      options = Options()
+      options.headless = True
+      firefox_capabilities = DesiredCapabilities.FIREFOX
+      firefox_capabilities['marionette'] = True
+      driver = webdriver.Firefox(options=options, executable_path='./geckodriver.exe', capabilities=firefox_capabilities)
+else: pass
 def defaultFiles():
   if not (os.path.exists('./config.json')):
     data = {
