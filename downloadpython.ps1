@@ -34,7 +34,7 @@ else
 ((Get-Content python\python37._pth)) -Replace "#import", "import" | Set-Content python\python37._pth
 
 python\python.exe get-pip.py
-python\python.exe -m pip install colorama lxml multiprocess p-tqdm requests selenium tqdm urllib3 wget
+python\python.exe -m pip install lxml p-tqdm requests selenium wget
 
 del python.zip
 del get-pip.py
