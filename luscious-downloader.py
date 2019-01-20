@@ -151,7 +151,7 @@ def configJsonSettings():
         print("MultiProcess Enabled")
       data['multiprocess'] = status
     elif(escolhaJ == 4):
-      print("You have:", os.cpu_count(),"cpus")
+      print("You have:", os.cpu_count(),"cpus. Recommend:", os.cpu_count()-1)
       print("Enter CPU Pool for Geting Direct Imgs Links")
       data['poolLinks'] = str(input("> "))
       print("Enter CPU Pool for Geting Direct Imgs Links")
@@ -283,7 +283,7 @@ def download(albumURL,doLogin):
 
   time.sleep(1)
   print("\nAlbum: ",albumName," Download Completed ",str(len(imgPageLink))," pictures has saved\nURL =",albumURL)
-  listOrganizer(albumURL,2) # Call organizeList function and
+  listOrganizer(albumURL,2) # Call organizeList function and put in list_completed #
 
 # Get direct img link(.../img.png) #
 def getDirectLink(url):
