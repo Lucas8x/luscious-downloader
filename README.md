@@ -8,6 +8,4 @@ Auto Download Luscious Albums
 * requests 
 * wget
 * selenium
-* multiprocess
-* urllib3
 ## Using
