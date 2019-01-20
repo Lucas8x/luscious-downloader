@@ -16,18 +16,14 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 import pickle
-#from colorama import init
-#init()
-#from tqdm import tqdm
 from p_tqdm import *
-#from multiprocessing import Pool, Process, Manager, freeze_support, RLock, cpu_count
-#freeze_support()
 import json
 locale.setlocale(locale.LC_ALL, '')
 
+# Function to return values from config.json to others functions when called #
 def jsonVariables():
-  with open('config.json', 'r') as j:
-    data = json.load(j)
+  with open('config.json', 'r') as config:
+    data = json.load(config)
     driver = data['driver']
     dir = data['dir']
     multiprocess = data['multiprocess']
@@ -36,38 +32,37 @@ def jsonVariables():
     doLogin = data['doLogin']
     username = data['username']
     password = data['password']
-    j.close()
+    config.close()
   return driver,dir,multiprocess,poolLinks,poolDowns,doLogin,username,password
 
-if (os.path.exists('./config.json')):
-  with open('config.json', 'r') as j:
-    driver = jsonVariables()[0]
-    j.close()
-    if(driver == "chrome"):
-      options = webdriver.ChromeOptions()
-      options.add_argument("--headless")
-      options.add_argument('--hide-scrollbars')
-      options.add_argument("no-sandbox")
-      options.add_argument("--ignore-certificate-errors")
-      options.add_argument('--disable-popup-blocking')
-      options.add_argument("--log-level=3")
-      options.add_argument("--silent")
-      options.add_argument('window-size=1920x1080')
-      options.add_argument("--disable-gpu")
-      options.add_argument("--lang=en")
-      options.add_argument("--disable-extensions")
-      options.add_argument('test-type')
-      options.add_argument("--disable-plugins-discovery")
-      options.add_argument("--start-maximized")
-      driver = webdriver.Chrome('./chromedriver.exe', options=options)
+# Check selected browser in config.json and Initialize Web Driver #
+if not (os.path.exists('./config.json')): driver = "firefox"
+else: driver = jsonVariables()[0]
+if(driver == "chrome"):
+  options = webdriver.ChromeOptions()
+  options.add_argument("--headless")
+  options.add_argument('--hide-scrollbars')
+  options.add_argument("no-sandbox")
+  options.add_argument("--ignore-certificate-errors")
+  options.add_argument('--disable-popup-blocking')
+  options.add_argument("--log-level=3")
+  options.add_argument("--silent")
+  options.add_argument('window-size=1920x1080')
+  options.add_argument("--disable-gpu")
+  options.add_argument("--lang=en")
+  options.add_argument("--disable-extensions")
+  options.add_argument('test-type')
+  options.add_argument("--disable-plugins-discovery")
+  options.add_argument("--start-maximized")
+  driver = webdriver.Chrome('./chromedriver.exe', options=options)
+elif(driver == "firefox"):
+  options = Options()
+  options.headless = True
+  firefox_capabilities = DesiredCapabilities.FIREFOX
+  firefox_capabilities['marionette'] = True
+  driver = webdriver.Firefox(options=options, executable_path='./geckodriver.exe', capabilities=firefox_capabilities)
 
-    elif(driver == "firefox"):
-      options = Options()
-      options.headless = True
-      firefox_capabilities = DesiredCapabilities.FIREFOX
-      firefox_capabilities['marionette'] = True
-      driver = webdriver.Firefox(options=options, executable_path='./geckodriver.exe', capabilities=firefox_capabilities)
-else: pass
+# Create default files if not exist #
 def defaultFiles():
   if not (os.path.exists('./config.json')):
     data = {
@@ -89,6 +84,7 @@ def defaultFiles():
   if not (os.path.exists('./list_blocked.xt')):
     open('./list_blocked.txt', 'a+')
 
+# Create album folder #
 def createFolder(directory):
   try:
     if not os.path.exists(directory):
@@ -97,37 +93,42 @@ def createFolder(directory):
   except OSError:
     print('Error: Creating directory. ' + directory)
 
-def organizeList(albumURL,type):
-  x = open("./list.txt", "r")
+# List Organizer #
+def listOrganizer(albumURL,type):
+  list = open("./list.txt", "r")
   tmp = []
-  for line in x:
+  for line in list:
     if albumURL in line:
       line = line.replace(albumURL,'')
     tmp.append(line)
-  x.close()
-  x = open("./list.txt", "w")
+  list.close()
+  list = open("./list.txt", "w")
   for line in tmp:
-    x.write(line)
-  x.close()
+    list.write(line)
+  list.close()
 
+  # Put Blocked Album URL to Last Line #
   if(type == 1):
-    with open("./list_completed.txt") as b:
-      text = b.read()
-    with open("./list_blocked.txt", 'a') as b:
+    with open("./list_blocked.txt") as blocked:
+      text = blocked.read()
+    with open("./list_blocked.txt", 'a') as blocked:
       if not text.endswith("\n"):
-        b.write('\n')
-      b.write(albumURL)
-    b.close()
-  elif(type == 2):
-    with open("./list_completed.txt") as c:
-      text = c.read()
-    with open("./list_completed.txt", 'a') as c:
-      if not text.endswith("\n"):
-        c.write('\n')
-      c.write(albumURL)
-    c.close()
+        blocked.write('\n')
+      blocked.write(albumURL)
+    blocked.close()
 
-def myJson():
+  # Put Download Album URL to Last Line #
+  elif(type == 2):
+    with open("./list_completed.txt") as completed:
+      text = completed.read()
+    with open("./list_completed.txt", 'a') as completed:
+      if not text.endswith("\n"):
+        completed.write('\n')
+      completed.write(albumURL)
+    completed.close()
+
+# Change config.json settings #
+def configJsonSettings():
   with open('config.json', 'r+') as j:
     data = json.load(j)
     print("1-Change Directory\n2-Login\n3-MultiProcess\n4-CPU Pool\n5-Switch Driver")
@@ -167,6 +168,7 @@ def myJson():
     json.dump(data, j, indent=2)
     j.truncate()
 
+# Check if album is blocked and Log in if it is set#
 def pageChecker(albumURL):
   driver.get(albumURL)
   html_source = driver.page_source
@@ -178,11 +180,12 @@ def pageChecker(albumURL):
     if (doLogin == "1"):
       print("Auto-Login is enabled")
       login(albumURL, doLogin)
-    print("Blocked Album:", albumURL, "try turn on auto-login and write account info")
-    organizeList(albumURL, 1)
+    print("Blocked Album:", albumURL, "\nTry turn on auto-login and write account info")
+    listOrganizer(albumURL, 1)
   else:
     download(albumURL,0)
 
+# Log in if it is set #
 def login(albumURL,doLogin):
   if (doLogin == "1"):
     if not (os.path.exists('./cookies.pkl')):
@@ -197,19 +200,18 @@ def login(albumURL,doLogin):
       driver.add_cookie(cookie)
   download(albumURL,doLogin)
 
+# Load Entire page / get links / download #
 def download(albumURL,doLogin):
   if(doLogin == "1"): driver.get(albumURL)
 
   html_source = driver.page_source
   tree = html.fromstring(html_source)
 
-  # Album Information
+  # Album Information #
   albumName = tree.xpath('//*[@id="single_album_details"]/li[1]/h2/text()')
   uploader = tree.xpath('//*[@class="user_lnk"]/text()')
   pictures = tree.xpath('//*[@id="single_album_details"]/li[2]/div/p[1]/text()')
-
-  albumName = str(*albumName)
-  print("Album Name:", albumName)
+  print("Album Name:", str(*albumName))
   print("Uploader:", str(*uploader))
   print("Total of", str(*pictures))
 
@@ -227,28 +229,28 @@ def download(albumURL,doLogin):
   html_source = driver.page_source
   tree = html.fromstring(html_source)
 
-  imgPages = tree.xpath('//*[@class="item thumbnail ic_container"]/a/@href') #lista de todas as fotos na página
+  imgPages = tree.xpath('//*[@class="item thumbnail ic_container"]/a/@href') # List all photos on the page #
   default = "https://members.luscious.net/"
 
-  # Combine default + imgPages for get Individual Img Page Link
+  # Combine default + imgPages for get Individual Img Page Link #
   for x in imgPages:
     imgPageLink = [default + x for x in imgPages]
 
   print("Total of",len(imgPageLink),"real links found")
 
-  #Define Json Variables
+  # Define Json Variables #
   dir = jsonVariables()[1]
   multiprocess = jsonVariables()[2]
   poolLinks = jsonVariables()[3]
   poolDowns = jsonVariables()[4]
 
-  # Create Album Folder
-  albumName = re.sub('[^\w\-_\. ]', '_', albumName)
+  # Create Album Folder #
+  albumName = re.sub('[^\w\-_\. ]', '_', str(*albumName))
   createFolder(dir+albumName+'/')
 
   time.sleep(1)
 
-  # Acess imgPageLink > get direct link and download # Legacy Mode
+  # Acess imgPageLink and get direct link and download # Legacy Mode #
   if(multiprocess == "legacy"):
     print("Downloading with Legacy Mode...")
     time.sleep(1)
@@ -256,7 +258,7 @@ def download(albumURL,doLogin):
       downPicture(getDirectLink(url), dir, albumName)
 
   time.sleep(1)
-  #Get Direct Img Link
+  # Get Direct Img Link #
   directImgLinks = []
   if (multiprocess == "false"):
     print("Getting Direct Imgs Links...")
@@ -269,7 +271,7 @@ def download(albumURL,doLogin):
 
   time.sleep(2)
 
-  # Download pictures
+  # Download Pictures #
   if(multiprocess == "false"):
     print("Starting Download Pictures...")
     for url in tqdm(directImgLinks):
@@ -281,18 +283,21 @@ def download(albumURL,doLogin):
 
   time.sleep(1)
   print("\nAlbum: ",albumName," Download Completed ",str(len(imgPageLink))," pictures has saved\nURL =",albumURL)
-  organizeList(albumURL,2)
+  listOrganizer(albumURL,2) # Call organizeList function and
 
+# Get direct img link(.../img.png) #
 def getDirectLink(url):
     try: return html.fromstring(requests.get(url).content).xpath('//*[@class="icon-download"]/@href')[0]
     except: print("Failed to get link:",url)
 
+# Download Pictures from directImgLinks #
 def downPicture(url,dir,albumName):
   try:
     if not((os.path.exists(dir+albumName+'/'+str(str(url).rsplit('/', 1)[1])))):
       wget.download(url,dir+albumName+'/'+str(str(url).rsplit('/', 1)[1]), bar=None)
   except: print("Failed to download:",url) # Value Error
 
+# Main #
 if __name__ == "__main__":
   defaultFiles()
   menu = True
@@ -309,7 +314,7 @@ if __name__ == "__main__":
         for url in lista:
           pageChecker(url)
 
-    elif (escolha == 3): myJson()
+    elif (escolha == 3): configJsonSettings()
 
     elif(escolha == 0):
       menu = False
