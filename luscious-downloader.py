@@ -38,7 +38,7 @@ def jsonVariables():
 # Check selected browser in config.json and Initialize Web Driver #
 if not (os.path.exists('./config.json')): driver = "firefox"
 else: driver = jsonVariables()[0]
-if(driver == "chrome"):
+if driver == "chrome":
   options = webdriver.ChromeOptions()
   options.add_argument("--headless")
   options.add_argument('--hide-scrollbars')
@@ -55,7 +55,7 @@ if(driver == "chrome"):
   options.add_argument("--disable-plugins-discovery")
   options.add_argument("--start-maximized")
   driver = webdriver.Chrome('./chromedriver.exe', options=options)
-elif(driver == "firefox"):
+elif driver == "firefox":
   options = Options()
   options.headless = True
   firefox_capabilities = DesiredCapabilities.FIREFOX
@@ -68,8 +68,8 @@ def defaultFiles():
     data = {
         "dir": "./Albums/",
         "multiprocess": True,
-        "poolLinks": 3,
-        "poolDown": 3,
+        "poolLinks": os.cpu_count()-1,
+        "poolDown": os.cpu_count()-1,
         "driver": "firefox",
         "doLogin": False,
         "username": "",
@@ -108,7 +108,7 @@ def listOrganizer(albumURL, type):
   list.close()
 
   # Put Blocked Album URL to Last Line #
-  if(type == 1):
+  if type == 1:
     with open("./list_blocked.txt") as blocked:
       text = blocked.read()
     with open("./list_blocked.txt", 'a') as blocked:
@@ -118,7 +118,7 @@ def listOrganizer(albumURL, type):
     blocked.close()
 
   # Put Download Album URL to Last Line #
-  elif(type == 2):
+  elif type == 2:
     with open("./list_completed.txt") as completed:
       text = completed.read()
     with open("./list_completed.txt", 'a') as completed:
@@ -131,42 +131,42 @@ def listOrganizer(albumURL, type):
 def configJsonSettings():
   with open('config.json', 'r+') as j:
     data = json.load(j)
-    print("1-Change Directory\n2-Login\n3-Switch Auto-Login\n4-MultiProcess\n5-CPU Pool\n6-Switch Driver")
+    print("1-Change Directory\n2-Login\n3-Switch Auto-Login\n4-Switch MultiProcess\n5-CPU Pool\n6-Switch Driver")
     escolhaJ = int(input(">"))
-    if(escolhaJ == 1):
+    if escolhaJ == 1:
       print("For default write 0")
       dir = str(input("Directory:"))
-      if(dir == "0"):
+      if dir == "0":
         dir = './Albums/'
         data['dir'] = dir
-    elif(escolhaJ == 2):
+    elif escolhaJ == 2:
       data['login'] = str(input("Login:"))
       data['password'] = str(input("Login:"))
-    elif(escolhaJ == 3):
-      if (data['doLogin'] == True):
+    elif escolhaJ == 3:
+      if data['doLogin']:
         data['doLogin'] = False
         print("Auto-Login Disabled")
-      elif (data['doLogin'] == False):
+      elif not data['doLogin']:
         data['doLogin'] = True
         print("Auto-Login Enabled")
-    elif(escolhaJ == 4):
-      if (data['multiprocess'] == True):
+    elif escolhaJ == 4:
+      if data['multiprocess']:
         data['multiprocess'] = False
         print("MultiProcess Disabled")
-      elif (data['multiprocess'] == False):
+      elif not data['multiprocess']:
         data['multiprocess'] = True
         print("MultiProcess Enabled")
-    elif(escolhaJ == 5):
+    elif escolhaJ == 5:
       print("You have:", os.cpu_count(),"cpus. Recommend:", os.cpu_count()-1)
       print("Enter CPU Pool for Geting Direct Imgs Links")
       data['poolLinks'] = int(input("> "))
       print("Enter CPU Pool for Geting Direct Imgs Links")
       data['poolDown'] = int(input("> "))
-    elif(escolhaJ == 6):
-      if (data['driver'] == 'chrome'):
+    elif escolhaJ == 6:
+      if data['driver'] == 'chrome':
         data['driver'] = 'firefox'
         print("Switched to Firefox/Geckodriver")
-      elif (data['driver'] == 'firefox'):
+      elif data['driver'] == 'firefox':
         data['driver'] = 'chrome'
         print("Switched to ChromeDriver")
 
@@ -181,9 +181,9 @@ def pageChecker(albumURL):
   tree = html.fromstring(html_source)
   check = tree.xpath('//*[@id="frontpage"]/h1/text()')
   check = str(*check)
-  if(check == "404 Not Found"):
+  if check == "404 Not Found":
     doLogin = jsonVariables()[5]
-    if (doLogin == True):
+    if doLogin:
       print("Auto-Login is enabled")
       login(albumURL, doLogin)
     else:
@@ -194,7 +194,7 @@ def pageChecker(albumURL):
 
 # Log in if it is set #
 def login(albumURL, doLogin):
-  if (doLogin == True):
+  if doLogin:
     if not (os.path.exists('./cookies.pkl')):
       print("Logging in...")
       driver.get('https://members.luscious.net/login/')
@@ -209,7 +209,8 @@ def login(albumURL, doLogin):
 
 # Load Entire page / get links / download #
 def download(albumURL, doLogin):
-  if(doLogin == True): driver.get(albumURL)
+  if doLogin:
+    driver.get(albumURL) #refresh
 
   html_source = driver.page_source
   tree = html.fromstring(html_source)
@@ -240,7 +241,6 @@ def download(albumURL, doLogin):
   default = 'https://members.luscious.net/'
 
   # Combine default + imgPages for get Individual Img Page Link #
-  #for x in imgPages:
   imgPageLink = [default + x for x in imgPages]
 
   print("Total of",len(imgPageLink),"real links found")
@@ -256,7 +256,7 @@ def download(albumURL, doLogin):
   createFolder(dir+albumName+'/')
 
   # Acess imgPageLink and get direct link and download # Legacy Mode #
-  if(multiprocess == "legacy"):
+  if multiprocess == "legacy":
     print("Downloading with Legacy Mode...")
     time.sleep(1)
     for url in tqdm(imgPageLink, total=(len(imgPageLink))):
@@ -264,24 +264,24 @@ def download(albumURL, doLogin):
 
   # Get Direct Img Link #
   directImgLinks = []
-  if (multiprocess == False or doLogin == True):
+  if multiprocess == False or doLogin == True:
     print("Getting Direct Imgs Links...")
     time.sleep(1)
     for url in tqdm(imgPageLink, total=(len(imgPageLink))):
       directImgLinks.append(getDirectLink(url, doLogin))
 
-  elif (multiprocess == True):
+  elif multiprocess:
     print("Getting Direct Imgs Links with MultiProcess...")
     directImgLinks = (p_umap(getDirectLink, imgPageLink, doLogin, total=len(imgPageLink), num_cpus = poolLinks))
 
   # Download Pictures #
-  if(multiprocess == False):
+  if not multiprocess:
     print("Starting Download Pictures...")
     time.sleep(1)
     for url in tqdm(directImgLinks):
       downPicture(url, dir, albumName)
 
-  elif(multiprocess == True):
+  elif multiprocess:
     print("Starting Download Pictures with MultiProcess...")
     p_umap(downPicture, directImgLinks, dir, albumName, total=len(directImgLinks), num_cpus = poolDowns)
 
@@ -292,11 +292,12 @@ def download(albumURL, doLogin):
 # Get direct img link(.../img.png) #
 def getDirectLink(url, doLogin):
     try:
-      if(doLogin == False): return html.fromstring(requests.get(url).content).xpath('//*[@class="icon-download"]/@href')[0]
-      elif(doLogin == True):
+      if not doLogin:
+        return html.fromstring(requests.get(url).content).xpath('//*[@class="icon-download"]/@href')[0]
+      elif doLogin:
         driver.get(url)
         return driver.find_element_by_class_name('icon-download').get_attribute('href')
-    except: print("Failed to get link:",url)
+    except: print("\nFailed to get link:",url)
     #except Exception as e: print("\n",e, url)
 
 # Download Pictures from directImgLinks #
@@ -304,18 +305,19 @@ def downPicture(url,dir,albumName):
   try:
     if not((os.path.exists(dir+albumName+'/'+str(str(url).rsplit('/', 1)[1])))):
       wget.download(url,dir+albumName+'/'+str(str(url).rsplit('/', 1)[1]), bar=None)
-  except: print("Failed to download:",url) # Value Error
+  except: print("\nFailed to download:",url) # Value Error
 
 # Main #
 if __name__ == "__main__":
   defaultFiles()
-  menu = True
-  while menu == True:
+  while True:
     print("Options:\n1-Enter URL\n2-From lista.txt\n3-Configs\n0-Sair")
     escolha = int(input(">"))
 
-    if (escolha == 1): pageChecker(albumURL = str(input("Album URL: ")))
-    elif (escolha == 2):
+    if escolha == 1:
+      pageChecker(albumURL = str(input("Album URL: ")))
+
+    elif escolha == 2:
       print("Checking List...")
       with open('list.txt', 'r') as lista:
         qnt = len(open('list.txt').readlines())
@@ -323,13 +325,15 @@ if __name__ == "__main__":
         for url in lista:
           pageChecker(url)
 
-    elif (escolha == 3): configJsonSettings()
+    elif escolha == 3:
+      configJsonSettings()
 
-    elif(escolha == 0):
-      menu = False
+    elif escolha == 0:
       print("Xau ;-;")
       time.sleep(1)
+      break
 
-    else: print("Invalid Option")
+    else:
+      print("Invalid Option")
 
 driver.quit()
