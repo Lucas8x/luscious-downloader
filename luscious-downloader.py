@@ -223,33 +223,44 @@ def download(albumURL, doLogin):
   print("Uploader:", str(*uploader))
   print("Total of", str(*pictures))
 
-  print("Loading entire page...")
-  last_height = driver.execute_script('return document.body.scrollHeight')
-  while True:
-    driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
-    ActionChains(driver).send_keys(Keys.PAGE_UP).perform()
-    time.sleep(5)
-    new_height = driver.execute_script('return document.body.scrollHeight')
-    if new_height == last_height:
-      break
-    last_height = new_height
-
-  html_source = driver.page_source
-  tree = html.fromstring(html_source)
-
-  imgPages = tree.xpath('//*[@class="item thumbnail ic_container"]/a/@href') # List all photos on the page #
-  default = 'https://members.luscious.net/'
-
-  # Combine default + imgPages for get Individual Img Page Link #
-  imgPageLink = [default + x for x in imgPages]
-
-  print("Total of",len(imgPageLink),"real links found")
-
   # Define Json Variables #
   dir = jsonVariables()[1]
   multiprocess = jsonVariables()[2]
   poolLinks = jsonVariables()[3]
   poolDowns = jsonVariables()[4]
+
+  print("Loading entire page...")
+  if multiprocess:
+    n = 1; data = [];
+    if len(data) > 0: data.clear()
+    albumURL = re.sub("/albums/", "/pictures/c/hentai/album/", albumURL)
+    while True:
+      jsonPageRequest = requests.get(albumURL+"sorted/newest/page/"+str(n)+"/.json/").json()
+      source = jsonPageRequest["html"]
+      tree = html.fromstring(source)
+      data.append(tree.xpath('//*[@class="item thumbnail ic_container"]/a/@href'))
+      n += 1
+      if jsonPageRequest["paginator_complete"] == True:
+        break
+    flat = [x for sublist in data for x in sublist]
+    imgPageLink = ['https://members.luscious.net' + x for x in flat]
+
+  elif multiprocess == "legacy" or multiprocess == False:
+    last_height = driver.execute_script('return document.body.scrollHeight')
+    while True:
+      driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
+      ActionChains(driver).send_keys(Keys.PAGE_UP).perform()
+      time.sleep(5)
+      new_height = driver.execute_script('return document.body.scrollHeight')
+      if new_height == last_height:
+        break
+      last_height = new_height
+    html_source = driver.page_source
+    tree = html.fromstring(html_source)
+    imgPages = tree.xpath('//*[@class="item thumbnail ic_container"]/a/@href') # List all photos on the page #
+    imgPageLink = ['https://members.luscious.net/' + x for x in imgPages] # Combine default + imgPages for get Individual Img Page Link #
+
+  print("Total of",len(imgPageLink),"real links found")
 
   # Create Album Folder #
   albumName = re.sub('[^\w\-_\. ]', '_', str(*albumName))
