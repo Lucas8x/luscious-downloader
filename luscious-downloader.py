@@ -190,7 +190,7 @@ def pageChecker(albumURL):
       print("Blocked Album:", albumURL, "\nTry turn on auto-login and write account info")
       listOrganizer(albumURL, 1)
   else:
-    download(albumURL, False)
+    download(albumURL, False) #Call download with doLogin as False
 
 # Log in if it is set #
 def login(albumURL, doLogin):
@@ -230,22 +230,23 @@ def download(albumURL, doLogin):
   poolDowns = jsonVariables()[4]
 
   print("Loading entire page...")
-  if multiprocess:
+  if multiprocess and not doLogin:
     n = 1; data = [];
     if len(data) > 0: data.clear()
-    albumURL = re.sub("/albums/", "/pictures/c/hentai/album/", albumURL)
+    section = tree.xpath('//*[@class="content_info"]/div/p/a/@href')
+    albumURL = re.sub('/albums/', '/pictures'+str(*section)+'album/', albumURL)
     while True:
-      jsonPageRequest = requests.get(albumURL+"sorted/newest/page/"+str(n)+"/.json/").json()
-      source = jsonPageRequest["html"]
+      jsonPageRequest = requests.get(albumURL+'sorted/newest/page/'+str(n)+'/.json/').json()
+      source = jsonPageRequest['html']
       tree = html.fromstring(source)
       data.append(tree.xpath('//*[@class="item thumbnail ic_container"]/a/@href'))
       n += 1
-      if jsonPageRequest["paginator_complete"] == True:
+      if jsonPageRequest['paginator_complete'] == True:
         break
     flat = [x for sublist in data for x in sublist]
     imgPageLink = ['https://members.luscious.net' + x for x in flat]
 
-  elif multiprocess == "legacy" or multiprocess == False:
+  elif (multiprocess == "legacy" or not multiprocess) and doLogin:
     last_height = driver.execute_script('return document.body.scrollHeight')
     while True:
       driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
@@ -275,7 +276,7 @@ def download(albumURL, doLogin):
 
   # Get Direct Img Link #
   directImgLinks = []
-  if multiprocess == False or doLogin == True:
+  if not multiprocess or doLogin:
     print("Getting Direct Imgs Links...")
     time.sleep(1)
     for url in tqdm(imgPageLink, total=(len(imgPageLink))):
