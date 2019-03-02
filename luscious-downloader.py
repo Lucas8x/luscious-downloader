@@ -216,9 +216,9 @@ def download(albumURL, doLogin):
   tree = html.fromstring(html_source)
 
   # Album Information #
-  albumName = tree.xpath('//*[@id="single_album_details"]/li[1]/h2/text()')
+  albumName = tree.xpath('//*[@class="album_cover"]/h2/text()')
   uploader = tree.xpath('//*[@class="user_lnk"]/text()')
-  pictures = tree.xpath('//*[@id="single_album_details"]/li[2]/div/p[1]/text()')
+  pictures = tree.xpath('//*[@class="user_info"]/div/p[1]/text()')
   print("Album Name:", str(*albumName))
   print("Uploader:", str(*uploader))
   print("Total of", str(*pictures))
@@ -323,19 +323,19 @@ def downPicture(url,dir,albumName):
 if __name__ == "__main__":
   defaultFiles()
   while True:
-    print("Options:\n1-Enter URL\n2-From lista.txt\n3-Configs\n0-Sair")
-    escolha = int(input(">"))
+    print("Options:\n1 - Enter URL\n2 - From list.txt\n3 - Configs\n0 - Exit")
+    escolha = int(input("> "))
 
     if escolha == 1:
-      pageChecker(albumURL = str(input("Album URL: ")))
+      pageChecker(str(input("Album URL: ")))
 
     elif escolha == 2:
       print("Checking List...")
-      with open('list.txt', 'r') as lista:
+      with open('list.txt', 'r') as url_list:
         qnt = len(open('list.txt').readlines())
-        print("Number of links:",qnt)
-        for url in lista:
-          pageChecker(url)
+        print("Total of links:",qnt)
+        for albumURL in url_list:
+          pageChecker(albumURL)
 
     elif escolha == 3:
       configJsonSettings()
