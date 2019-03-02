@@ -269,7 +269,7 @@ def download(albumURL, doLogin):
 
   # Acess imgPageLink and get direct link and download # Legacy Mode #
   if multiprocess == "legacy":
-    print("Downloading with Legacy Mode...")
+    print("[Legacy] Downloading")
     time.sleep(1)
     for url in tqdm(imgPageLink, total=(len(imgPageLink))):
       downPicture(getDirectLink(url, doLogin), dir, albumName)
@@ -283,7 +283,7 @@ def download(albumURL, doLogin):
       directImgLinks.append(getDirectLink(url, doLogin))
 
   elif multiprocess:
-    print("Getting Direct Imgs Links with MultiProcess...")
+    print("[MultiProcess] Getting Direct Imgs Links")
     directImgLinks = (p_umap(getDirectLink, imgPageLink, doLogin, total=len(imgPageLink), num_cpus = poolLinks))
 
   # Download Pictures #
@@ -294,7 +294,7 @@ def download(albumURL, doLogin):
       downPicture(url, dir, albumName)
 
   elif multiprocess:
-    print("Starting Download Pictures with MultiProcess...")
+    print("[MultiProcess] Starting Download Pictures")
     p_umap(downPicture, directImgLinks, dir, albumName, total=len(directImgLinks), num_cpus = poolDowns)
 
   time.sleep(1)
@@ -347,5 +347,7 @@ if __name__ == "__main__":
 
     else:
       print("Invalid Option")
-
+	 	 
+driver.close()
 driver.quit()
+exit()
