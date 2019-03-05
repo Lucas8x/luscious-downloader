@@ -20,6 +20,9 @@ import json
 import locale
 locale.setlocale(locale.LC_ALL, '')
 
+def cls():
+  os.system('cls' if os.name == 'nt' else 'clear')
+
 # Function to return values from config.json to others functions when called #
 def jsonVariables():
   with open('config.json', 'r') as config:
@@ -131,45 +134,54 @@ def listOrganizer(albumURL, type):
 def configJsonSettings():
   with open('config.json', 'r+') as j:
     data = json.load(j)
-    print("1-Change Directory\n2-Login\n3-Switch Auto-Login\n4-Switch MultiProcess\n5-CPU Pool\n6-Switch Driver")
-    escolhaJ = int(input(">"))
-    if escolhaJ == 1:
-      print("For default write 0")
-      dir = str(input("Directory:"))
-      if dir == "0":
-        dir = './Albums/'
-        data['dir'] = dir
-    elif escolhaJ == 2:
-      data['login'] = str(input("Login:"))
-      data['password'] = str(input("Login:"))
-    elif escolhaJ == 3:
-      if data['doLogin']:
-        data['doLogin'] = False
-        print("Auto-Login Disabled")
-      elif not data['doLogin']:
-        data['doLogin'] = True
-        print("Auto-Login Enabled")
-    elif escolhaJ == 4:
-      if data['multiprocess']:
-        data['multiprocess'] = False
-        print("MultiProcess Disabled")
-      elif not data['multiprocess']:
-        data['multiprocess'] = True
-        print("MultiProcess Enabled")
-    elif escolhaJ == 5:
-      print("You have:", os.cpu_count(),"cpus. Recommend:", os.cpu_count()-1)
-      print("Enter CPU Pool for Geting Direct Imgs Links")
-      data['poolLinks'] = int(input("> "))
-      print("Enter CPU Pool for Geting Direct Imgs Links")
-      data['poolDown'] = int(input("> "))
-    elif escolhaJ == 6:
-      if data['driver'] == 'chrome':
-        data['driver'] = 'firefox'
-        print("Switched to Firefox/Geckodriver")
-      elif data['driver'] == 'firefox':
-        data['driver'] = 'chrome'
-        print("Switched to ChromeDriver")
-
+    while True:
+      print("1 - Change Directory"
+            "\n2 - Login"
+            "\n3 - Switch Auto-Login [ Staus:",data['doLogin'],"]"
+            "\n4 - Switch MultiProcess [ Status:",data['multiprocess'],"]"
+            "\n5 - CPU Pool"
+            "\n6 - Switch Driver [ Current:",data['driver'],"]"
+            "\n0 - Back")
+      optionToConfig = int(input(">"))
+      if optionToConfig == 1:
+        print("For default write 0\nCurrent directory:", data['dir'])
+        dir = str(input("Directory: "))
+        if dir == "0" or " ":
+          dir = './Albums/'
+          data['dir'] = dir
+      elif optionToConfig == 2:
+        data['username'] = str(input("Username:"))
+        data['password'] = str(input("Password:"))
+      elif optionToConfig == 3:
+        if data['doLogin']:
+          data['doLogin'] = False
+          print("Auto-Login Disabled")
+        elif not data['doLogin']:
+          data['doLogin'] = True
+          print("Auto-Login Enabled")
+      elif optionToConfig == 4:
+        if data['multiprocess']:
+          data['multiprocess'] = False
+          print("MultiProcess Disabled")
+        elif not data['multiprocess']:
+          data['multiprocess'] = True
+          print("MultiProcess Enabled")
+      elif optionToConfig == 5:
+        print("You have:", os.cpu_count(),"cpus. Recommend:", os.cpu_count()-1)
+        print("Enter CPU Pool for Geting Direct Imgs Links")
+        data['poolLinks'] = int(input("> "))
+        print("Enter CPU Pool for Download Pictures")
+        data['poolDown'] = int(input("> "))
+      elif optionToConfig == 6:
+        if data['driver'] == 'chrome':
+          data['driver'] = 'firefox'
+          print("Switched to Firefox/Geckodriver\n")
+        elif data['driver'] == 'firefox':
+          data['driver'] = 'chrome'
+          print("Switched to ChromeDriver\n")
+      elif optionToConfig == 0:
+        cls()
+        break
     j.seek(0)
     json.dump(data, j, indent=2)
     j.truncate()
@@ -323,13 +335,17 @@ def downPicture(url,dir,albumName):
 if __name__ == "__main__":
   defaultFiles()
   while True:
-    print("Options:\n1 - Enter URL\n2 - From list.txt\n3 - Configs\n0 - Exit")
-    escolha = int(input("> "))
-
-    if escolha == 1:
+    print("Options:"
+          "\n1 - Enter URL"
+          "\n2 - From list.txt"
+          "\n3 - Configs"
+          "\n0 - Exit")
+    option = int(input("> "))
+    cls()
+    if option == 1:
       pageChecker(str(input("Album URL: ")))
 
-    elif escolha == 2:
+    elif option == 2:
       print("Checking List...")
       with open('list.txt', 'r') as url_list:
         qnt = len(open('list.txt').readlines())
@@ -337,10 +353,10 @@ if __name__ == "__main__":
         for albumURL in url_list:
           pageChecker(albumURL)
 
-    elif escolha == 3:
+    elif option == 3:
       configJsonSettings()
 
-    elif escolha == 0:
+    elif option == 0:
       print("Xau ;-;")
       time.sleep(1)
       break
