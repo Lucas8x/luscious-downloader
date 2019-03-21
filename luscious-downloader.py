@@ -35,7 +35,7 @@ def jsonVariables():
     doLogin = data['doLogin']
     username = data['username']
     password = data['password']
-    config.close()
+  config.close()
   return driver,dir,multiprocess,poolLinks,poolDowns,doLogin,username,password
 
 # Check selected browser in config.json and Initialize Web Driver #
@@ -142,46 +142,49 @@ def configJsonSettings():
             "\n5 - CPU Pool"
             "\n6 - Switch Driver [ Current:",data['driver'],"]"
             "\n0 - Back")
-      optionToConfig = int(input(">"))
-      if optionToConfig == 1:
+      optionToConfig = str(input(">"))
+      cls()
+      if optionToConfig == '1':
         print("For default write 0\nCurrent directory:", data['dir'])
         dir = str(input("Directory: "))
         if dir == "0" or " ":
           dir = './Albums/'
           data['dir'] = dir
-      elif optionToConfig == 2:
+      elif optionToConfig == '2':
         data['username'] = str(input("Username:"))
         data['password'] = str(input("Password:"))
-      elif optionToConfig == 3:
+      elif optionToConfig == '3':
         if data['doLogin']:
           data['doLogin'] = False
           print("Auto-Login Disabled")
         elif not data['doLogin']:
           data['doLogin'] = True
           print("Auto-Login Enabled")
-      elif optionToConfig == 4:
+      elif optionToConfig == '4':
         if data['multiprocess']:
           data['multiprocess'] = False
           print("MultiProcess Disabled")
         elif not data['multiprocess']:
           data['multiprocess'] = True
           print("MultiProcess Enabled")
-      elif optionToConfig == 5:
+      elif optionToConfig == '5':
         print("You have:", os.cpu_count(),"cpus. Recommend:", os.cpu_count()-1)
         print("Enter CPU Pool for Geting Direct Imgs Links")
         data['poolLinks'] = int(input("> "))
         print("Enter CPU Pool for Download Pictures")
         data['poolDown'] = int(input("> "))
-      elif optionToConfig == 6:
+      elif optionToConfig == '6':
         if data['driver'] == 'chrome':
           data['driver'] = 'firefox'
-          print("Switched to Firefox/Geckodriver\n")
+          print("Switched to Firefox/Geckodriver\nRestart is necessary")
         elif data['driver'] == 'firefox':
           data['driver'] = 'chrome'
-          print("Switched to ChromeDriver\n")
-      elif optionToConfig == 0:
+          print("Switched to ChromeDriver\nRestart is necessary")
+      elif optionToConfig == '0':
         cls()
         break
+      else:
+        print("Invalid Option\n")
     j.seek(0)
     json.dump(data, j, indent=2)
     j.truncate()
@@ -193,7 +196,7 @@ def pageChecker(albumURL):
   tree = html.fromstring(html_source)
   check = tree.xpath('//*[@id="frontpage"]/h1/text()')
   check = str(*check)
-  if check == "404 Not Found":
+  if check == "404 Not Found" or driver.title == "404 Not Found" :
     doLogin = jsonVariables()[5]
     if doLogin:
       print("Auto-Login is enabled")
@@ -242,8 +245,9 @@ def download(albumURL, doLogin):
   poolDowns = jsonVariables()[4]
 
   print("Loading entire page...")
-  if multiprocess and not doLogin:
-    n = 1; data = [];
+  #if multiprocess and not doLogin:
+  if (multiprocess or not multiprocess) and not doLogin:
+    n = 1;  data = []
     if len(data) > 0: data.clear()
     section = tree.xpath('//*[@class="content_info"]/div/p/a/@href')
     albumURL = re.sub('/albums/', '/pictures'+str(*section)+'album/', albumURL)
@@ -258,7 +262,7 @@ def download(albumURL, doLogin):
     flat = [x for sublist in data for x in sublist]
     imgPageLink = ['https://members.luscious.net' + x for x in flat]
 
-  elif (multiprocess == "legacy" or not multiprocess) and doLogin:
+  elif doLogin or multiprocess == "legacy":
     last_height = driver.execute_script('return document.body.scrollHeight')
     while True:
       driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
@@ -291,10 +295,10 @@ def download(albumURL, doLogin):
   if not multiprocess or doLogin:
     print("Getting Direct Imgs Links...")
     time.sleep(1)
-    for url in tqdm(imgPageLink, total=(len(imgPageLink))):
+    for url in tqdm(imgPageLink, total=len(imgPageLink)):
       directImgLinks.append(getDirectLink(url, doLogin))
 
-  elif multiprocess:
+  elif multiprocess and not doLogin:
     print("[MultiProcess] Getting Direct Imgs Links")
     directImgLinks = (p_umap(getDirectLink, imgPageLink, doLogin, total=len(imgPageLink), num_cpus = poolLinks))
 
@@ -315,14 +319,14 @@ def download(albumURL, doLogin):
 
 # Get direct img link(.../img.png) #
 def getDirectLink(url, doLogin):
-    try:
-      if not doLogin:
-        return html.fromstring(requests.get(url).content).xpath('//*[@class="icon-download"]/@href')[0]
-      elif doLogin:
-        driver.get(url)
-        return driver.find_element_by_class_name('icon-download').get_attribute('href')
-    except: print("\nFailed to get link:",url)
-    #except Exception as e: print("\n",e, url)
+  try:
+    if not doLogin:
+      return html.fromstring(requests.get(url).content).xpath('//*[@class="icon-download"]/@href')[0]
+    elif doLogin:
+      driver.get(url)
+      return driver.find_element_by_class_name('icon-download').get_attribute('href')
+  except: print("\nFailed to get link:",url)
+  #except Exception as e: print("\n",e, url)
 
 # Download Pictures from directImgLinks #
 def downPicture(url,dir,albumName):
@@ -340,12 +344,13 @@ if __name__ == "__main__":
           "\n2 - From list.txt"
           "\n3 - Configs"
           "\n0 - Exit")
-    option = int(input("> "))
+    option = str(input("> "))
     cls()
-    if option == 1:
+
+    if option == '1':
       pageChecker(str(input("Album URL: ")))
 
-    elif option == 2:
+    elif option == '2':
       print("Checking List...")
       with open('list.txt', 'r') as url_list:
         qnt = len(open('list.txt').readlines())
@@ -353,17 +358,18 @@ if __name__ == "__main__":
         for albumURL in url_list:
           pageChecker(albumURL)
 
-    elif option == 3:
+    elif option == '3':
       configJsonSettings()
 
-    elif option == 0:
+    elif option == '0':
       print("Xau ;-;")
       time.sleep(1)
+
       break
 
     else:
-      print("Invalid Option")
-	 	 
+      print("Invalid Option\n")
+
 driver.close()
 driver.quit()
-exit()
+#exit()
