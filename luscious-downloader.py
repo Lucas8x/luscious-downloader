@@ -38,33 +38,6 @@ def jsonVariables():
   config.close()
   return driver,dir,multiprocess,poolLinks,poolDowns,doLogin,username,password
 
-# Check selected browser in config.json and Initialize Web Driver #
-if not (os.path.exists('./config.json')): driver = "firefox"
-else: driver = jsonVariables()[0]
-if driver == "chrome":
-  options = webdriver.ChromeOptions()
-  options.add_argument("--headless")
-  options.add_argument('--hide-scrollbars')
-  options.add_argument("no-sandbox")
-  options.add_argument("--ignore-certificate-errors")
-  options.add_argument('--disable-popup-blocking')
-  options.add_argument("--log-level=3")
-  options.add_argument("--silent")
-  options.add_argument('window-size=1920x1080')
-  options.add_argument("--disable-gpu")
-  options.add_argument("--lang=en")
-  options.add_argument("--disable-extensions")
-  options.add_argument('test-type')
-  options.add_argument("--disable-plugins-discovery")
-  options.add_argument("--start-maximized")
-  driver = webdriver.Chrome('./chromedriver.exe', options=options)
-elif driver == "firefox":
-  options = Options()
-  options.headless = True
-  firefox_capabilities = DesiredCapabilities.FIREFOX
-  firefox_capabilities['marionette'] = True
-  driver = webdriver.Firefox(options=options, executable_path='./geckodriver.exe', capabilities=firefox_capabilities)
-
 # Create default files if not exist #
 def defaultFiles():
   if not (os.path.exists('./config.json')):
@@ -176,10 +149,11 @@ def configJsonSettings():
       elif optionToConfig == '6':
         if data['driver'] == 'chrome':
           data['driver'] = 'firefox'
-          print("Switched to Firefox/Geckodriver\nRestart is necessary")
+          print("Switched to Firefox/Geckodriver")
         elif data['driver'] == 'firefox':
           data['driver'] = 'chrome'
-          print("Switched to ChromeDriver\nRestart is necessary")
+          print("Switched to ChromeDriver")
+        print("Restart is necessary\n")
       elif optionToConfig == '0':
         cls()
         break
@@ -189,47 +163,78 @@ def configJsonSettings():
     json.dump(data, j, indent=2)
     j.truncate()
 
+# Check selected browser in config.json and Initialize Web Driver #
+def mydriver():
+  global driver
+  mydriver = jsonVariables()[0]
+  if mydriver == 'firefox':
+    options = Options()
+    options.headless = True
+    firefox_capabilities = DesiredCapabilities.FIREFOX
+    firefox_capabilities['marionette'] = True
+    driver = webdriver.Firefox(options=options, executable_path='./geckodriver.exe', capabilities=firefox_capabilities)
+  elif mydriver == 'chrome':
+    options = webdriver.ChromeOptions()
+    options.add_argument("--headless")
+    options.add_argument('--hide-scrollbars')
+    options.add_argument("no-sandbox")
+    options.add_argument("--ignore-certificate-errors")
+    options.add_argument('--disable-popup-blocking')
+    options.add_argument("--log-level=3")
+    options.add_argument("--silent")
+    options.add_argument('window-size=1920x1080')
+    options.add_argument("--disable-gpu")
+    options.add_argument("--lang=en")
+    options.add_argument("--disable-extensions")
+    options.add_argument('test-type')
+    options.add_argument("--disable-plugins-discovery")
+    options.add_argument("--start-maximized")
+    driver = webdriver.Chrome('./chromedriver.exe', options=options)
+  return driver
+
 # Check if album is blocked and Log in if it is set#
 def pageChecker(albumURL):
-  driver.get(albumURL)
-  html_source = driver.page_source
+  doLogin = jsonVariables()[5]
+  if not doLogin:
+    html_source = requests.get(albumURL).content
+  else:
+    driver = mydriver()
+    time.sleep(1)
+    driver.get(albumURL)
+    html_source = driver.page_source
+
   tree = html.fromstring(html_source)
   check = tree.xpath('//*[@id="frontpage"]/h1/text()')
   check = str(*check)
-  if check == "404 Not Found" or driver.title == "404 Not Found" :
-    doLogin = jsonVariables()[5]
+  if check == "404 Not Found":
     if doLogin:
       print("Auto-Login is enabled")
-      login(albumURL, doLogin)
+      login(albumURL, tree)
     else:
-      print("Blocked Album:", albumURL, "\nTry turn on auto-login and write account info")
+      print("\nBlocked Album:",albumURL,"\nTry turn on auto-login and write your account info\n")
       listOrganizer(albumURL, 1)
   else:
-    download(albumURL, False) #Call download with doLogin as False
+    download(albumURL, False, tree) #Call download with doLogin as False
 
 # Log in if it is set #
-def login(albumURL, doLogin):
-  if doLogin:
-    if not (os.path.exists('./cookies.pkl')):
-      print("Logging in...")
-      driver.get('https://members.luscious.net/login/')
-      username, password = jsonVariables()[6], jsonVariables()[7]
-      driver.find_element_by_id('id_login').send_keys(username)
-      driver.find_element_by_id('id_password').send_keys(password)
-      driver.find_element_by_xpath("//input[@value='Sign In']").click()
-      pickle.dump(driver.get_cookies(), open('./cookies.pkl', 'wb'))
-    for cookie in pickle.load(open('./cookies.pkl', 'rb')):
-      driver.add_cookie(cookie)
-  download(albumURL, doLogin)
-
-# Load Entire page / get links / download #
-def download(albumURL, doLogin):
-  if doLogin:
-    driver.get(albumURL) #refresh
-
+def login(albumURL, tree):
+  if not (os.path.exists('./cookies.pkl')):
+    print("Logging in...")
+    driver.get('https://members.luscious.net/login/')
+    username, password = jsonVariables()[6], jsonVariables()[7]
+    driver.find_element_by_id('id_login').send_keys(username)
+    driver.find_element_by_id('id_password').send_keys(password)
+    driver.find_element_by_xpath("//input[@value='Sign In']").click()
+    pickle.dump(driver.get_cookies(), open('./cookies.pkl', 'wb'))
+  for cookie in pickle.load(open('./cookies.pkl', 'rb')):
+    driver.add_cookie(cookie)
+  driver.get(albumURL)
   html_source = driver.page_source
   tree = html.fromstring(html_source)
+  download(albumURL, True, tree)
 
+# Load Entire page / get links / download #
+def download(albumURL, doLogin, tree):
   # Album Information #
   albumName = tree.xpath('//*[@class="album_cover"]/h2/text()')
   uploader = tree.xpath('//*[@class="user_lnk"]/text()')
@@ -314,7 +319,7 @@ def download(albumURL, doLogin):
     p_umap(downPicture, directImgLinks, dir, albumName, total=len(directImgLinks), num_cpus = poolDowns)
 
   time.sleep(1)
-  print("\nAlbum: ",albumName," Download Completed ",str(len(imgPageLink))," pictures has saved\nURL =",albumURL)
+  print("\nAlbum:",albumName,"Download Completed",len(imgPageLink),"pictures has saved\nURL:",albumURL)
   listOrganizer(albumURL,2) # Call organizeList function and put in list_completed #
 
 # Get direct img link(.../img.png) #
@@ -348,28 +353,29 @@ if __name__ == "__main__":
     cls()
 
     if option == '1':
-      pageChecker(str(input("Album URL: ")))
+      albumURL = str(input("0 - Back\nAlbum URL: "))
+      if albumURL == '0': cls(); pass
+      else: cls(); pageChecker(albumURL)
 
     elif option == '2':
       print("Checking List...")
-      with open('list.txt', 'r') as url_list:
+      with open('list.txt', 'r') as lista:
         qnt = len(open('list.txt').readlines())
-        print("Total of links:",qnt)
-        for albumURL in url_list:
-          pageChecker(albumURL)
+        print("Total of links:",qnt,"\n")
+        for url in lista:
+          pageChecker(url)
 
     elif option == '3':
       configJsonSettings()
 
+    elif option == '4':
+      pageChecker("https://members.luscious.net/albums/touhou_329994/")
+
     elif option == '0':
       print("Xau ;-;")
       time.sleep(1)
-
+      exit()
       break
 
     else:
       print("Invalid Option\n")
-
-driver.close()
-driver.quit()
-#exit()
