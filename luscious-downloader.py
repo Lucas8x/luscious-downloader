@@ -209,7 +209,7 @@ def pageChecker(albumURL):
   if check == "404 Not Found":
     if doLogin:
       print("Auto-Login is enabled")
-      login(albumURL, tree)
+      login(albumURL)
     else:
       print("\nBlocked Album:",albumURL,"\nTry turn on auto-login and write your account info\n")
       listOrganizer(albumURL, 1)
@@ -217,7 +217,7 @@ def pageChecker(albumURL):
     download(albumURL, False, tree) #Call download with doLogin as False
 
 # Log in if it is set #
-def login(albumURL, tree):
+def login(albumURL):
   if not (os.path.exists('./cookies.pkl')):
     print("Logging in...")
     driver.get('https://members.luscious.net/login/')
@@ -229,8 +229,7 @@ def login(albumURL, tree):
   for cookie in pickle.load(open('./cookies.pkl', 'rb')):
     driver.add_cookie(cookie)
   driver.get(albumURL)
-  html_source = driver.page_source
-  tree = html.fromstring(html_source)
+  tree = html.fromstring(driver.page_source)
   download(albumURL, True, tree)
 
 # Load Entire page / get links / download #
@@ -359,17 +358,14 @@ if __name__ == "__main__":
 
     elif option == '2':
       print("Checking List...")
-      with open('list.txt', 'r') as lista:
+      with open('list.txt', 'r') as url_list:
         qnt = len(open('list.txt').readlines())
         print("Total of links:",qnt,"\n")
-        for url in lista:
+        for url in url_list:
           pageChecker(url)
 
     elif option == '3':
       configJsonSettings()
-
-    elif option == '4':
-      pageChecker("https://members.luscious.net/albums/touhou_329994/")
 
     elif option == '0':
       print("Xau ;-;")
