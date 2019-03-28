@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """Auto Download Luscious Pictures for you
-pip install lxml p-tqdm requests selenium wget
+pip install -r requirements.txt
 """
 import os
 import re
@@ -211,7 +211,7 @@ def pageChecker(albumURL):
       print("Auto-Login is enabled")
       login(albumURL)
     else:
-      print("\nBlocked Album:",albumURL,"\nTry turn on auto-login and write your account info\n")
+      print("Blocked Album:",albumURL,"\nTry turn on auto-login and write your account info")
       listOrganizer(albumURL, 1)
   else:
     download(albumURL, False, tree) #Call download with doLogin as False
@@ -238,7 +238,9 @@ def download(albumURL, doLogin, tree):
   albumName = tree.xpath('//*[@class="album_cover"]/h2/text()')
   uploader = tree.xpath('//*[@class="user_lnk"]/text()')
   pictures = tree.xpath('//*[@class="user_info"]/div/p[1]/text()')
+  genre = tree.xpath('//*[@class="content_info"]/div/p/a/text()')
   print("Album Name:", str(*albumName))
+  print("Genre:", str(*genre))
   print("Uploader:", str(*uploader))
   print("Total of", str(*pictures))
 
@@ -253,8 +255,7 @@ def download(albumURL, doLogin, tree):
   if (multiprocess or not multiprocess) and not doLogin:
     n = 1;  data = []
     if len(data) > 0: data.clear()
-    section = tree.xpath('//*[@class="content_info"]/div/p/a/@href')
-    albumURL = re.sub('/albums/', '/pictures'+str(*section)+'album/', albumURL)
+    albumURL = re.sub('/albums/', '/pictures/album/', albumURL)
     while True:
       jsonPageRequest = requests.get(albumURL+'sorted/newest/page/'+str(n)+'/.json/').json()
       source = jsonPageRequest['html']
@@ -279,7 +280,7 @@ def download(albumURL, doLogin, tree):
     html_source = driver.page_source
     tree = html.fromstring(html_source)
     imgPages = tree.xpath('//*[@class="item thumbnail ic_container"]/a/@href') # List all photos on the page #
-    imgPageLink = ['https://members.luscious.net/' + x for x in imgPages] # Combine default + imgPages for get Individual Img Page Link #
+    imgPageLink = ['https://members.luscious.net/' + x for x in imgPages] # Combine site + imgPages for get Individual Img Page Link #
 
   print("Total of",len(imgPageLink),"real links found")
 
@@ -298,7 +299,6 @@ def download(albumURL, doLogin, tree):
   directImgLinks = []
   if not multiprocess or doLogin:
     print("Getting Direct Imgs Links...")
-    time.sleep(1)
     for url in tqdm(imgPageLink, total=len(imgPageLink)):
       directImgLinks.append(getDirectLink(url, doLogin))
 
@@ -309,7 +309,6 @@ def download(albumURL, doLogin, tree):
   # Download Pictures #
   if not multiprocess:
     print("Starting Download Pictures...")
-    time.sleep(1)
     for url in tqdm(directImgLinks):
       downPicture(url, dir, albumName)
 
@@ -317,7 +316,6 @@ def download(albumURL, doLogin, tree):
     print("[MultiProcess] Starting Download Pictures")
     p_umap(downPicture, directImgLinks, dir, albumName, total=len(directImgLinks), num_cpus = poolDowns)
 
-  time.sleep(1)
   print("\nAlbum:",albumName,"Download Completed",len(imgPageLink),"pictures has saved\nURL:",albumURL)
   listOrganizer(albumURL,2) # Call organizeList function and put in list_completed #
 
@@ -352,7 +350,7 @@ if __name__ == "__main__":
     cls()
 
     if option == '1':
-      albumURL = str(input("0 - Back\nAlbum URL: "))
+      albumURL = input("0 - Back\nAlbum URL: ")
       if albumURL == '0': cls(); pass
       else: cls(); pageChecker(albumURL)
 
@@ -361,8 +359,8 @@ if __name__ == "__main__":
       with open('list.txt', 'r') as url_list:
         qnt = len(open('list.txt').readlines())
         print("Total of links:",qnt,"\n")
-        for url in url_list:
-          pageChecker(url)
+        for albumURL in url_list:
+          pageChecker(albumURL)
 
     elif option == '3':
       configJsonSettings()
