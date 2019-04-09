@@ -238,9 +238,7 @@ def download(albumURL, doLogin, tree):
   albumName = tree.xpath('//*[@class="album_cover"]/h2/text()')
   uploader = tree.xpath('//*[@class="user_lnk"]/text()')
   pictures = tree.xpath('//*[@class="user_info"]/div/p[1]/text()')
-  genre = tree.xpath('//*[@class="content_info"]/div/p/a/text()')
   print("Album Name:", str(*albumName))
-  print("Genre:", str(*genre))
   print("Uploader:", str(*uploader))
   print("Total of", str(*pictures))
 
