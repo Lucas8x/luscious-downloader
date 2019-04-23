@@ -1,4 +1,4 @@
-certifi==2018.11.29
+certifi==2019.3.9
 chardet==3.0.4
 dill==0.2.8.2
 idna==2.8
@@ -6,12 +6,12 @@ lxml==4.3.0
 multiprocess==0.70.6.1
 p-tqdm==1.2
 pathos==0.2.2.1
-pox==0.2.4
-ppft==1.6.4.8
+pox==0.2.5
+ppft==1.6.4.9
 pyreadline==2.1
 requests==2.21.0
 selenium==3.141.0
 six==1.12.0
-tqdm==4.28.1
-urllib3==1.24.1
+tqdm==4.31.1
+urllib3==1.24.2
 wget==3.2
