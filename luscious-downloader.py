@@ -20,29 +20,21 @@ import json
 import locale
 locale.setlocale(locale.LC_ALL, '')
 
+
 def cls():
   os.system('cls' if os.name == 'nt' else 'clear')
 
-# Function to return values from config.json to others functions when called #
-def jsonVariables():
-  with open('config.json', 'r') as config:
-    data = json.load(config)
-    driver = data['driver']
-    dir = data['dir']
-    multiprocess = data['multiprocess']
-    poolLinks = data['poolLinks']
-    poolDowns = data['poolDown']
-    doLogin = data['doLogin']
-    username = data['username']
-    password = data['password']
-  config.close()
-  return driver,dir,multiprocess,poolLinks,poolDowns,doLogin,username,password
 
-# Create default files if not exist #
-def defaultFiles():
+def get_json_setting(setting):
+  with open('config.json') as config:
+    data = json.load(config)
+  return data[setting]
+
+
+def create_default_files():
   if not (os.path.exists('./config.json')):
     data = {
-        "dir": "./Albums/",
+        "directory": "./Albums/",
         "multiprocess": True,
         "poolLinks": os.cpu_count()-1,
         "poolDown": os.cpu_count()-1,
@@ -60,93 +52,94 @@ def defaultFiles():
   if not (os.path.exists('./list_blocked.xt')):
     open('./list_blocked.txt', 'a+')
 
-# Create album folder #
-def createFolder(directory):
+
+def create_folder(directory):
   try:
     if not os.path.exists(directory):
       os.makedirs(directory)
-      print("Album Folder Created:",directory)
+      print(f"Album Folder Created: {directory}")
   except OSError:
-    print('Error: Creating directory. ' + directory)
+    print(f"Error: Creating directory: {directory}")
 
-# List Organizer #
-def listOrganizer(albumURL, type):
-  list = open("./list.txt", "r")
-  tmp = []
-  for line in list:
-    if albumURL in line:
-      line = line.replace(albumURL,'')
-    tmp.append(line)
-  list.close()
-  list = open("./list.txt", "w")
-  for line in tmp:
-    list.write(line)
-  list.close()
 
-  # Put Blocked Album URL to Last Line #
-  if type == 1:
-    with open("./list_blocked.txt") as blocked:
-      text = blocked.read()
-    with open("./list_blocked.txt", 'a') as blocked:
-      if not text.endswith("\n"):
-        blocked.write('\n')
-      blocked.write(albumURL)
-    blocked.close()
+def list_organizer(album_url, type):
+  list_txt = open('./list.txt')
+  temp = []
+  for line in list_txt:
+    if album_url in line:
+      line = line.replace(album_url, '')
+    temp.append(line)
+  list_txt.close()
+  list_txt = open('./list.txt', 'w')
+  for line in temp:
+    list_txt.write(line)
+  list_txt.close()
 
-  # Put Download Album URL to Last Line #
-  elif type == 2:
-    with open("./list_completed.txt") as completed:
+  # Write Download Album URL in Last Line #
+  if type == 'completed':
+    with open('./list_completed.txt') as completed:
       text = completed.read()
-    with open("./list_completed.txt", 'a') as completed:
+    with open('./list_completed.txt', 'a') as completed:
       if not text.endswith("\n"):
         completed.write('\n')
-      completed.write(albumURL)
+      completed.write(album_url)
     completed.close()
 
-# Change config.json settings #
-def configJsonSettings():
+  # Write Blocked Album URL in Last Line #
+  elif type == 'blocked':
+    with open('./list_blocked.txt') as blocked:
+      text = blocked.read()
+    with open('./list_blocked.txt', 'a') as blocked:
+      if not text.endswith("\n"):
+        blocked.write('\n')
+      blocked.write(album_url)
+    blocked.close()
+
+
+def config_json_settings():
   with open('config.json', 'r+') as j:
     data = json.load(j)
     while True:
       print("1 - Change Directory"
-            "\n2 - Login"
-            "\n3 - Switch Auto-Login [ Staus:",data['doLogin'],"]"
-            "\n4 - Switch MultiProcess [ Status:",data['multiprocess'],"]"
+            "\n2 - Login Credentials"
+            "\n3 - Switch Auto-Login [ Staus:", data['doLogin'], "]"
+            "\n4 - Switch MultiProcess [ Status:", data['multiprocess'], "]"
             "\n5 - CPU Pool"
-            "\n6 - Switch Driver [ Current:",data['driver'],"]"
+            "\n6 - Switch Driver [ Current:", data['driver'], "]"
             "\n0 - Back")
-      optionToConfig = str(input(">"))
+      selected_setting = str(input(">"))
       cls()
-      if optionToConfig == '1':
-        print("For default write 0\nCurrent directory:", data['dir'])
-        dir = str(input("Directory: "))
-        if dir == "0" or " ":
-          dir = './Albums/'
-          data['dir'] = dir
-      elif optionToConfig == '2':
+      if selected_setting == '1':
+        print("For default write 0\nCurrent directory:", data['directory'])
+        directory = str(input("Directory: "))
+        if directory == "0" or " ":
+          data['directory'] = './Albums/'
+        else:
+          data['directory'] = directory
+      elif selected_setting == '2':
         data['username'] = str(input("Username:"))
         data['password'] = str(input("Password:"))
-      elif optionToConfig == '3':
+      elif selected_setting == '3':
         if data['doLogin']:
           data['doLogin'] = False
           print("Auto-Login Disabled")
         elif not data['doLogin']:
           data['doLogin'] = True
           print("Auto-Login Enabled")
-      elif optionToConfig == '4':
+      elif selected_setting == '4':
         if data['multiprocess']:
           data['multiprocess'] = False
           print("MultiProcess Disabled")
         elif not data['multiprocess']:
           data['multiprocess'] = True
           print("MultiProcess Enabled")
-      elif optionToConfig == '5':
+      elif selected_setting == '5':
         print("You have:", os.cpu_count(),"cpus. Recommend:", os.cpu_count()-1)
         print("Enter CPU Pool for Geting Direct Imgs Links")
         data['poolLinks'] = int(input("> "))
         print("Enter CPU Pool for Download Pictures")
         data['poolDown'] = int(input("> "))
-      elif optionToConfig == '6':
+      elif selected_setting == '6':
         if data['driver'] == 'chrome':
           data['driver'] = 'firefox'
           print("Switched to Firefox/Geckodriver")
@@ -154,7 +147,7 @@ def configJsonSettings():
           data['driver'] = 'chrome'
           print("Switched to ChromeDriver")
         print("Restart is necessary\n")
-      elif optionToConfig == '0':
+      elif selected_setting == '0':
         cls()
         break
       else:
@@ -163,17 +156,18 @@ def configJsonSettings():
     json.dump(data, j, indent=2)
     j.truncate()
 
-# Check selected browser in config.json and Initialize Web Driver #
-def mydriver():
+
+# Initialize Web Driver #
+def my_driver():
   global driver
-  mydriver = jsonVariables()[0]
-  if mydriver == 'firefox':
+  selected_driver = get_json_setting('driver')
+  if selected_driver == 'firefox':
     options = Options()
     options.headless = True
     firefox_capabilities = DesiredCapabilities.FIREFOX
     firefox_capabilities['marionette'] = True
     driver = webdriver.Firefox(options=options, executable_path='./geckodriver.exe', capabilities=firefox_capabilities)
-  elif mydriver == 'chrome':
+  elif selected_driver == 'chrome':
     options = webdriver.ChromeOptions()
     options.add_argument("--headless")
     options.add_argument('--hide-scrollbars')
@@ -192,80 +186,83 @@ def mydriver():
     driver = webdriver.Chrome('./chromedriver.exe', options=options)
   return driver
 
-# Check if album is blocked and Log in if it is set#
-def pageChecker(albumURL):
-  doLogin = jsonVariables()[5]
-  if not doLogin:
-    html_source = requests.get(albumURL).content
+
+def page_checker(album_url):
+  do_login = get_json_setting('doLogin')
+  if not do_login:
+    html_source = requests.get(album_url).content
   else:
-    driver = mydriver()
+    driver = my_driver()
     time.sleep(1)
-    driver.get(albumURL)
+    driver.get(album_url)
     html_source = driver.page_source
 
   tree = html.fromstring(html_source)
   check = tree.xpath('//*[@id="frontpage"]/h1/text()')
   check = str(*check)
   if check == "404 Not Found":
-    if doLogin:
+    if do_login:
       print("Auto-Login is enabled")
-      login(albumURL)
+      login(album_url)
     else:
-      print("Blocked Album:",albumURL,"\nTry turn on auto-login and write your account info")
-      listOrganizer(albumURL, 1)
+      print(f"Blocked Album: {album_url} \nTry turn on auto-login and write your account info")
+      list_organizer(album_url, 1)
   else:
-    download(albumURL, False, tree) #Call download with doLogin as False
+    download(album_url, False, tree)
+
 
 # Log in if it is set #
-def login(albumURL):
+def login(album_url):
   if not (os.path.exists('./cookies.pkl')):
     print("Logging in...")
     driver.get('https://members.luscious.net/login/')
-    username, password = jsonVariables()[6], jsonVariables()[7]
+    username = get_json_setting('username')
+    password = get_json_setting('password')
     driver.find_element_by_id('id_login').send_keys(username)
     driver.find_element_by_id('id_password').send_keys(password)
     driver.find_element_by_xpath("//input[@value='Sign In']").click()
     pickle.dump(driver.get_cookies(), open('./cookies.pkl', 'wb'))
   for cookie in pickle.load(open('./cookies.pkl', 'rb')):
     driver.add_cookie(cookie)
-  driver.get(albumURL)
+  driver.get(album_url)
   tree = html.fromstring(driver.page_source)
-  download(albumURL, True, tree)
+  download(album_url, True, tree)
+
 
 # Load Entire page / get links / download #
-def download(albumURL, doLogin, tree):
-  # Album Information #
-  albumName = tree.xpath('//*[@class="album_cover"]/h2/text()')
-  uploader = tree.xpath('//*[@class="user_lnk"]/text()')
-  pictures = tree.xpath('//*[@class="user_info"]/div/p[1]/text()')
-  print("Album Name:", str(*albumName))
+def download(album_url, do_login, tree):
+  album_name = tree.xpath('//*[@class="o-h3 o-row-gut-half"]/a/text()')
+  uploader = tree.xpath('//*[@class="username-display"]/text()')
+  pictures = tree.xpath('//*[@class="album-info-item"]/text()')[0]
+  print("Album Name:", str(*album_name))
   print("Uploader:", str(*uploader))
-  print("Total of", str(*pictures))
+  print("Total of", str(pictures))
 
-  # Define Json Variables #
-  dir = jsonVariables()[1]
-  multiprocess = jsonVariables()[2]
-  poolLinks = jsonVariables()[3]
-  poolDowns = jsonVariables()[4]
+  directory = get_json_setting('directory')
+  multiprocess = get_json_setting('multiprocess')
+  pool_links = get_json_setting('poolLinks')
+  pool_downs = get_json_setting('poolDown')
 
   print("Loading entire page...")
-  #if multiprocess and not doLogin:
-  if (multiprocess or not multiprocess) and not doLogin:
-    n = 1;  data = []
-    if len(data) > 0: data.clear()
-    albumURL = re.sub('/albums/', '/pictures/album/', albumURL)
+
+  if (multiprocess or not multiprocess) and not do_login:
+    n = 1
+    data = []
+    if len(data) > 0:
+      data.clear()
+    album_url = re.sub('/albums/', '/pictures/album/', album_url)
     while True:
-      jsonPageRequest = requests.get(albumURL+'sorted/newest/page/'+str(n)+'/.json/').json()
-      source = jsonPageRequest['html']
+      json_page_request = requests.get(album_url+'sorted/newest/page/'+str(n)+'/.json/').json()
+      source = json_page_request['html']
       tree = html.fromstring(source)
       data.append(tree.xpath('//*[@class="item thumbnail ic_container"]/a/@href'))
       n += 1
-      if jsonPageRequest['paginator_complete'] == True:
+      if json_page_request['paginator_complete']:
         break
     flat = [x for sublist in data for x in sublist]
-    imgPageLink = ['https://members.luscious.net' + x for x in flat]
+    image_page_links = ['https://members.luscious.net' + x for x in flat]
 
-  elif doLogin or multiprocess == "legacy":
+  elif do_login or multiprocess == "legacy":
     last_height = driver.execute_script('return document.body.scrollHeight')
     while True:
       driver.execute_script('window.scrollTo(0, document.body.scrollHeight);')
@@ -277,91 +274,100 @@ def download(albumURL, doLogin, tree):
       last_height = new_height
     html_source = driver.page_source
     tree = html.fromstring(html_source)
-    imgPages = tree.xpath('//*[@class="item thumbnail ic_container"]/a/@href') # List all photos on the page #
-    imgPageLink = ['https://members.luscious.net/' + x for x in imgPages] # Combine site + imgPages for get Individual Img Page Link #
+    # List all photos on the page
+    image_pages = tree.xpath('//*[@class="item thumbnail ic_container"]/a/@href')
+    # Combine site + imgPages for get Individual Img Page Link
+    image_page_links = ['https://members.luscious.net/' + x for x in image_pages]
 
-  print("Total of",len(imgPageLink),"real links found")
+  print("Total of", len(image_page_links), "real links found")
 
-  # Create Album Folder #
-  albumName = re.sub('[^\w\-_\. ]', '_', str(*albumName))
-  createFolder(dir+albumName+'/')
+  # Create Album Folder
+  album_name = re.sub('[^\w\-_\. ]', '_', str(*album_name))
+  create_folder(directory + album_name + '/')
 
-  # Acess imgPageLink and get direct link and download # Legacy Mode #
+  # Acess imgPageLink and get direct link and download # Legacy Mode
   if multiprocess == "legacy":
     print("[Legacy] Downloading")
     time.sleep(1)
-    for url in tqdm(imgPageLink, total=(len(imgPageLink))):
-      downPicture(getDirectLink(url, doLogin), dir, albumName)
+    for url in tqdm(image_page_links, total=(len(image_page_links))):
+      download_picture(get_direct_image_link(url, do_login), directory, album_name)
 
-  # Get Direct Img Link #
-  directImgLinks = []
-  if not multiprocess or doLogin:
-    print("Getting Direct Imgs Links...")
-    for url in tqdm(imgPageLink, total=len(imgPageLink)):
-      directImgLinks.append(getDirectLink(url, doLogin))
+  # Get Direct Images Links
+  direct_images_links = []
+  if not multiprocess or do_login:
+    print("Getting Direct Images Links")
+    for url in tqdm(image_page_links, total=len(image_page_links)):
+      direct_images_links.append(get_direct_image_link(url, do_login))
 
-  elif multiprocess and not doLogin:
-    print("[MultiProcess] Getting Direct Imgs Links")
-    directImgLinks = (p_umap(getDirectLink, imgPageLink, doLogin, total=len(imgPageLink), num_cpus = poolLinks))
+  elif multiprocess and not do_login:
+    print("[MultiProcess] Getting Direct Images Links")
+    direct_images_links = (p_umap(get_direct_image_link, image_page_links, do_login, total=len(image_page_links), num_cpus=pool_links))
 
-  # Download Pictures #
+  # Download Pictures
   if not multiprocess:
-    print("Starting Download Pictures...")
-    for url in tqdm(directImgLinks):
-      downPicture(url, dir, albumName)
+    print("Starting Download Pictures")
+    for url in tqdm(direct_images_links):
+      download_picture(url, directory, album_name)
 
   elif multiprocess:
     print("[MultiProcess] Starting Download Pictures")
-    p_umap(downPicture, directImgLinks, dir, albumName, total=len(directImgLinks), num_cpus = poolDowns)
+    p_umap(download_picture, direct_images_links, directory, album_name, total=len(direct_images_links), num_cpus=pool_downs)
 
-  print("\nAlbum:",albumName,"Download Completed",len(imgPageLink),"pictures has saved\nURL:",albumURL)
-  listOrganizer(albumURL,2) # Call organizeList function and put in list_completed #
+  print(f"\nAlbum: {album_name} Download Completed {len(image_page_links)} pictures has saved\nURL: {album_url}\n")
+  list_organizer(album_url, 'completed')
 
-# Get direct img link(.../img.png) #
-def getDirectLink(url, doLogin):
+
+def get_direct_image_link(url, do_login):
   try:
-    if not doLogin:
+    if not do_login:
       return html.fromstring(requests.get(url).content).xpath('//*[@class="icon-download"]/@href')[0]
-    elif doLogin:
+    elif do_login:
       driver.get(url)
       return driver.find_element_by_class_name('icon-download').get_attribute('href')
-  except: print("\nFailed to get link:",url)
-  #except Exception as e: print("\n",e, url)
+  except:
+    print(f"\nFailed to get direct link from {url}")
 
-# Download Pictures from directImgLinks #
-def downPicture(url,dir,albumName):
+
+def download_picture(url, directory, album_name):
   try:
-    if not((os.path.exists(dir+albumName+'/'+str(str(url).rsplit('/', 1)[1])))):
-      wget.download(url,dir+albumName+'/'+str(str(url).rsplit('/', 1)[1]), bar=None)
-  except: print("\nFailed to download:",url) # Value Error
+    picture_path = f"{directory}{album_name}/{url.rsplit('/', 1)[1]}"
+    if not(os.path.exists(picture_path)):
+      wget.download(url, picture_path, bar=None)
+  except:
+    # Value Error ?
+    print(f"\nFailed to download picture: {url}")
 
-# Main #
+
 if __name__ == "__main__":
-  defaultFiles()
+  create_default_files()
   while True:
     print("Options:"
-          "\n1 - Enter URL"
-          "\n2 - From list.txt"
-          "\n3 - Configs"
+          "\n1 - Enter Album URL"
+          "\n2 - Download from list.txt"
+          "\n3 - Settings"
           "\n0 - Exit")
     option = str(input("> "))
     cls()
 
     if option == '1':
-      albumURL = input("0 - Back\nAlbum URL: ")
-      if albumURL == '0': cls(); pass
-      else: cls(); pageChecker(albumURL)
+      album_url = input("0 - Back\nAlbum URL: ")
+      if album_url != '0':
+        cls()
+        page_checker(album_url)
+      else:
+        cls()
+        pass
 
     elif option == '2':
       print("Checking List...")
-      with open('list.txt', 'r') as url_list:
-        qnt = len(open('list.txt').readlines())
-        print("Total of links:",qnt,"\n")
-        for albumURL in url_list:
-          pageChecker(albumURL)
+      with open('list.txt') as url_list:
+        quantity = len(open('list.txt').readlines())
+        print(f"Total of Links: {quantity} \n")
+        for album_url in url_list:
+          page_checker(album_url)
 
     elif option == '3':
-      configJsonSettings()
+      config_json_settings()
 
     elif option == '0':
       print("Xau ;-;")
