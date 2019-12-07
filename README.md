@@ -22,9 +22,6 @@ Auto Download Luscious Albums
 
 ### Settings
 1. Change Directory (Change albums download directory).
-2. Login Credentials (Required when the album is only visible to members).
-3. Switch Auto-Login (Turn On if you have filled the item above).
-4. Switch Multiprocess (Turn On/Off the multi processing).
-5. CPU Pool (Default = Your CPU Count-1).
-6. Switch WebDriver (Used to login when album is locked).
+2. Switch Multiprocess (Turn On/Off the multi processing).
+3. CPU Pool (Default = Your CPU Count-1).
 0. Back.
