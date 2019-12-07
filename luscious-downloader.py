@@ -39,8 +39,6 @@ def create_default_files():
     open('./list.txt', 'a+')
   if not (os.path.exists('./list_completed.txt')):
     open('./list_completed.txt', 'a+')
-  if not (os.path.exists('./list_blocked.xt')):
-    open('./list_blocked.txt', 'a+')
 
 
 def create_folder(directory):
@@ -73,15 +71,6 @@ def list_organizer(album_url, action):
         completed.write('\n')
       completed.write(album_url)
     completed.close()
-
-  elif action == 'blocked':
-    with open('./list_blocked.txt') as blocked:
-      text = blocked.read()
-    with open('./list_blocked.txt', 'a') as blocked:
-      if not text.endswith("\n"):
-        blocked.write('\n')
-      blocked.write(album_url)
-    blocked.close()
 
 
 def open_config_menu():
@@ -177,7 +166,7 @@ def download(album_url):
     for individual_image_page_url in tqdm(individual_image_page_urls, total=(len(individual_image_page_urls))):
       download_picture(get_direct_image_link(individual_image_page_url), directory, album_name)
 
-  if multiprocess:
+  elif multiprocess:
     print("[MultiProcess] Getting Direct Images Links.")
     direct_images_urls = p_umap(get_direct_image_link, individual_image_page_urls,
                                 total=len(individual_image_page_urls), num_cpus=pool_links)
