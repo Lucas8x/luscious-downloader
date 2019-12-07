@@ -227,11 +227,11 @@ if __name__ == "__main__":
 
     elif option == '2':
       print("Checking List...")
-      with open('list.txt') as url_list:
-        quantity = len(open('list.txt').readlines())
-        print(f"Total of Links: {quantity} \n")
-        for url in url_list:
-          download(url)
+      with open('list.txt') as x:
+        url_list = x.readlines()
+        print(f"Total of Links: {len(url_list)} \n")
+      for url in url_list:
+        download(url.rstrip('\n'))
 
     elif option == '3':
       open_config_menu()
