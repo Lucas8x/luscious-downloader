@@ -7,7 +7,7 @@ Auto Download Luscious Albums
 * p-tqdm
 * requests 
 * wget
-* selenium
+
 ## Using
 ### Windows
 1. [Download](https://github.com/Lucas8x/luscious-downloader/archive/master.zip).
