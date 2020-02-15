@@ -28,13 +28,13 @@ def get_config_setting(setting):
 def create_default_files():
   if not (os.path.exists('./config.json')):
     data = {
-        "directory": "./Albums/",
-        "multiprocess": True,
-        "poolLinks": os.cpu_count()-1,
-        "poolDown": os.cpu_count()-1
-      }
-    with open('./config.json', 'a+') as x:
-      json.dump(data, x, indent=2)
+      "directory": "./Albums/",
+      "multiprocess": True,
+      "poolLinks": os.cpu_count()-1,
+      "poolDown": os.cpu_count()-1
+    }
+    with open('./config.json', 'a+') as config_file:
+      json.dump(data, config_file, indent=2)
   if not (os.path.exists('./list.xt')):
     open('./list.txt', 'a+')
   if not (os.path.exists('./list_completed.txt')):
@@ -77,33 +77,36 @@ def open_config_menu():
   with open('config.json', 'r+') as j:
     data = json.load(j)
     while True:
-      print("1 - Change Directory."
+      print(f"1 - Change Directory [Current: {data['directory']}]."
             f"\n2 - Switch MultiProcess [Status: {data['multiprocess']}]."
             "\n3 - CPU Pool."
-            "\n0 - Back.")
-      selected_setting = str(input(">"))
+            "\n0 - Back and Save.")
+      config_menu = input(">")
       cls()
-      if selected_setting == '1':
-        print(f"For default enter 0\nCurrent directory: {data['directory']}")
-        directory = str(input("Directory: "))
-        if directory == '0' or ' ':
-          data['directory'] = './Albums/'
+      if config_menu == '1':
+        print("For default enter 0\n"
+              f"Current directory: {data['directory']}")
+        new_path = input("Directory: ")
+        if new_path not in ['0', ' ']:
+          new_path = new_path.replace('\\', '/')
+          data['directory'] = new_path if new_path.endswith('/') else f'{new_path}/'
         else:
-          data['directory'] = directory
-      elif selected_setting == '2':
+          data['directory'] = './Albums/'
+      elif config_menu == '2':
         if data['multiprocess']:
           data['multiprocess'] = False
           print("MultiProcess Disabled.\n")
         elif not data['multiprocess']:
           data['multiprocess'] = True
           print("MultiProcess Enabled.\n")
-      elif selected_setting == '3':
-        print(f"You have: {os.cpu_count()} cpus.\nRecommend Pool: {os.cpu_count()-1}")
-        print("Enter CPU Pool for Geting Direct Imgs Links.")
+      elif config_menu == '3':
+        print(f"You have: {os.cpu_count()} cpus."
+              f"\nRecommend Pool: {os.cpu_count()-1}"
+              "\nEnter CPU Pool for Getting Direct Pictures Links.")
         data['poolLinks'] = int(input("> "))
         print("Enter CPU Pool for Download Pictures.")
         data['poolDown'] = int(input("> "))
-      elif selected_setting == '0':
+      elif config_menu == '0':
         cls()
         break
       else:
@@ -113,7 +116,7 @@ def open_config_menu():
     j.truncate()
 
 
-def get_individual_image_page_urls(corrected_album_url):
+def get_individual_picture_page_urls(corrected_album_url):
   n = 1
   data = []
   while True:
@@ -124,8 +127,8 @@ def get_individual_image_page_urls(corrected_album_url):
     n += 1
     if json_page_request['paginator_complete']:
       break
-  partial_image_page_urls = [x for sublist in data for x in sublist]
-  return ['https://members.luscious.net' + x for x in partial_image_page_urls]
+  partial_picture_page_urls = [x for sublist in data for x in sublist]
+  return [f'https://members.luscious.net{partial_url}' for partial_url in partial_picture_page_urls]
 
 
 def show_album_info(tree):
@@ -135,7 +138,8 @@ def show_album_info(tree):
     print(f"Album Name: {album_name}\n"
           f"{pictures}")
   except Exception as e:
-    print(f"Failed to print album information.\nError: {e}")
+    print("Failed to print album information.\n"
+          f"Error: {e}")
 
 
 def download(album_url):
@@ -154,8 +158,8 @@ def download(album_url):
   pool_downs = get_config_setting('poolDown')
 
   print("Loading entire page...")
-  individual_image_page_urls = get_individual_image_page_urls(corrected_album_url)
-  print(f"Total of {len(individual_image_page_urls)} real links found.")
+  individual_picture_page_urls = get_individual_picture_page_urls(corrected_album_url)
+  print(f"Total of {len(individual_picture_page_urls)} real links found.")
 
   album_name = re.sub('[^\w\-_\. ]', '_', album_name)
   create_folder(f"{directory}{album_name}/")
@@ -163,34 +167,34 @@ def download(album_url):
   if multiprocess == "legacy":
     print("[Legacy] Starting Download.")
     time.sleep(1)
-    for individual_image_page_url in tqdm(individual_image_page_urls, total=(len(individual_image_page_urls))):
-      download_picture(get_direct_image_link(individual_image_page_url), directory, album_name)
+    for individual_picture_page_url in tqdm(individual_picture_page_urls, total=(len(individual_picture_page_urls))):
+      download_picture(get_direct_picture_link(individual_picture_page_url), directory, album_name)
 
   elif multiprocess:
-    print("[MultiProcess] Getting Direct Images Links.")
-    direct_images_urls = p_umap(get_direct_image_link, individual_image_page_urls,
-                                total=len(individual_image_page_urls), num_cpus=pool_links)
+    print("[MultiProcess] Getting Direct Pictures Links.")
+    direct_pictures_urls = p_umap(get_direct_picture_link, individual_picture_page_urls,
+                                  total=len(individual_picture_page_urls), num_cpus=pool_links)
 
     print("[MultiProcess] Starting Download Pictures.")
-    p_umap(download_picture, direct_images_urls, directory, album_name,
-           total=len(direct_images_urls), num_cpus=pool_downs)
+    p_umap(download_picture, direct_pictures_urls, directory, album_name,
+           total=len(direct_pictures_urls), num_cpus=pool_downs)
 
   elif not multiprocess:
-    direct_images_urls = []
-    print("Getting Direct Images Links")
-    for individual_image_page_url in tqdm(individual_image_page_urls, total=len(individual_image_page_urls)):
-      direct_images_urls.append(get_direct_image_link(individual_image_page_url))
+    direct_pictures_urls = []
+    print("Getting Direct Pictures Links.")
+    for individual_picture_page_url in tqdm(individual_picture_page_urls, total=len(individual_picture_page_urls)):
+      direct_pictures_urls.append(get_direct_picture_link(individual_picture_page_url))
 
     print("Starting Download Pictures.")
-    for direct_image_url in tqdm(direct_images_urls):
-      download_picture(direct_image_url, directory, album_name)
+    for direct_picture_url in tqdm(direct_pictures_urls):
+      download_picture(direct_picture_url, directory, album_name)
 
-  print(f"\nAlbum: > {album_name} < Download Completed {len(individual_image_page_urls)} pictures has saved."
+  print(f"\nAlbum: > {album_name} < Download Completed {len(individual_picture_page_urls)} pictures has saved."
         f"\nURL: {album_url}\n")
   list_organizer(album_url, 'completed')
 
 
-def get_direct_image_link(page_url):
+def get_direct_picture_link(page_url):
   try:
     return html.fromstring(requests.get(page_url).content).xpath('//*[@class="icon-download"]/@href')[0]
   except Exception as e:
@@ -214,11 +218,12 @@ if __name__ == "__main__":
           "\n2 - Download from list.txt."
           "\n3 - Settings."
           "\n0 - Exit.")
-    option = str(input("> "))
+    option = input("> ")
     cls()
 
     if option == '1':
-      input_url = input("0 - Back.\nAlbum URL: ")
+      input_url = input("0 - Back.\n"
+                        "Album URL: ")
       if input_url != '0':
         cls()
         download(input_url)
