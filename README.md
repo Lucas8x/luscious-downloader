@@ -3,7 +3,6 @@ Auto Download Luscious Albums
 
 ## Requirements
 * Python 3
-* lxml/html
 * p-tqdm
 * requests 
 * wget
@@ -13,6 +12,9 @@ Auto Download Luscious Albums
 1. [Download](https://github.com/Lucas8x/luscious-downloader/archive/master.zip).
 2. Extract.
 3. Run `run.bat`.
+4. Wait install.
+5. Enter `1`.
+6. Enter album url.
 
 ## Menu
 1. Enter Album Url.
