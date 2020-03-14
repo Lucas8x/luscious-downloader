@@ -3,7 +3,7 @@ $workingdir = (Get-Location).Path
 if($PSVersiontable.PSVersion.Major -lt 3)
 {
     Write-Warning "Please download Python and place it in the same folder as this script."
-    Write-Output "Download from: https://www.python.org/ftp/python/3.7.5/python-3.7.5-embed-amd64.zip"
+    Write-Output "Download from: https://www.python.org/ftp/python/3.7.7/python-3.7.7-embed-amd64.zip"
     Write-Output ("Save to this directory: $workingdir `nand rename it to python.zip" -f (Get-Location).Path)
     Write-Output "Download from: https://bootstrap.pypa.io/get-pip.py"
     Write-Output ("Save to this directory: $workingdir" -f (Get-Location).Path)
@@ -11,7 +11,7 @@ if($PSVersiontable.PSVersion.Major -lt 3)
 }
 else
 {
-    Invoke-WebRequest -Uri https://www.python.org/ftp/python/3.7.5/python-3.7.5-embed-amd64.zip -OutFile python.zip
+    Invoke-WebRequest -Uri https://www.python.org/ftp/python/3.7.7/python-3.7.7-embed-amd64.zip -OutFile python.zip
     Invoke-WebRequest -Uri https://bootstrap.pypa.io/get-pip.py -OutFile get-pip.py
 }
 if($PSVersiontable.PSVersion.Major -lt 5)
