@@ -3,9 +3,7 @@ Auto Download Luscious Albums
 
 ## Requirements
 * Python 3
-* p-tqdm
-* requests 
-* wget
+* requests
 
 ## Using
 ### Windows
@@ -24,6 +22,5 @@ Auto Download Luscious Albums
 
 ### Settings
 1. Change Directory (Change albums download directory).
-2. Switch Multiprocess (Turn On/Off the multi processing).
-3. CPU Pool (Default = Your CPU Count-1).
+3. CPU Pool (Default = Your CPU Count).
 0. Back.
