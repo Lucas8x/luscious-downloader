@@ -88,6 +88,7 @@ def download_picture(picture_url, directory, album_name):
       while res.status_code != 200 and retries <= 5:
         logger.warning(f'{retries}º Retry: {picture_name}')
         res = requests.get(picture_url, stream=True)
+        retries += 1
       if len(res.content) > 0:
         with open(picture_path, 'wb') as image:
           image.write(res.content)

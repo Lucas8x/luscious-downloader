@@ -37,7 +37,7 @@ def create_folder(directory):
     else:
       logger.warn(f'Album folder {directory} already exist.')
   except OSError:
-    logger.error(f'Creating directory: {directory}\n{e}')
+    logger.error(f'Creating directory: {directory}')
 
 
 def list_organizer(album_url):
@@ -49,7 +49,7 @@ def list_organizer(album_url):
   with open('./list_completed.txt') as completed:
     text = completed.read()
   with open('./list_completed.txt', 'a') as completed:
-    if not text.endswith("\n"):
+    if not text.endswith('\n'):
       completed.write('\n')
     completed.write(album_url)
     logger.log(5, 'Album url added to completed list.')
