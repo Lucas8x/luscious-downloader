@@ -5,12 +5,13 @@ import time
 import requests
 import multiprocessing as mp
 from itertools import repeat
+from typing import Union, Dict, List, Optional
 
 from luscious_dl.logger import logger
 from luscious_dl.utils import get_config_setting, create_folder, list_organizer
 
 
-def get_album_id(album_url):
+def get_album_id(album_url: str) -> Optional[str]:
   try:
     logger.log(5, 'Resolving album id...')
     split = 2 if album_url.endswith('/') else 1
@@ -19,10 +20,10 @@ def get_album_id(album_url):
       return album_id
   except Exception as e:
     logger.critical(f"Couldn't resolve album ID of {album_url}\n{e}")
-    return False
+    return
 
 
-def get_album_info(album_id):
+def get_album_info(album_id: Union[str, int]) -> Dict:
   logger.log(5, 'Fetching album information...')
   response = requests.post('https://members.luscious.net/graphql/nobatch/?operationName=AlbumGet', json={
     "id": 6,
@@ -36,7 +37,7 @@ def get_album_info(album_id):
   return response['data']['album']['get']
 
 
-def get_pictures_urls(album_id):
+def get_pictures_urls(album_id: Union[str, int]) -> List:
   logger.log(5, 'Fetching album pictures...')
   n = 1
   raw_data = []
@@ -70,18 +71,20 @@ def get_pictures_urls(album_id):
   return data
 
 
-def show_album_info(album):
+def show_album_info(album: Dict) -> None:
   try:
     logger.log(5, f'Album Name: {album["title"]} - with {album["number_of_pictures"]} pictures.')
   except Exception as e:
     logger.warning(f'Failed to print album information.\n{e}')
 
 
-def download_picture(picture_url, directory, album_name):
+def download_picture(picture_url: str, album_folder: str) -> None:
   try:
+    if picture_url.startswith('//'):
+      picture_url = picture_url.replace('//', '', 1)
     picture_name = picture_url.rsplit('/', 1)[1]
-    picture_path = f'{directory}{album_name}/{picture_name}'
-    if not(os.path.exists(picture_path)):
+    picture_path = os.path.join(album_folder, picture_name)
+    if not os.path.exists(picture_path):
       logger.info(f'Start downloading: {picture_url}')
       retries = 1
       res = requests.get(picture_url, stream=True)
@@ -96,12 +99,12 @@ def download_picture(picture_url, directory, album_name):
       else:
         raise Exception('Zero content')
     else:
-      logger.warning(f'Picture: {picture_name} already exist.')
+      logger.warning(f'Picture: {picture_name} already exists.')
   except Exception as e:
     logger.error(f'Failed to download picture: {picture_url}\n{e}')
 
 
-def start(album_url):
+def start(album_url: str) -> None:
   start_time = time.time()
   album_id = get_album_id(album_url)
   if not album_id:
@@ -109,20 +112,24 @@ def start(album_url):
     return
 
   album_info = get_album_info(album_id)
+  if "errors" in album_info:
+    logger.error(f'Something wrong with {album_url}\nErrors: {album_info["errors"]}')
+    logger.warning('Skipping...')
+    return
+
   show_album_info(album_info)
-
-  directory = get_config_setting('directory')
-  pool_size = get_config_setting('pool')
   picture_page_urls = get_pictures_urls(album_id)
-
+  directory = os.path.abspath(os.path.normcase(get_config_setting('directory')))
+  pool_size = get_config_setting('pool')
   album_name = re.sub('[^\w\-_\. ]', '_', album_info['title'])
-  create_folder(f'{directory}{album_name}/')
-  logger.info('Starting download pictures.')
+  album_folder = os.path.join(directory, album_name)
+  create_folder(album_folder)
 
+  logger.info('Starting download pictures.')
   pool = mp.Pool(pool_size)
-  pool.starmap(download_picture, zip(picture_page_urls, repeat(directory), repeat(album_name)))
+  pool.starmap(download_picture, zip(picture_page_urls, repeat(album_folder)))
 
   end_time = time.time()
   logger.info(f'Album > {album_name} < Download completed {len(picture_page_urls)} pictures has saved.')
-  logger.info(f'Finished download in {end_time-start_time:.2f}')
+  logger.info(f'Finished download in {time.strftime("%H:%M:%S", time.gmtime(end_time-start_time))}')
   list_organizer(album_url)

@@ -4,7 +4,7 @@ from luscious_dl.utils import cls, create_default_files, open_config_menu
 from luscious_dl.downloader import start
 
 
-def main():
+def main() -> None:
   create_default_files()
   while True:
     option = input('Options:\n'

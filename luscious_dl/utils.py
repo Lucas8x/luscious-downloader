@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
 import os
 import json
+from typing import Any
 
 from luscious_dl.logger import logger
 
 
-def cls():
+def cls() -> None:
   os.system('cls' if os.name == 'nt' else 'clear')
 
 
-def get_config_setting(setting):
+def get_config_setting(setting: str) -> Any:
   with open('./config.json') as config:
     data = json.load(config)
   return data[setting]
 
 
-def create_default_files():
+def create_default_files() -> None:
   if not (os.path.exists('./config.json')):
     data = {
       "directory": "./Albums/",
@@ -29,10 +30,10 @@ def create_default_files():
     open('./list_completed.txt', 'a+')
 
 
-def create_folder(directory):
+def create_folder(directory: str) -> None:
   try:
     if not os.path.exists(directory):
-      os.makedirs(directory)
+      os.makedirs(directory, exist_ok=True)
       logger.info(f'Album folder created: {directory}')
     else:
       logger.warn(f'Album folder {directory} already exist.')
@@ -40,7 +41,7 @@ def create_folder(directory):
     logger.error(f'Creating directory: {directory}')
 
 
-def list_organizer(album_url):
+def list_organizer(album_url: str) -> None:
   with open('./list.txt') as list_txt:
     temp = ['' if album_url in line else line for line in list_txt]
   with open('./list.txt', 'w') as list_txt:
@@ -55,7 +56,7 @@ def list_organizer(album_url):
     logger.log(5, 'Album url added to completed list.')
 
 
-def open_config_menu():
+def open_config_menu() -> None:
   with open('./config.json', 'r+') as j:
     data = json.load(j)
     while True:
@@ -65,14 +66,16 @@ def open_config_menu():
                           '> ')
       cls()
       if config_menu == '1':
-        new_path = input('For default directory enter 0\n'
-                         f'Current directory: {data["directory"]}\n'
+        new_path = input(f'Current directory: {data["directory"]}\n'
+                         '1 - Restore default directory\n'
+                         '0 - Back\n'
                          'Directory: ')
-        if new_path not in ['0', ' ']:
-          new_path = new_path.replace('\\', '/')
-          data['directory'] = new_path if new_path.endswith('/') else f'{new_path}/'
-        else:
+        if new_path not in ['0', '1', ' ']:
+          data['directory'] = os.path.normcase(new_path)
+        elif new_path == '1':
           data['directory'] = './Albums/'
+        else:
+          pass
       elif config_menu == '2':
         print(f'You have: {os.cpu_count()} cores.')
         data['pool'] = int(input('Enter CPU Pool for Download Pictures.\n> '))
