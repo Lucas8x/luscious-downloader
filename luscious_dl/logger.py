@@ -24,14 +24,7 @@ console_format = logging.Formatter('[%(asctime)s] [%(levelname)s] %(message)s', 
 console_handler = logging.StreamHandler()
 console_handler.setFormatter(colored_formatter)
 
-file_format = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S')
-file_handler = logging.FileHandler('logs.log')
-file_handler.setLevel(logging.ERROR)
-file_handler.setFormatter(file_format)
-
 logger.addHandler(console_handler)
-logger.addHandler(file_handler)
-
 logger.setLevel(5)
 
 

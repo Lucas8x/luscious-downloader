@@ -20,7 +20,10 @@ def create_default_files() -> None:
   if not (os.path.exists('./config.json')):
     data = {
       "directory": "./Albums/",
-      "pool": os.cpu_count()
+      "pool": os.cpu_count(),
+      "retries": 5,
+      "timeout": 30,
+      "delay": 0
     }
     with open('./config.json', 'a+') as config_file:
       json.dump(data, config_file, indent=2)
@@ -34,11 +37,11 @@ def create_folder(directory: str) -> None:
   try:
     if not os.path.exists(directory):
       os.makedirs(directory, exist_ok=True)
-      logger.info(f'Album folder created: {directory}')
+      logger.info(f'Album folder created in: {directory}')
     else:
-      logger.warn(f'Album folder {directory} already exist.')
+      logger.warn(f'Album folder already exist in: {directory}')
   except OSError:
-    logger.error(f'Creating directory: {directory}')
+    logger.error(f'Creating directory in: {directory}')
 
 
 def list_organizer(album_url: str) -> None:
@@ -62,6 +65,9 @@ def open_config_menu() -> None:
     while True:
       config_menu = input(f'1 - Change Directory [Current: {data["directory"]}]\n'
                           f'2 - CPU Pool [Current: {data["pool"]}]\n'
+                          f'3 - Picture Retries [Current: {data["retries"]}]\n'
+                          f'4 - Picture Timeout [Current: {data["timeout"]}]\n'
+                          f'5 - Download Delay [Current: {data["delay"]}]\n'
                           '0 - Back and Save.\n'
                           '> ')
       cls()
@@ -78,7 +84,13 @@ def open_config_menu() -> None:
           pass
       elif config_menu == '2':
         print(f'You have: {os.cpu_count()} cores.')
-        data['pool'] = int(input('Enter CPU Pool for Download Pictures.\n> '))
+        data['pool'] = int(input('Enter CPU Pool for download pictures.\n> '))
+      elif config_menu == '3':
+        data['retries'] = int(input('Enter how many pictures retries.\n> '))
+      elif config_menu == '4':
+        data['timeout'] = int(input('Enter picture timeout.\n> '))
+      elif config_menu == '5':
+        data['delay'] = int(input('Enter album download delay.\n> '))
       elif config_menu == '0':
         cls()
         break
