@@ -5,6 +5,8 @@ from luscious_dl import __author__, __version__, __email__
 with open('requirements.txt') as r:
   requirements = r.readlines()
 
+with open('README.md') as ld:
+  long_description = ld.read()
 
 setup(
   name='luscious-downloader',
@@ -16,6 +18,8 @@ setup(
   author=__author__,
   author_email=__email__,
   description='Download Luscious Albums',
+  long_description=long_description,
+  long_description_content_type="text/markdown",
   install_requires=requirements,
   include_package_data=True,
   zip_safe=False,
