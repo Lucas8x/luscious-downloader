@@ -11,6 +11,9 @@ CLi tool for downloading Luscious Albums
 cd luscious-downloader
 python setup.py install
 </code></pre>
+*or through pip.*
+<pre><code>pip install luscious-downloader
+</code></pre>
 
 ## Installation #2 (Windows Only)
 *If you don't have python installed.*
@@ -20,8 +23,10 @@ python setup.py install
 4. Wait install.
 
 ## Usage
+**NOTE:** The default download folder will be the path where you are executing the command.
+
 Download album by URL or ID:\
-*you can enter multiple url and ids separated by commas.*
+*You can enter multiple url and ids separated by commas.*
 <pre><code>lsd -d https://members.luscious.net/albums/light-yuri_275719/
 lsd -d 275719,292887
 </code></pre>
