@@ -6,7 +6,7 @@ CLI tool for downloading Luscious Albums
 * requests
 
 ## Installation
-*If you have python installed.*
+*If you have python and git installed.*
 <pre><code>git clone https://github.com/Lucas8x/luscious-downloader.git
 cd luscious-downloader
 python setup.py install
@@ -36,8 +36,7 @@ Download all user's albums:
 lsd -u 668124,274991
 </code></pre>
 
-<pre><code>
-Options:
+<pre><code>Options:
   -h, --help            show help message
 # Download
   -d ALBUM_INPUTS, --download ALBUM_INPUTS
