@@ -25,7 +25,7 @@ setup(
   zip_safe=False,
   entry_points={
     'console_scripts': [
-      'lsd = luscious_dl.command_line:command_line'
+      'lsd = luscious_dl.start:start'
     ]
   },
   classifiers=(

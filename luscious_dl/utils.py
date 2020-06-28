@@ -56,7 +56,6 @@ def list_organizer(album_url: str) -> None:
     if not text.endswith('\n'):
       completed.write('\n')
     completed.write(album_url)
-    logger.log(5, 'Album url added to completed list.')
 
 
 def open_config_menu() -> None:

@@ -1,20 +1,27 @@
 # -*- coding: utf-8 -*-
 import argparse
 import os
+from typing import Any
 
-from luscious_dl.downloader import start
+from luscious_dl.parser import extract_album_id, extract_user_id, is_a_valid_id
 
 
-def command_line() -> None:
+def command_line() -> Any:
   parser = argparse.ArgumentParser(
     prog='Luscious Downloader',
     description='Download albums',
     add_help=True,
   )
 
-  parser.add_argument('--download', '-d', dest='url_or_id',
-                      action='store', required=True,
-                      help='enter album url or id')
+  group = parser.add_mutually_exclusive_group(required=True)
+
+  group.add_argument('--download', '-d', dest='album_inputs',
+                     action='store',
+                     help='download album by url or id')
+
+  group.add_argument('--user', '-u', dest='user_inputs',
+                     action='store',
+                     help='download all user albums by url or id')
 
   # download args
   parser.add_argument('--output', '-o', dest='directory',
@@ -44,15 +51,22 @@ def command_line() -> None:
 
   args = parser.parse_args()
 
-  if args.url_or_id:
-    inputs = args.url_or_id.split(',')
+  if args.threads <= 0:
+    args.threads = os.cpu_count()
 
-    for x in inputs:
-      start(x, args.directory, args.threads, args.retries, args.timeout, args.delay)
-
+  if args.album_inputs:
+    inputs = [id_.strip() for id_ in args.album_inputs.split(',')]
+    args.albums_ids = set(int(input_) if is_a_valid_id(input_) else extract_album_id(input_) for input_ in inputs)
   else:
-    print('Please provide album url or id\n')
-    exit()
+    args.albums_ids = None
+
+  if args.user_inputs:
+    inputs = [id_.strip() for id_ in args.user_inputs.split(',')]
+    args.users_ids = set(int(input_) if is_a_valid_id(input_) else extract_user_id(input_) for input_ in inputs)
+  else:
+    args.users_ids = None
+
+  return args
 
 
 if __name__ == '__main__':
