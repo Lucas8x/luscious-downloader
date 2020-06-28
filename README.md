@@ -1,5 +1,5 @@
 # Luscious Downloader
-CLi tool for downloading Luscious Albums
+CLI tool for downloading Luscious Albums
 
 ## Requirements
 * Python 3
@@ -23,30 +23,37 @@ python setup.py install
 4. Wait install.
 
 ## Usage
-**NOTE:** The default download folder will be the path where you are executing the command.
+**NOTE:** The default download folder will be the path where you are executing the command.\
+**NOTE²:** You can enter multiple url and ids separated by commas.
 
-Download album by URL or ID:\
-*You can enter multiple url and ids separated by commas.*
+Download albums:
 <pre><code>lsd -d https://members.luscious.net/albums/light-yuri_275719/
 lsd -d 275719,292887
+</code></pre>
+
+Download all user's albums:
+<pre><code>lsd -u https://members.luscious.net/users/668124/
+lsd -u 668124,274991
 </code></pre>
 
 <pre><code>
 Options:
   -h, --help            show help message
 # Download
-  -d URL_OR_ID --download URL_OR_ID
-                        download album by URL or ID
+  -d ALBUM_INPUTS, --download ALBUM_INPUTS
+                        download album by url or id
+  -u USER_INPUTS, --user USER_INPUTS
+                        download all user albums by url or id
 # Download Options
-  -o DIRECTORY --output DIRECTORY       
+  -o DIRECTORY, --output DIRECTORY
                         output directory
-  -t THREADS --threads THREADS
+  -t THREADS, --threads THREADS
                         how many download threads
-  -R RETRIES --retries RETRIES
-                        download attempts for each picture
-  -T TIMEOUT --timeout TIMEOUT
-                        download timeout for each picture
-  -D DELAY --delay DELAY
+  -R RETRIES, --retries RETRIES
+                        download retries
+  -T TIMEOUT, --timeout TIMEOUT
+                        download timeout
+  -D DELAY, --delay DELAY
                         delay between downloading multiple albums
 </code></pre>
 
