@@ -7,11 +7,14 @@ from luscious_dl.querys import user_info_query, user_albums_query
 
 
 class User:
-  def __init__(self, id_: Union[str, int] = None):
+  def __init__(self, id_: Union[str, int] = None) -> None:
     self.id_ = id_
     self.name = None
     self.number_of_albums = None
-    self.albums_ids = None
+    self.albums_ids = []
+
+  def get_albums_ids(self) -> List:
+    return self.albums_ids
 
   def show(self):
     table = [
@@ -34,9 +37,6 @@ class User:
     self.number_of_albums = data['number_of_albums']
     return True
 
-  def get_albums_ids(self) -> List:
-    return self.albums_ids
-
   def fetch_albums(self) -> None:
     logger.log(5, 'Fetching user albums...')
     n = 1
@@ -51,7 +51,3 @@ class User:
         break
     self.albums_ids = [album['id'] for arr in raw_data for album in arr]
     logger.info(f'Total of {len(self.albums_ids)} ids found.')
-
-
-if __name__ == '__main__':
-  test = User(123456)

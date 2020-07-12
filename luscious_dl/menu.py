@@ -5,7 +5,7 @@ from luscious_dl.logger import logger
 from luscious_dl.utils import cls, create_default_files, open_config_menu, get_config_setting, list_organizer
 from luscious_dl.downloader import Downloader
 from luscious_dl.parser import extract_album_id, extract_user_id, is_a_valid_id
-from luscious_dl.start import album_download, user_download
+from luscious_dl.start import albums_download, users_download
 
 
 def menu() -> None:
@@ -34,7 +34,7 @@ def menu() -> None:
         cls()
         inputs = [input_.strip() for input_ in input_url_or_ids.split(',')]
         albums_ids = set(int(input_) if is_a_valid_id(input_) else extract_album_id(input_) for input_ in inputs)
-        album_download(albums_ids, downloader)
+        albums_download(albums_ids, downloader)
         for id_ in albums_ids:
           list_organizer(f'Album: {id_}')
         logger.log(5, 'Album urls added to completed list.')
@@ -47,7 +47,7 @@ def menu() -> None:
         cls()
         inputs = [id_.strip() for id_ in input_user_url_or_id.split(',')]
         users_ids = set(int(input_) if is_a_valid_id(input_) else extract_user_id(input_) for input_ in inputs)
-        user_download(users_ids, downloader)
+        users_download(users_ids, downloader)
         for id_ in users_ids:
           list_organizer(f'User: {id_}')
         logger.log(5, 'Users urls added to completed list.')
@@ -58,7 +58,7 @@ def menu() -> None:
         list_txt = x.read().split('\n')
         logger.log(5, f'Total of Links: {len(list_txt)}.')
       albums_ids = set(int(input_) if is_a_valid_id(input_) else extract_album_id(input_) for input_ in list_txt)
-      album_download(albums_ids, downloader)
+      albums_download(albums_ids, downloader)
       for id_ in albums_ids:
         list_organizer(f'Album: {id_}')
       logger.log(5, 'Album urls added to completed list.')

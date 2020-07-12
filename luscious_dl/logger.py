@@ -2,20 +2,16 @@ import logging
 from colorlog import ColoredFormatter
 
 
-colored_formatter = ColoredFormatter(
-  "%(log_color)s[%(asctime)s] [%(levelname)s] %(message)s",
-  datefmt='%H:%M:%S',
-  reset=True,
-  log_colors={
-    'MSG': 'purple,bold',
-    'DEBUG': 'cyan',
-    'INFO': 'green',
-    'WARNING': 'yellow',
-    'ERROR': 'red',
-    'CRITICAL': 'red',
-  },
-  style='%'
-)
+colored_formatter = ColoredFormatter("%(log_color)s[%(asctime)s] [%(levelname)s] %(message)s",
+                                     datefmt='%H:%M:%S',
+                                     log_colors={
+                                       'MSG': 'purple,bold',
+                                       'DEBUG': 'cyan',
+                                       'INFO': 'green',
+                                       'WARNING': 'yellow',
+                                       'ERROR': 'red',
+                                       'CRITICAL': 'red',
+                                     })
 
 logging.addLevelName(5, 'MSG')
 logger = logging.getLogger('luscious_dl')

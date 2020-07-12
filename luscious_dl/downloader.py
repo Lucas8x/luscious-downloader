@@ -5,14 +5,14 @@ import time
 import requests
 import multiprocessing as mp
 from itertools import repeat
-from typing import List
+from typing import Union, List, Set
 
 from luscious_dl.logger import logger
 from luscious_dl.utils import create_folder
 
 
 class Downloader:
-  def __init__(self, output_dir: str, threads: int, retries: int = 5, timeout: int = 30, delay: int = 0):
+  def __init__(self, output_dir: str, threads: int, retries: int = 5, timeout: int = 30, delay: int = 0) -> None:
     self.output_dir = output_dir
     self.threads = threads
     self.retries = retries
@@ -44,7 +44,7 @@ class Downloader:
     except Exception as e:
       logger.error(f'Failed to download picture: {picture_url}\n{e}')
 
-  def download(self, album_title: str, data: List) -> None:
+  def download(self, album_title: str, data: Union[List, Set]) -> None:
     start_time = time.time()
     album_name = re.sub(r'[^\w\-_\. ]', '_', album_title)
     album_folder = os.path.join(self.output_dir, album_name)
@@ -56,3 +56,4 @@ class Downloader:
     logger.info(f'Finished in {time.strftime("%H:%M:%S", time.gmtime(end_time - start_time))}')
     if self.delay:
       time.sleep(self.delay)
+
