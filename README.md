@@ -39,20 +39,27 @@ lsd -u 668124,274991
 <pre><code>Options:
   -h, --help            show help message
 # Download
-  -d ALBUM_INPUTS, --download ALBUM_INPUTS
+  -a ALBUM_INPUTS, --album ALBUM_INPUTS
                         download album by url or id
   -u USER_INPUTS, --user USER_INPUTS
                         download all user albums by url or id
+  -s KEYWORD, --search KEYWORD
+                        search albums by keyword
+# Search Options
+  --download, -d        download albums from search results
+  --page PAGE           page numebr of search results
+  --max-page MAX_PAGES  max pages of search results
+
 # Download Options
-  -o DIRECTORY, --output DIRECTORY
+  --output DIRECTORY, -o DIRECTORY
                         output directory
-  -t THREADS, --threads THREADS
+  --threads THREADS, -t THREADS
                         how many download threads
-  -R RETRIES, --retries RETRIES
+  --retries RETRIES, -R RETRIES
                         download retries
-  -T TIMEOUT, --timeout TIMEOUT
+  --timeout TIMEOUT, -T TIMEOUT
                         download timeout
-  -D DELAY, --delay DELAY
+  --delay DELAY, -D DELAY
                         delay between downloading multiple albums
 </code></pre>
 
