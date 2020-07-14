@@ -27,8 +27,8 @@ python setup.py install
 **NOTE²:** You can enter multiple url and ids separated by commas.
 
 Download albums:
-<pre><code>lsd -d https://members.luscious.net/albums/light-yuri_275719/
-lsd -d 275719,292887
+<pre><code>lsd -a https://members.luscious.net/albums/light-yuri_275719/
+lsd -a 275719,292887
 </code></pre>
 
 Download all user's albums:
