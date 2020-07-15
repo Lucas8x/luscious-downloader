@@ -64,9 +64,10 @@ lsd -u 668124,274991
 </code></pre>
 
 ## Menu
-1. Enter Album URL or ID.
-2. Download from list.txt.
-3. [Settings](#settings).
+1. Enter albums URL or ID.
+2. Download all user albums.
+3. Download from list.txt.
+4. [Settings](#settings).
 0. Exit.
 
 ### Settings
