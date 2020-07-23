@@ -16,7 +16,7 @@ class User:
   def get_albums_ids(self) -> List:
     return self.albums_ids
 
-  def show(self):
+  def show(self) -> None:
     table = [
       ['ID', self.id_],
       ['Name', self.name],

@@ -17,7 +17,7 @@ def get_config_setting(setting: str) -> Any:
 
 
 def create_default_files() -> None:
-  if not (os.path.exists('./config.json')):
+  if not os.path.exists('./config.json'):
     data = {
       "directory": "./Albums/",
       "pool": os.cpu_count(),
@@ -27,9 +27,9 @@ def create_default_files() -> None:
     }
     with open('./config.json', 'a+') as config_file:
       json.dump(data, config_file, indent=2)
-  if not (os.path.exists('./list.xt')):
+  if not os.path.exists('./list.xt'):
     open('./list.txt', 'a+')
-  if not (os.path.exists('./list_completed.txt')):
+  if not os.path.exists('./list_completed.txt'):
     open('./list_completed.txt', 'a+')
 
 

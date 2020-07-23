@@ -7,11 +7,7 @@ from luscious_dl.parser import extract_album_id, extract_user_id, is_a_valid_id
 
 
 def command_line() -> Any:
-  parser = argparse.ArgumentParser(
-    prog='Luscious Downloader',
-    description='Download albums',
-    add_help=True,
-  )
+  parser = argparse.ArgumentParser(prog='Luscious Downloader', description='Download albums')
 
   group = parser.add_mutually_exclusive_group(required=True)
 

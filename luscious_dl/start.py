@@ -7,7 +7,7 @@ from luscious_dl.album import Album, search_albums, print_search
 from luscious_dl.user import User
 
 
-def albums_download(albums_ids: Union[List[int], Set[int]], downloader: Downloader):
+def albums_download(albums_ids: Union[List[int], Set[int]], downloader: Downloader) -> None:
   for id_ in albums_ids:
     album = Album(id_)
     try:
@@ -21,7 +21,7 @@ def albums_download(albums_ids: Union[List[int], Set[int]], downloader: Download
       logger.critical(f'Album: {id_} Error: {e}')
 
 
-def users_download(users_ids: Union[List[int], Set[int]], downloader: Downloader):
+def users_download(users_ids: Union[List[int], Set[int]], downloader: Downloader) -> None:
   for id_ in users_ids:
     user = User(id_)
     try:
@@ -36,7 +36,7 @@ def users_download(users_ids: Union[List[int], Set[int]], downloader: Downloader
       logger.critical(f'User: {id_} Error: {e}')
 
 
-def start():
+def start() -> None:
   args = command_line()
 
   downloader = Downloader(args.directory, args.threads, args.retries, args.timeout, args.delay)
