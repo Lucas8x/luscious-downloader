@@ -36,6 +36,11 @@ Download all user's albums:
 lsd -u 668124,274991
 </code></pre>
 
+Download search albums:
+<pre><code>lsd -s yuri -d
+lsd -s yuri -d --page 2 --max-page 5
+</code></pre>
+
 <pre><code>Options:
   -h, --help            show help message
 # Download
@@ -47,7 +52,7 @@ lsd -u 668124,274991
                         search albums by keyword
 # Search Options
   --download, -d        download albums from search results
-  --page PAGE           page numebr of search results
+  --page PAGE           page number of search results
   --max-page MAX_PAGES  max pages of search results
 
 # Download Options
