@@ -23,13 +23,16 @@ setup(
   install_requires=requirements,
   include_package_data=True,
   zip_safe=False,
+  python_requires='>=3',
   entry_points={
     'console_scripts': [
       'lsd = luscious_dl.start:start'
     ]
   },
-  classifiers=(
+  classifiers=[
     'Programming Language :: Python :: 3',
-    'Environment :: Console'
-  ),
+    'Environment :: Console',
+    'Intended Audience :: End Users/Desktop',
+    'License :: OSI Approved :: MIT License',
+  ],
 )
