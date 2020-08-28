@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 
-from luscious_dl.logger import logger
+from luscious_dl.logger import logger, logger_file_handler
 from luscious_dl.utils import cls, create_default_files, open_config_menu, get_config_setting, list_organizer, read_list
 from luscious_dl.downloader import Downloader
 from luscious_dl.parser import extract_album_id, extract_user_id, is_a_valid_id
@@ -10,6 +10,7 @@ from luscious_dl.start import albums_download, users_download
 
 def menu() -> None:
   create_default_files()
+  logger_file_handler()
   output_dir = os.path.abspath(os.path.normcase(get_config_setting('directory')))
   pool_size = get_config_setting('pool')
   retries = get_config_setting('retries')

@@ -2,6 +2,14 @@ import logging
 from colorlog import ColoredFormatter
 
 
+def logger_file_handler() -> None:
+  file_format = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S')
+  file_handler = logging.FileHandler('logs.log')
+  file_handler.setLevel(logging.ERROR)
+  file_handler.setFormatter(file_format)
+  logger.addHandler(file_handler)
+
+
 colored_formatter = ColoredFormatter("%(log_color)s[%(asctime)s] [%(levelname)s] %(message)s",
                                      datefmt='%H:%M:%S',
                                      log_colors={
