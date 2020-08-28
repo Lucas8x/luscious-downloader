@@ -3,6 +3,8 @@ import os
 import json
 from typing import Any, List
 
+from luscious_dl.parser import is_a_valid_id
+
 from luscious_dl.logger import logger
 
 
@@ -59,9 +61,9 @@ def create_folder(directory: str) -> None:
     logger.error(f'Creating directory in: {directory}')
 
 
-def list_organizer(album_url: str) -> None:
+def list_organizer(string: str) -> None:
   with open('./list.txt') as list_txt:
-    temp = ['' if album_url in line else line for line in list_txt]
+    temp = ['' if string in line else line for line in list_txt]
   with open('./list.txt', 'w') as list_txt:
     for line in temp:
       list_txt.write(line)
@@ -70,8 +72,8 @@ def list_organizer(album_url: str) -> None:
   with open('./list_completed.txt', 'a') as completed:
     if not text.endswith('\n'):
       completed.write('\n')
-    completed.write(album_url)
-    logger.log(5, f'Added to completed list: {album_url}')
+    completed.write(string)
+    logger.log(5, f'Added to completed list: {string}')
 
 
 def open_config_menu() -> None:
