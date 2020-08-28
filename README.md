@@ -71,14 +71,14 @@ lsd -s yuri -d --page 2 --max-page 5
 ## Menu
 1. Enter albums URL or ID.
 2. Download all user albums.
-3. Download from list.txt.
+3. Download albums from list.txt.
 4. [Settings](#settings).
 0. Exit.
 
 ### Settings
-1. Change Directory (Change albums download directory).
+1. Change Directory (Change albums download directory. Default = "./Albums/").
 2. CPU Pool (Default = Your CPU Count).
-3. Picture Retries (download attempts for each picture).
-4. Picture Timeout (download timeout for each picture).
-5. Download Delay (delay between downloading multiple albums)
+3. Picture Retries (download attempts for each picture. Default = 5).
+4. Picture Timeout (download timeout for each picture. Default = 30).
+5. Download Delay (delay between downloading multiple albums. Default = 0)
 0. Back.
