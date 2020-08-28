@@ -1,6 +1,6 @@
 import requests
 from tabulate import tabulate
-from typing import Union, List
+from typing import Union
 
 from luscious_dl.logger import logger
 from luscious_dl.querys import user_info_query, user_albums_query
@@ -12,9 +12,6 @@ class User:
     self.name = None
     self.number_of_albums = None
     self.albums_ids = []
-
-  def get_albums_ids(self) -> List:
-    return self.albums_ids
 
   def show(self) -> None:
     table = [

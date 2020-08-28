@@ -28,7 +28,7 @@ def users_download(users_ids: Union[List[int], Set[int]], downloader: Downloader
       if user.fetch_info():
         user.fetch_albums()
         user.show()
-        albums_ids = user.get_albums_ids()
+        albums_ids = user.albums_ids
         albums_download(albums_ids, downloader)
       else:
         raise Exception('User Information not found.')

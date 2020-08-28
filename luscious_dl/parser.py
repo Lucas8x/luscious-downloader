@@ -8,7 +8,7 @@ def is_a_valid_id(id_: Union[str, int]) -> bool:
   try:
     if isinstance(int(id_), int):
       return True
-  except ValueError:
+  except (ValueError, TypeError):
     return False
 
 

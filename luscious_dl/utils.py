@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import json
-from typing import Any
+from typing import Any, List
 
 from luscious_dl.logger import logger
 
@@ -10,10 +10,25 @@ def cls() -> None:
   os.system('cls' if os.name == 'nt' else 'clear')
 
 
+def format_filename(name: str) -> str:
+  pass
+
+
 def get_config_setting(setting: str) -> Any:
   with open('./config.json') as config:
     data = json.load(config)
   return data[setting]
+
+
+def read_list() -> List[str]:
+  try:
+    logger.log(5, 'Reading list...')
+    with open('./list.txt') as file:
+      list_txt = file.read().split('\n')
+      logger.log(5, f'Total of Links: {len(list_txt)}.')
+    return list_txt
+  except Exception as e:
+    print(f'Failed to read the list.txt.\n{e}')
 
 
 def create_default_files() -> None:
@@ -56,6 +71,7 @@ def list_organizer(album_url: str) -> None:
     if not text.endswith('\n'):
       completed.write('\n')
     completed.write(album_url)
+    logger.log(5, f'Added to completed list: {album_url}')
 
 
 def open_config_menu() -> None:

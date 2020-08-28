@@ -2,7 +2,7 @@
 import os
 
 from luscious_dl.logger import logger
-from luscious_dl.utils import cls, create_default_files, open_config_menu, get_config_setting, list_organizer
+from luscious_dl.utils import cls, create_default_files, open_config_menu, get_config_setting, list_organizer, read_list
 from luscious_dl.downloader import Downloader
 from luscious_dl.parser import extract_album_id, extract_user_id, is_a_valid_id
 from luscious_dl.start import albums_download, users_download
@@ -20,7 +20,7 @@ def menu() -> None:
 
   while True:
     option = input('Options:\n'
-                   '1 - Enter albums URL or ID.\n'
+                   '1 - Enter albums by URL or ID.\n'
                    '2 - Download all user albums\n'
                    '3 - Download albums from list.txt.\n'
                    '4 - Settings.\n'
@@ -53,15 +53,11 @@ def menu() -> None:
         logger.log(5, 'Users urls added to completed list.')
 
     elif option == '3':
-      logger.log(5, 'Checking List.')
-      with open('./list.txt') as x:
-        list_txt = x.read().split('\n')
-        logger.log(5, f'Total of Links: {len(list_txt)}.')
-      albums_ids = set(int(input_) if is_a_valid_id(input_) else extract_album_id(input_) for input_ in list_txt)
-      albums_download(albums_ids, downloader)
-      for id_ in albums_ids:
-        list_organizer(f'Album: {id_}')
-      logger.log(5, 'Album urls added to completed list.')
+      list_txt = read_list()
+      for item in list_txt:
+        id_ = int(item) if is_a_valid_id(item) else extract_album_id(item)
+        albums_download([id_], downloader)
+        list_organizer(item)
 
     elif option == '4':
       open_config_menu()
