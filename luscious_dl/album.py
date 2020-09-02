@@ -9,6 +9,7 @@ from luscious_dl.querys import album_info_query, album_list_pictures_query, albu
 
 
 class Album:
+  """Album class."""
   def __init__(self, id_: Union[str, int] = None, title: str = None, author: str = None, number_of_pictures: int = None,
                number_of_animated_pictures: int = None) -> None:
     self.id_ = id_
@@ -19,6 +20,7 @@ class Album:
     self.pictures = []
 
   def show(self) -> None:
+    """Show album information."""
     table = [
       ['ID ', self.id_],
       ['Title', self.title],
@@ -29,6 +31,10 @@ class Album:
     logger.log(5, f'Album information\n{tabulate(table, tablefmt="jira")}')
 
   def fetch_info(self) -> bool:
+    """
+    Fetch album information.
+    :return: bool
+    """
     logger.log(5, 'Fetching album information...')
     response = requests.post('https://members.luscious.net/graphql/nobatch/?operationName=AlbumGet',
                              json=album_info_query(str(self.id_))).json()
@@ -44,6 +50,7 @@ class Album:
     return True
 
   def fetch_pictures(self) -> None:
+    """Fetch album pictures."""
     logger.log(5, 'Fetching album pictures...')
     page = 1
     raw_data = []
@@ -58,15 +65,27 @@ class Album:
     logger.info(f'Total of {len(self.pictures)} links found.')
 
   def download(self, downloader: Downloader) -> None:
+    """
+    Start album download.
+    :param downloader: Downloder object
+    """
     logger.info(f'Starting album download: {self.title}')
     if downloader:
       downloader.download(self.title, self.pictures)
     else:
-      logger.critical(f'Downloader not set in album {self.id_}')
+      logger.critical(f'Downloader not set in album: {self.id_} | {self.title}')
 
 
 def search_albums(search_query: str, sorting: str = 'date_trending', page: int = 1, max_pages: int = 1) -> List:
-  logger.log(5, f'Searching albums with keyword: {search_query} / Page: {page} / Max pages: {max_pages}')
+  """
+  Search for albums.
+  :param search_query: keyword
+  :param sorting:
+  :param page: initial search page
+  :param max_pages: maximum search page
+  :return: Album list
+  """
+  logger.log(5, f'Searching albums with keyword: {search_query} | Page: {page} | Max pages: {max_pages}')
   albums = []
   while True:
     response = requests.post('https://members.luscious.net/graphql/nobatch/?operationName=AlbumList',
@@ -82,6 +101,10 @@ def search_albums(search_query: str, sorting: str = 'date_trending', page: int =
 
 
 def print_search(results: List[Album]) -> None:
+  """
+  Shows information of the searched albums.
+  :param results: Album list
+  """
   table = [
     [album.id_,
      album.title,

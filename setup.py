@@ -12,7 +12,7 @@ setup(
   name='luscious-downloader',
   version=__version__,
   packages=find_packages(),
-  keywords='luscious, album, donwloader',
+  keywords='luscious, album, downloader',
   url='https://github.com/Lucas8x/luscious-downloader',
   license='MIT',
   author=__author__,

@@ -3,26 +3,40 @@ import os
 import json
 from typing import Any, List
 
-from luscious_dl.parser import is_a_valid_id
-
+from luscious_dl import __version__
 from luscious_dl.logger import logger
 
 
+def info() -> None:
+  """Show package version"""
+  logger.info(f'Luscious Downloader version: {__version__}')
+
+
 def cls() -> None:
+  """Clears the command prompt"""
   os.system('cls' if os.name == 'nt' else 'clear')
 
 
-def format_filename(name: str) -> str:
-  pass
+"""def format_filename(name: str) -> str:
+  pass"""
 
 
 def get_config_setting(setting: str) -> Any:
+  """
+  Retrieve the key value
+  :param setting: json key
+  :return: key value
+  """
   with open('./config.json') as config:
     data = json.load(config)
   return data[setting]
 
 
 def read_list() -> List[str]:
+  """
+  Read text file content.
+  :return: list content
+  """
   try:
     logger.log(5, 'Reading list...')
     with open('./list.txt') as file:
@@ -34,6 +48,7 @@ def read_list() -> List[str]:
 
 
 def create_default_files() -> None:
+  """Create the initial files when using the menu"""
   if not os.path.exists('./config.json'):
     data = {
       "directory": "./Albums/",
@@ -51,6 +66,10 @@ def create_default_files() -> None:
 
 
 def create_folder(directory: str) -> None:
+  """
+  Creates folder in the specified path.
+  :param directory: folder path
+  """
   try:
     if not os.path.exists(directory):
       os.makedirs(directory, exist_ok=True)
@@ -62,6 +81,10 @@ def create_folder(directory: str) -> None:
 
 
 def list_organizer(string: str) -> None:
+  """
+  Remove from list.txt if it exists and add to list_completed.txt
+  :param string: Mostly URL or ID of Album or User
+  """
   with open('./list.txt') as list_txt:
     temp = ['' if string in line else line for line in list_txt]
   with open('./list.txt', 'w') as list_txt:
@@ -77,6 +100,7 @@ def list_organizer(string: str) -> None:
 
 
 def open_config_menu() -> None:
+  """Open config.json menu"""
   with open('./config.json', 'r+') as j:
     data = json.load(j)
     while True:

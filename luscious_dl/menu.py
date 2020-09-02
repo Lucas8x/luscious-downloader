@@ -1,14 +1,42 @@
 # -*- coding: utf-8 -*-
 import os
+from typing import List
 
 from luscious_dl.logger import logger, logger_file_handler
-from luscious_dl.utils import cls, create_default_files, open_config_menu, get_config_setting, list_organizer, read_list
+from luscious_dl.utils import cls, create_default_files, open_config_menu, get_config_setting, list_organizer, \
+  read_list, info
 from luscious_dl.downloader import Downloader
-from luscious_dl.parser import extract_album_id, extract_user_id, is_a_valid_id
+from luscious_dl.parser import extract_user_id, is_a_valid_id, extract_album_id, extract_ids_from_list
 from luscious_dl.start import albums_download, users_download
 
 
+def list_txt_organizer(items: List[str], prefix: str) -> None:
+  """
+  :param items: List of urls or ids
+  :param prefix: album/user
+  """
+  for item in items:
+    list_organizer(f'{prefix}-{int(item)}' if is_a_valid_id(item) else item)
+
+
+def enter_inputs(option: str, downloader: Downloader):
+  """
+  :param option: selected option
+  :param downloader: Downloder object
+  """
+  inputs = input(f'0 - Back.\nEnter {"album" if option == "1" else "user"} URL or ID.\n> ')
+  if inputs != '0':
+    cls()
+    inputs = [input_.strip() for input_ in inputs.split(',')]
+    ids = extract_ids_from_list(inputs, extract_album_id if option == '1' else extract_user_id)
+    albums_download(ids, downloader) if option == '1' else users_download(ids, downloader)
+    list_txt_organizer(inputs, 'album' if option == '1' else 'user')
+    logger.log(5, 'URLs/IDs added to completed list.')
+
+
 def menu() -> None:
+  """Menu"""
+  info()
   create_default_files()
   logger_file_handler()
   output_dir = os.path.abspath(os.path.normcase(get_config_setting('directory')))
@@ -29,34 +57,14 @@ def menu() -> None:
                    '> ')
     cls()
 
-    if option == '1':
-      input_url_or_ids = input('0 - Back.\nEnter album URL or ID.\n>')
-      if input_url_or_ids != '0':
-        cls()
-        inputs = [input_.strip() for input_ in input_url_or_ids.split(',')]
-        albums_ids = set(int(input_) if is_a_valid_id(input_) else extract_album_id(input_) for input_ in inputs)
-        albums_download(albums_ids, downloader)
-        for input_ in inputs:
-          list_organizer(f'album-{int(input_)}' if is_a_valid_id(input_) else input_)
-        logger.log(5, 'Album urls added to completed list.')
-
-    elif option == '2':
-      input_user_url_or_id = input('0 - Back.\nEnter user URL or ID.\n>')
-      if input_user_url_or_id != '0':
-        cls()
-        inputs = [id_.strip() for id_ in input_user_url_or_id.split(',')]
-        users_ids = set(int(input_) if is_a_valid_id(input_) else extract_user_id(input_) for input_ in inputs)
-        users_download(users_ids, downloader)
-        for input_ in inputs:
-          list_organizer(f'user-{int(input_)}' if is_a_valid_id(input_) else input_)
-        logger.log(5, 'Users urls added to completed list.')
+    if option in ['1', '2']:
+      enter_inputs(option, downloader)
 
     elif option == '3':
       list_txt = read_list()
-      albums_ids = set(int(input_) if is_a_valid_id(input_) else extract_album_id(input_) for input_ in list_txt)
+      albums_ids = extract_ids_from_list(list_txt, extract_album_id)
       albums_download(albums_ids, downloader)
-      for item in list_txt:
-        list_organizer(f'album-{int(item)}' if is_a_valid_id(item) else item)
+      list_txt_organizer(list_txt, 'album')
 
     elif option == '4':
       open_config_menu()

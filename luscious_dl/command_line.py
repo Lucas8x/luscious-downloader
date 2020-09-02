@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 import argparse
 import os
-from typing import Any
 
-from luscious_dl.parser import extract_album_id, extract_user_id, is_a_valid_id
+from luscious_dl.parser import extract_album_id, extract_user_id, extract_ids_from_list
 
 
-def command_line() -> Any:
+def command_line() -> argparse.Namespace:
+  """
+  Defines the command line interface.
+  :return: arguments
+  """
   parser = argparse.ArgumentParser(prog='Luscious Downloader', description='Download albums')
 
   group = parser.add_mutually_exclusive_group(required=True)
@@ -46,7 +49,6 @@ def command_line() -> Any:
 
   if args.threads <= 0:
     args.threads = os.cpu_count()
-
   if args.page <= 0:
     args.page = 1
   if args.max_pages <= 0:
@@ -54,20 +56,17 @@ def command_line() -> Any:
   if args.page > args.max_pages:
     args.max_pages = args.page
 
-  if args.keyword:
-    args.keyword = args.keyword.strip()
-  else:
-    args.keyword = None
+  args.keyword = args.keyword.strip() if args.keyword else None
 
   if args.album_inputs:
     inputs = [id_.strip() for id_ in args.album_inputs.split(',')]
-    args.albums_ids = set(int(input_) if is_a_valid_id(input_) else extract_album_id(input_) for input_ in inputs)
+    args.albums_ids = extract_ids_from_list(inputs, extract_album_id)
   else:
     args.albums_ids = None
 
   if args.user_inputs:
     inputs = [id_.strip() for id_ in args.user_inputs.split(',')]
-    args.users_ids = set(int(input_) if is_a_valid_id(input_) else extract_user_id(input_) for input_ in inputs)
+    args.users_ids = extract_ids_from_list(inputs, extract_user_id)
   else:
     args.users_ids = None
 

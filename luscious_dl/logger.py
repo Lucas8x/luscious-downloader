@@ -3,6 +3,7 @@ from colorlog import ColoredFormatter
 
 
 def logger_file_handler() -> None:
+  """Add file handler"""
   file_format = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s', '%Y-%m-%d %H:%M:%S')
   file_handler = logging.FileHandler('logs.log')
   file_handler.setLevel(logging.ERROR)

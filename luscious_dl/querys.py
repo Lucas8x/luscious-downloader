@@ -2,6 +2,11 @@ from typing import Dict
 
 
 def album_info_query(album_id: str) -> Dict:
+  """
+  Build Album information query.
+  :param album_id: Album id
+  :return: Query
+  """
   return {
     "id": 6,
     "operationName": "AlbumGet",
@@ -15,6 +20,12 @@ def album_info_query(album_id: str) -> Dict:
 
 
 def album_list_pictures_query(album_id: str, page_number: int) -> Dict:
+  """
+  Build Album pictures query.
+  :param album_id: Album id
+  :param page_number: initial search page
+  :return: Query
+  """
   return {
     "id": 7,
     "operationName": "AlbumListOwnPictures",
@@ -36,6 +47,13 @@ def album_list_pictures_query(album_id: str, page_number: int) -> Dict:
 
 
 def album_search_query(search_query: str, sorting: str = 'date_trending', page: int = 1) -> Dict:
+  """
+  Build Album search query.
+  :param search_query: keyword
+  :param sorting:
+  :param page: initial search page
+  :return: Query
+  """
   return {
     "id": 12,
     "operationName": "AlbumList",
@@ -64,6 +82,12 @@ def album_search_query(search_query: str, sorting: str = 'date_trending', page: 
 
 
 def user_albums_query(user_id: str, page_number: int) -> Dict:
+  """
+  Build User albums query.
+  :param user_id: User id
+  :param page_number: page number
+  :return: Query
+  """
   return {
     "id": 8,
     "operationName": "AlbumList",
@@ -86,6 +110,11 @@ def user_albums_query(user_id: str, page_number: int) -> Dict:
 
 
 def user_info_query(user_id: str) -> Dict:
+  """
+  Build User information query.
+  :param user_id: User id
+  :return: Query
+  """
   return {
     "id": 3, "operationName": "ProfileGet",
     "query": "query ProfileGet($user_id: ID!) {userprofile {get(user_id: $user_id) {... on UserProfile {id user {"

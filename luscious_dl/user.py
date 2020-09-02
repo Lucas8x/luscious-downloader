@@ -7,6 +7,7 @@ from luscious_dl.querys import user_info_query, user_albums_query
 
 
 class User:
+  """User class."""
   def __init__(self, id_: Union[str, int] = None) -> None:
     self.id_ = id_
     self.name = None
@@ -14,6 +15,7 @@ class User:
     self.albums_ids = []
 
   def show(self) -> None:
+    """Show user information."""
     table = [
       ['ID', self.id_],
       ['Name', self.name],
@@ -22,6 +24,10 @@ class User:
     logger.log(5, f'User information\n{tabulate(table, tablefmt="jira")}')
 
   def fetch_info(self) -> bool:
+    """
+    Fetch user information.
+    :return: bool
+    """
     logger.log(5, 'Fetching user information...')
     response = requests.post('https://members.luscious.net/graphql/nobatch/?operationName=ProfileGet',
                              json=user_info_query(str(self.id_))).json()
@@ -35,6 +41,7 @@ class User:
     return True
 
   def fetch_albums(self) -> None:
+    """Fetch user albums."""
     logger.log(5, 'Fetching user albums...')
     n = 1
     raw_data = []
