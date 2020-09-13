@@ -28,12 +28,12 @@ class Album:
       ['Pictures', self.number_of_pictures],
       ['Gifs', self.number_of_animated_pictures]
     ]
-    logger.log(5, f'Album information\n{tabulate(table, tablefmt="jira")}')
+    logger.log(5, f'Album information:\n{tabulate(table, tablefmt="jira")}')
 
   def fetch_info(self) -> bool:
     """
     Fetch album information.
-    :return: bool
+    :return: bool - true if there are no error otherwise false
     """
     logger.log(5, 'Fetching album information...')
     response = requests.post('https://members.luscious.net/graphql/nobatch/?operationName=AlbumGet',
@@ -76,7 +76,7 @@ class Album:
       logger.critical(f'Downloader not set in album: {self.id_} | {self.title}')
 
 
-def search_albums(search_query: str, sorting: str = 'date_trending', page: int = 1, max_pages: int = 1) -> List:
+def search_albums(search_query: str, sorting: str = 'date_trending', page: int = 1, max_pages: int = 1) -> List[Album]:
   """
   Search for albums.
   :param search_query: keyword

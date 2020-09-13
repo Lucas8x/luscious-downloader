@@ -116,7 +116,8 @@ def user_info_query(user_id: str) -> Dict:
   :return: Query
   """
   return {
-    "id": 3, "operationName": "ProfileGet",
+    "id": 3,
+    "operationName": "ProfileGet",
     "query": "query ProfileGet($user_id: ID!) {userprofile {get(user_id: $user_id) {... on UserProfile {id user {"
              "id name display_name user_title } "
              "number_of_posts number_of_albums number_of_videos is_banned"

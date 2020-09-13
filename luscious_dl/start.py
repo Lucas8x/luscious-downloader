@@ -1,4 +1,4 @@
-from typing import Union, List, Set
+from typing import Union, List
 
 from luscious_dl.logger import logger
 from luscious_dl.downloader import Downloader
@@ -8,11 +8,11 @@ from luscious_dl.user import User
 from luscious_dl.utils import info
 
 
-def albums_download(albums_ids: Union[List[int], Set[int]], downloader: Downloader) -> None:
+def albums_download(albums_ids: List[int], downloader: Downloader) -> None:
   """
   Start albums download process.
-  :param albums_ids:
-  :param downloader:
+  :param albums_ids: list of album ids
+  :param downloader: Downloder object
   """
   for id_ in albums_ids:
     album = Album(id_)
@@ -27,11 +27,11 @@ def albums_download(albums_ids: Union[List[int], Set[int]], downloader: Download
       logger.critical(f'Album: {id_} Error: {e}')
 
 
-def users_download(users_ids: Union[List[int], Set[int]], downloader: Downloader) -> None:
+def users_download(users_ids: List[int], downloader: Downloader) -> None:
   """
   Start users download process.
-  :param users_ids:
-  :param downloader:
+  :param users_ids: list of user ids
+  :param downloader: Downloder object
   """
   for id_ in users_ids:
     user = User(id_)

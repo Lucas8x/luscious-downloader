@@ -59,13 +59,13 @@ def command_line() -> argparse.Namespace:
   args.keyword = args.keyword.strip() if args.keyword else None
 
   if args.album_inputs:
-    inputs = [id_.strip() for id_ in args.album_inputs.split(',')]
+    inputs = [input_.strip() for input_ in args.album_inputs.split(',')]
     args.albums_ids = extract_ids_from_list(inputs, extract_album_id)
   else:
     args.albums_ids = None
 
   if args.user_inputs:
-    inputs = [id_.strip() for id_ in args.user_inputs.split(',')]
+    inputs = [input_.strip() for input_ in args.user_inputs.split(',')]
     args.users_ids = extract_ids_from_list(inputs, extract_user_id)
   else:
     args.users_ids = None

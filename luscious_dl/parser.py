@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from typing import Optional, Union, List, Set, Callable
+from typing import Optional, Union, List, Callable
 
 from luscious_dl.logger import logger
 
@@ -53,11 +53,11 @@ def extract_user_id(user_url: str) -> Optional[int]:
     return None
 
 
-def extract_ids_from_list(iterable: Union[List[str], Set[int]], extractor: Callable[[str], Optional[int]]) -> Set:
+def extract_ids_from_list(iterable: List[Union[str, int]], extractor: Callable[[str], Optional[int]]) -> List[int]:
   """
-  Extract ids from list/set containing urls/ids.
-  :param iterable: list/set containing urls/ids
+  Extract ids from list containing urls/ids.
+  :param iterable: list containing urls/ids
   :param extractor: extraction function
-  :return: A set containing the ids
+  :return: A list containing the ids
   """
-  return set(int(item) if is_a_valid_id(item) else extractor(item) for item in iterable)
+  return list(filter(None, set(int(item) if is_a_valid_id(item) else extractor(item) for item in iterable)))

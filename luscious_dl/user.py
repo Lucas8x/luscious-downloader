@@ -21,12 +21,12 @@ class User:
       ['Name', self.name],
       ['Albums', self.number_of_albums]
     ]
-    logger.log(5, f'User information\n{tabulate(table, tablefmt="jira")}')
+    logger.log(5, f'User information:\n{tabulate(table, tablefmt="jira")}')
 
   def fetch_info(self) -> bool:
     """
     Fetch user information.
-    :return: bool
+    :return: bool - true if there are no error otherwise false
     """
     logger.log(5, 'Fetching user information...')
     response = requests.post('https://members.luscious.net/graphql/nobatch/?operationName=ProfileGet',

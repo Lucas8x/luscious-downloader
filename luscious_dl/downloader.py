@@ -5,7 +5,7 @@ import time
 import requests
 import multiprocessing as mp
 from itertools import repeat
-from typing import Union, List, Set
+from typing import List
 
 from luscious_dl.logger import logger
 from luscious_dl.utils import create_folder
@@ -34,14 +34,14 @@ class Downloader:
       if not os.path.exists(picture_path):
         logger.info(f'Start downloading: {picture_url}')
         retry = 1
-        res = requests.get(picture_url, stream=True, timeout=self.timeout)
-        while res.status_code != 200 and retry <= self.retries:
+        response = requests.get(picture_url, stream=True, timeout=self.timeout)
+        while response.status_code != 200 and retry <= self.retries:
           logger.warning(f'{retry}º Retry: {picture_name}')
-          res = requests.get(picture_url, stream=True, timeout=self.timeout)
+          response = requests.get(picture_url, stream=True, timeout=self.timeout)
           retry += 1
-        if len(res.content) > 0:
+        if len(response.content) > 0:
           with open(picture_path, 'wb') as image:
-            image.write(res.content)
+            image.write(response.content)
             logger.log(5, f'Completed download of: {picture_name}')
         else:
           raise Exception('Zero content')
@@ -50,7 +50,7 @@ class Downloader:
     except Exception as e:
       logger.error(f'Failed to download picture: {picture_url}\n{e}')
 
-  def download(self, album_title: str, urls: Union[List[str], Set[str]]) -> None:
+  def download(self, album_title: str, urls: List[str]) -> None:
     """
     Start download process.
     :param album_title: Album title
