@@ -1,5 +1,5 @@
 # Luscious Downloader
-CLI tool for downloading Luscious Albums
+CLI tool for downloading [Luscious](https://luscious.net) Albums
 
 ## Requirements
 * Python 3
