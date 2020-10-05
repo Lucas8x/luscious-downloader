@@ -1,6 +1,9 @@
 # Luscious Downloader
 CLI tool for downloading [Luscious](https://luscious.net) Albums
 
+![Downloads](https://img.shields.io/pypi/dm/luscious-downloader?style=flat-square)
+![License](https://img.shields.io/github/license/lucas8x/luscious-downloader?style=flat-square)
+
 ## Requirements
 * Python 3
 * requests
