@@ -1,6 +1,6 @@
 chardet==3.0.4
 colorama==0.4.3
-colorlog==4.2.1
+colorlog==4.4.0
 idna==2.10
 requests==2.24.0
 tabulate==0.8.7

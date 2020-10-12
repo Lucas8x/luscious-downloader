@@ -23,7 +23,7 @@ setup(
   install_requires=requirements,
   include_package_data=True,
   zip_safe=False,
-  python_requires='>=3',
+  python_requires='>=3.6',
   entry_points={
     'console_scripts': [
       'lsd = luscious_dl.start:start'

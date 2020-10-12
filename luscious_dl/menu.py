@@ -3,8 +3,8 @@ import os
 from typing import List
 
 from luscious_dl.logger import logger, logger_file_handler
-from luscious_dl.utils import cls, create_default_files, open_config_menu, get_config_setting, list_organizer, \
-  read_list, info
+from luscious_dl.utils import cls, create_default_files, open_config_menu, get_config_setting, read_list, info, \
+  ListOrganizer
 from luscious_dl.downloader import Downloader
 from luscious_dl.parser import extract_user_id, is_a_valid_id, extract_album_id, extract_ids_from_list
 from luscious_dl.start import albums_download, users_download
@@ -16,7 +16,8 @@ def list_txt_organizer(items: List[str], prefix: str) -> None:
   :param prefix: album/user
   """
   for item in items:
-    list_organizer(f'{prefix}-{int(item)}' if is_a_valid_id(item) else item)
+    ListOrganizer.remove(item)
+    ListOrganizer.add(f'{prefix}-{int(item)}' if is_a_valid_id(item) else item)
 
 
 def enter_inputs(option: str, downloader: Downloader):
