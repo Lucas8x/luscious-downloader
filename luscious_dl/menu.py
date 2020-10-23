@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
-from typing import List
+from typing import List, Callable
 
 from luscious_dl.logger import logger, logger_file_handler
 from luscious_dl.utils import cls, create_default_files, open_config_menu, get_config_setting, read_list, info, \
@@ -20,19 +20,12 @@ def list_txt_organizer(items: List[str], prefix: str) -> None:
     ListOrganizer.add(f'{prefix}-{int(item)}' if is_a_valid_id(item) else item)
 
 
-def enter_inputs(option: str, downloader: Downloader):
-  """
-  :param option: selected option
-  :param downloader: Downloder object
-  """
-  inputs = input(f'0 - Back.\nEnter {"album" if option == "1" else "user"} URL or ID.\n> ')
-  if inputs != '0':
-    cls()
-    inputs = [input_.strip() for input_ in inputs.split(',')]
-    ids = extract_ids_from_list(inputs, extract_album_id if option == '1' else extract_user_id)
-    albums_download(ids, downloader) if option == '1' else users_download(ids, downloader)
-    list_txt_organizer(inputs, 'album' if option == '1' else 'user')
-    logger.log(5, 'URLs/IDs added to completed list.')
+def download(function: Callable[[List[int], Downloader], None], inputs: List[str], extractor: Callable[[str], int],
+             downloader: Downloader, prefix: str):
+  ids = extract_ids_from_list(inputs, extractor)
+  function(ids, downloader)
+  list_txt_organizer(inputs, prefix)
+  logger.log(5, 'URLs/IDs added to completed list.')
 
 
 def menu() -> None:
@@ -50,7 +43,7 @@ def menu() -> None:
 
   while True:
     option = input('Options:\n'
-                   '1 - Enter albums URL or ID.\n'
+                   '1 - Download albums by URL or ID.\n'
                    '2 - Download all user albums\n'
                    '3 - Download albums from list.txt.\n'
                    '4 - Settings.\n'
@@ -59,13 +52,19 @@ def menu() -> None:
     cls()
 
     if option in ['1', '2']:
-      enter_inputs(option, downloader)
+      inputs = input(f'0 - Back.\nEnter {"album" if option == "1" else "user"} URL or ID.\n> ')
+      if inputs != '0':
+        cls()
+        download(albums_download if option == '1' else users_download,
+                 [input_.strip() for input_ in inputs.split(',')],
+                 extract_album_id if option == '1' else extract_user_id,
+                 downloader,
+                 'album' if option == '1' else 'user'
+                 )
 
     elif option == '3':
       list_txt = read_list()
-      albums_ids = extract_ids_from_list(list_txt, extract_album_id)
-      albums_download(albums_ids, downloader)
-      list_txt_organizer(list_txt, 'album')
+      download(albums_download, list_txt, extract_album_id, downloader, 'album')
 
     elif option == '4':
       open_config_menu()

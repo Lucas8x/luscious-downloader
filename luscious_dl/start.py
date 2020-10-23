@@ -1,4 +1,4 @@
-from typing import Union, List
+from typing import List
 
 from luscious_dl.logger import logger
 from luscious_dl.downloader import Downloader
