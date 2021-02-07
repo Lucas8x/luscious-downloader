@@ -1,7 +1,4 @@
-from typing import Dict
-
-
-def album_info_query(album_id: str) -> Dict:
+def album_info_query(album_id: str) -> dict:
   """
   Build Album information query.
   :param album_id: Album id
@@ -19,7 +16,7 @@ def album_info_query(album_id: str) -> Dict:
   }
 
 
-def album_list_pictures_query(album_id: str, page_number: int) -> Dict:
+def album_list_pictures_query(album_id: str, page_number: int) -> dict:
   """
   Build Album pictures query.
   :param album_id: Album id
@@ -46,7 +43,7 @@ def album_list_pictures_query(album_id: str, page_number: int) -> Dict:
   }
 
 
-def album_search_query(search_query: str, sorting: str = 'date_trending', page: int = 1) -> Dict:
+def album_search_query(search_query: str, sorting: str = 'date_trending', page: int = 1) -> dict:
   """
   Build Album search query.
   :param search_query: keyword
@@ -81,7 +78,7 @@ def album_search_query(search_query: str, sorting: str = 'date_trending', page: 
   }
 
 
-def user_albums_query(user_id: str, page_number: int) -> Dict:
+def user_albums_query(user_id: str, page_number: int) -> dict:
   """
   Build User albums query.
   :param user_id: User id
@@ -109,7 +106,7 @@ def user_albums_query(user_id: str, page_number: int) -> Dict:
   }
 
 
-def user_info_query(user_id: str) -> Dict:
+def user_info_query(user_id: str) -> dict:
   """
   Build User information query.
   :param user_id: User id

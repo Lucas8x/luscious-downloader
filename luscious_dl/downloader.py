@@ -1,11 +1,10 @@
-﻿# -*- coding: utf-8 -*-
+﻿import multiprocessing as mp
 import os
 import re
 import time
-import requests
-import multiprocessing as mp
 from itertools import repeat
-from typing import List
+
+import requests
 
 from luscious_dl.logger import logger
 from luscious_dl.utils import create_folder
@@ -50,7 +49,7 @@ class Downloader:
     except Exception as e:
       logger.error(f'Failed to download picture: {picture_url}\n{e}')
 
-  def download(self, album_title: str, urls: List[str]) -> None:
+  def download(self, album_title: str, urls: list[str]) -> None:
     """
     Start download process.
     :param album_title: Album title

@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
+from typing import Union
+
 import requests
 from tabulate import tabulate
-from typing import Union, List
 
-from luscious_dl.logger import logger
 from luscious_dl.downloader import Downloader
+from luscious_dl.logger import logger
 from luscious_dl.querys import album_info_query, album_list_pictures_query, album_search_query
 
 
@@ -76,7 +76,7 @@ class Album:
       logger.critical(f'Downloader not set in album: {self.id_} | {self.title}')
 
 
-def search_albums(search_query: str, sorting: str = 'date_trending', page: int = 1, max_pages: int = 1) -> List[Album]:
+def search_albums(search_query: str, sorting: str = 'date_trending', page: int = 1, max_pages: int = 1) -> list[Album]:
   """
   Search for albums.
   :param search_query: keyword
@@ -100,7 +100,7 @@ def search_albums(search_query: str, sorting: str = 'date_trending', page: int =
   return albums
 
 
-def print_search(results: List[Album]) -> None:
+def print_search(results: list[Album]) -> None:
   """
   Shows information of the searched albums.
   :param results: Album list

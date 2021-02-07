@@ -1,16 +1,15 @@
-# -*- coding: utf-8 -*-
 import os
-from typing import List, Callable
+from typing import Callable
 
-from luscious_dl.logger import logger, logger_file_handler
-from luscious_dl.utils import cls, create_default_files, open_config_menu, get_config_setting, read_list, info, \
-  ListOrganizer
 from luscious_dl.downloader import Downloader
+from luscious_dl.logger import logger, logger_file_handler
 from luscious_dl.parser import extract_user_id, is_a_valid_id, extract_album_id, extract_ids_from_list
 from luscious_dl.start import albums_download, users_download
+from luscious_dl.utils import cls, create_default_files, open_config_menu, get_config_setting, read_list, info, \
+  ListOrganizer
 
 
-def list_txt_organizer(items: List[str], prefix: str) -> None:
+def list_txt_organizer(items: list[str], prefix: str) -> None:
   """
   :param items: List of urls or ids
   :param prefix: album/user
@@ -20,7 +19,7 @@ def list_txt_organizer(items: List[str], prefix: str) -> None:
     ListOrganizer.add(f'{prefix}-{int(item)}' if is_a_valid_id(item) else item)
 
 
-def download(function: Callable[[List[int], Downloader], None], inputs: List[str], extractor: Callable[[str], int],
+def download(function: Callable[[list[int], Downloader], None], inputs: list[str], extractor: Callable[[str], int],
              downloader: Downloader, prefix: str):
   ids = extract_ids_from_list(inputs, extractor)
   function(ids, downloader)
@@ -52,9 +51,10 @@ def menu() -> None:
     cls()
 
     if option in ['1', '2']:
-      inputs = input(f'0 - Back.\nEnter {"album" if option == "1" else "user"} URL or ID.\n> ')
+      inputs = input('0 - Back.\n'
+                     f'Enter {"album" if option == "1" else "user"} URL or ID.\n> ')
+      cls()
       if inputs != '0':
-        cls()
         download(albums_download if option == '1' else users_download,
                  [input_.strip() for input_ in inputs.split(',')],
                  extract_album_id if option == '1' else extract_user_id,

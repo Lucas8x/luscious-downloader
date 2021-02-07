@@ -1,7 +1,6 @@
-# -*- coding: utf-8 -*-
-import os
 import json
-from typing import Any, List
+import os
+from typing import Any
 
 from luscious_dl import __version__
 from luscious_dl.logger import logger
@@ -32,7 +31,7 @@ def get_config_setting(setting: str) -> Any:
   return data[setting]
 
 
-def read_list() -> List[str]:
+def read_list() -> list[str]:
   """
   Read text file content.
   :return: list content
@@ -82,7 +81,7 @@ def create_folder(directory: str) -> None:
 
 class ListOrganizer:
   @staticmethod
-  def add(string: str):
+  def add(string: str) -> None:
     """
     Add string to list_completed.txt
     :param string: Mostly URL or ID of Album or User
@@ -96,7 +95,7 @@ class ListOrganizer:
       logger.log(5, f'Added to completed list: {string}')
 
   @staticmethod
-  def remove(string: str):
+  def remove(string: str) -> None:
     """
     Remove string from list.txt
     :param string: Mostly URL or ID of Album or User

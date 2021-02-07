@@ -1,6 +1,7 @@
+from typing import Union
+
 import requests
 from tabulate import tabulate
-from typing import Union
 
 from luscious_dl.logger import logger
 from luscious_dl.querys import user_info_query, user_albums_query

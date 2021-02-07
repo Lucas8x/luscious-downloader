@@ -1,14 +1,12 @@
-from typing import List
-
-from luscious_dl.logger import logger
-from luscious_dl.downloader import Downloader
-from luscious_dl.command_line import command_line
 from luscious_dl.album import Album, search_albums, print_search
+from luscious_dl.command_line import command_line
+from luscious_dl.downloader import Downloader
+from luscious_dl.logger import logger
 from luscious_dl.user import User
 from luscious_dl.utils import info
 
 
-def albums_download(albums_ids: List[int], downloader: Downloader) -> None:
+def albums_download(albums_ids: list[int], downloader: Downloader) -> None:
   """
   Start albums download process.
   :param albums_ids: list of album ids
@@ -27,7 +25,7 @@ def albums_download(albums_ids: List[int], downloader: Downloader) -> None:
       logger.critical(f'Album: {id_} Error: {e}')
 
 
-def users_download(users_ids: List[int], downloader: Downloader) -> None:
+def users_download(users_ids: list[int], downloader: Downloader) -> None:
   """
   Start users download process.
   :param users_ids: list of user ids
