@@ -12,7 +12,7 @@ from luscious_dl.utils import create_folder
 
 class Downloader:
   """Downloader class."""
-  def __init__(self, output_dir: str, threads: int, retries: int = 5, timeout: int = 30, delay: int = 0) -> None:
+  def __init__(self, output_dir: str, threads: int = 1, retries: int = 5, timeout: int = 30, delay: int = 0) -> None:
     self.output_dir = output_dir
     self.threads = threads
     self.retries = retries

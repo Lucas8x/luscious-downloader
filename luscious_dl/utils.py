@@ -40,7 +40,7 @@ def read_list() -> list[str]:
     logger.log(5, 'Reading list...')
     with open('./list.txt') as file:
       list_txt = file.read().split('\n')
-      logger.log(5, f'Total of Links: {len(list_txt)}.')
+      logger.log(5, f'Total of Items: {len(list_txt)}.')
     return list_txt
   except Exception as e:
     print(f'Failed to read the list.txt.\n{e}')

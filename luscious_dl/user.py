@@ -50,9 +50,9 @@ class User:
       logger.info(f'Fetching user albums page: {n}...')
       response = requests.post('https://members.luscious.net/graphql/nobatch/?operationName=AlbumList',
                                json=user_albums_query(str(self.id_), n)).json()
-      raw_data.append(response['data']['album']['list']['items'])
+      raw_data.extend(response['data']['album']['list']['items'])
       n += 1
       if not response['data']['album']['list']['info']['has_next_page']:
         break
-    self.albums_ids = [album['id'] for arr in raw_data for album in arr]
+    self.albums_ids = [album['id'] for album in raw_data]
     logger.info(f'Total of {len(self.albums_ids)} ids found.')

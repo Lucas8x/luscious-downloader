@@ -57,11 +57,11 @@ class Album:
     while True:
       response = requests.post('https://members.luscious.net/graphql/nobatch/?operationName=AlbumListOwnPictures',
                                json=album_list_pictures_query(str(self.id_), page)).json()
-      raw_data.append(response['data']['picture']['list']['items'])
+      raw_data.extend(response['data']['picture']['list']['items'])
       page += 1
       if not response['data']['picture']['list']['info']['has_next_page']:
         break
-    self.pictures = [picture['url_to_original'] for arr in raw_data for picture in arr]
+    self.pictures = [picture['url_to_original'] for picture in raw_data]
     logger.info(f'Total of {len(self.pictures)} links found.')
 
   def download(self, downloader: Downloader) -> None:
@@ -85,16 +85,16 @@ def search_albums(search_query: str, sorting: str = 'date_trending', page: int =
   :param max_pages: maximum search page
   :return: Album list
   """
-  logger.log(5, f'Searching albums with keyword: {search_query} | Page: {page} | Max pages: {max_pages}')
+  logger.log(5, f'Searching albums with keyword: {search_query} | Page: {page} | Max pages: {max_pages} | Sort: {sorting}')
   albums = []
   while True:
     response = requests.post('https://members.luscious.net/graphql/nobatch/?operationName=AlbumList',
                              json=album_search_query(search_query, sorting, page)).json()
     data = response['data']['album']['list']
     page += 1
-    for item in data['items']:
-      albums.append(Album(item['id'], item['title'], item['created_by']['display_name'],
-                          item['number_of_pictures'], item['number_of_animated_pictures']))
+    for album in data['items']:
+      albums.append(Album(album['id'], album['title'], album['created_by']['display_name'],
+                          album['number_of_pictures'], album['number_of_animated_pictures']))
     if not data['info']['has_next_page'] or data['info']['page'] == max_pages:
       break
   return albums
