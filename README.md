@@ -1,29 +1,27 @@
 # Luscious Downloader
-CLI tool for downloading [Luscious](https://luscious.net) Albums
+CLI tool for downloading albums from [Luscious](https://luscious.net) 
 
 ![Downloads](https://img.shields.io/pypi/dm/luscious-downloader?style=flat-square)
 ![License](https://img.shields.io/github/license/lucas8x/luscious-downloader?style=flat-square)
 
-## Requirements
-* Python 3
-* requests
-
-## Installation
+## Manual Installation
 *If you have python and git installed.*
 <pre><code>git clone https://github.com/Lucas8x/luscious-downloader.git
 cd luscious-downloader
 python setup.py install
 </code></pre>
-*or through pip.*
+
+## Installation (pip)
 <pre><code>pip install luscious-downloader
 </code></pre>
 
 ## Installation #2 (Windows Only)
-*If you don't have python installed.*
-1. [Download](https://github.com/Lucas8x/luscious-downloader/archive/master.zip).
+*If you don't have python or git installed.*
+1. [Download](https://github.com/Lucas8x/luscious-downloader/archive/main.zip).
 2. Extract.
 3. Run `run.bat`.
 4. Wait install.
+5. [Menu](#Menu)
 
 ## Usage
 **NOTE:** The default download folder will be the path where you are executing the command.\
@@ -72,10 +70,11 @@ lsd -s yuri -d --page 2 --max-page 5
 </code></pre>
 
 ## Menu
-1. Enter albums URL or ID.
+1. Download albums by URL or ID.
 2. Download all user albums.
 3. Download albums from list.txt.
-4. [Settings](#settings).
+4. Search albums by keyword.
+5. [Settings](#settings).
 0. Exit.
 
 ### Settings
