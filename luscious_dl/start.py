@@ -1,7 +1,12 @@
+import os
+from argparse import Namespace
+from typing import Optional
+
 from luscious_dl.album import Album, search_albums, print_search
 from luscious_dl.command_line import command_line
 from luscious_dl.downloader import Downloader
 from luscious_dl.logger import logger
+from luscious_dl.parser import extract_ids_from_list, extract_album_id, extract_user_id
 from luscious_dl.user import User
 from luscious_dl.utils import info
 
@@ -44,10 +49,38 @@ def users_download(users_ids: list[int], downloader: Downloader) -> None:
       logger.critical(f'User: {id_} Error: {e}')
 
 
-def start() -> None:
+def normalize_args(args: Namespace) -> Namespace:
+  if args.threads <= 0:
+    args.threads = os.cpu_count()
+  if args.page <= 0:
+    args.page = 1
+  if args.max_pages <= 0:
+    args.max_pages = 1
+  if args.page > args.max_pages:
+    args.max_pages = args.page
+
+  args.keyword = args.keyword.strip() if args.keyword else None
+
+  if args.album_inputs:
+    inputs = [input_.strip() for input_ in args.album_inputs.split(',')]
+    args.albums_ids = extract_ids_from_list(inputs, extract_album_id)
+  else:
+    args.albums_ids = None
+
+  if args.user_inputs:
+    inputs = [input_.strip() for input_ in args.user_inputs.split(',')]
+    args.users_ids = extract_ids_from_list(inputs, extract_user_id)
+  else:
+    args.users_ids = None
+
+  return args
+
+
+def start(args: Namespace = None) -> None:
   """Start"""
-  info()
-  args = command_line()
+  if not args:
+    info()
+  args = normalize_args(args or command_line())
   downloader = Downloader(args.directory, args.threads, args.retries, args.timeout, args.delay)
 
   if args.albums_ids:

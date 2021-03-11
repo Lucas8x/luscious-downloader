@@ -10,6 +10,5 @@ cls
 echo The script can be terminated at any time by pressing Ctrl-C or clicking X
 echo -------------------------------------------------------------------------
 
-mode con:cols=135 lines=30
 python\python.exe luscious_dl\menu.py
 pause

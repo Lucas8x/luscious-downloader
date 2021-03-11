@@ -3,14 +3,14 @@ from typing import Optional, Union, Callable
 from luscious_dl.logger import logger
 
 
-def is_a_valid_id(id_: Union[str, int]) -> bool:
+def is_a_valid_integer(x: Union[str, int]) -> bool:
   """
-  Check if it is a valid id.
-  :param id_: id in string or int format
+  Check if it's a valid integer.
+  :param x: id in string or int format
   :return: bool
   """
   try:
-    if isinstance(int(id_), int):
+    if isinstance(int(x), int):
       return True
   except (ValueError, TypeError):
     return False

@@ -1,8 +1,6 @@
 import argparse
 import os
 
-from luscious_dl.parser import extract_album_id, extract_user_id, extract_ids_from_list
-
 
 def command_line() -> argparse.Namespace:
   """
@@ -45,29 +43,6 @@ def command_line() -> argparse.Namespace:
                       help='delay between downloading multiple albums')
 
   args = parser.parse_args()
-
-  if args.threads <= 0:
-    args.threads = os.cpu_count()
-  if args.page <= 0:
-    args.page = 1
-  if args.max_pages <= 0:
-    args.max_pages = 1
-  if args.page > args.max_pages:
-    args.max_pages = args.page
-
-  args.keyword = args.keyword.strip() if args.keyword else None
-
-  if args.album_inputs:
-    inputs = [input_.strip() for input_ in args.album_inputs.split(',')]
-    args.albums_ids = extract_ids_from_list(inputs, extract_album_id)
-  else:
-    args.albums_ids = None
-
-  if args.user_inputs:
-    inputs = [input_.strip() for input_ in args.user_inputs.split(',')]
-    args.users_ids = extract_ids_from_list(inputs, extract_user_id)
-  else:
-    args.users_ids = None
 
   return args
 
