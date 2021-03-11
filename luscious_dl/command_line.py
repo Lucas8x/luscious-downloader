@@ -26,8 +26,8 @@ def command_line() -> argparse.Namespace:
   parser.add_argument('--max-page', dest='max_pages', action='store', type=int, default=1,
                       help='max pages of search results')
 
-  '''parser.add_argument('--sorting', dest='sorting', action='store', default='date_trending',
-                      help='search sorting', choices=['date_trending', 'search_score', 'rating_all_time'])'''
+  parser.add_argument('--sorting', dest='sorting', action='store', default='date_trending',
+                      help='search sorting', choices=['date_trending', 'rating_all_time'])
 
   # download args
   parser.add_argument('--output', '-o', dest='directory', action='store', default=os.getcwd(), help='output directory')

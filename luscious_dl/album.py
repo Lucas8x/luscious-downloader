@@ -80,7 +80,7 @@ def search_albums(search_query: str, sorting: str = 'date_trending', page: int =
   """
   Search for albums.
   :param search_query: keyword
-  :param sorting:
+  :param sorting: sorting method
   :param page: initial search page
   :param max_pages: maximum search page
   :return: Album list
@@ -92,9 +92,9 @@ def search_albums(search_query: str, sorting: str = 'date_trending', page: int =
                              json=album_search_query(search_query, sorting, page)).json()
     data = response['data']['album']['list']
     page += 1
-    for album in data['items']:
-      albums.append(Album(album['id'], album['title'], album['created_by']['display_name'],
-                          album['number_of_pictures'], album['number_of_animated_pictures']))
+    for item in data['items']:
+      albums.append(Album(item['id'], item['title'], item['created_by']['display_name'],
+                          item['number_of_pictures'], item['number_of_animated_pictures']))
     if not data['info']['has_next_page'] or data['info']['page'] == max_pages:
       break
   return albums

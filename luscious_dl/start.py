@@ -88,7 +88,7 @@ def start(args: Namespace = None) -> None:
   elif args.users_ids:
     users_download(args.users_ids, downloader)
   elif args.keyword:
-    result = search_albums(search_query=args.keyword, page=args.page, max_pages=args.max_pages)
+    result = search_albums(args.keyword, args.sorting, args.page, args.max_pages)
     print_search(result)
     if args.search_download:
       for album in result:
