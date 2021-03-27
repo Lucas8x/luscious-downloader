@@ -53,15 +53,13 @@ class Album:
     """Fetch album pictures."""
     logger.log(5, 'Fetching album pictures...')
     page = 1
-    raw_data = []
     while True:
       response = requests.post('https://members.luscious.net/graphql/nobatch/?operationName=AlbumListOwnPictures',
                                json=album_list_pictures_query(str(self.id_), page)).json()
-      raw_data.extend(response['data']['picture']['list']['items'])
+      self.pictures.extend([picture['url_to_original'] for picture in response['data']['picture']['list']['items']])
       page += 1
       if not response['data']['picture']['list']['info']['has_next_page']:
         break
-    self.pictures = [picture['url_to_original'] for picture in raw_data]
     logger.info(f'Total of {len(self.pictures)} links found.')
 
   def download(self, downloader: Downloader) -> None:
