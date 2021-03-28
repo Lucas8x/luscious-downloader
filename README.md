@@ -46,27 +46,27 @@ lsd -a 275719,292887
 
 Download all user's albums:
 
-```ps
+```bash
 lsd -u https://members.luscious.net/users/668124/
 lsd -u 668124,274991
 ```
 
 Download search albums:
 
-```ps
+```bash
 lsd -s yuri -d
 lsd -s yuri -d --page 2 --max-page 5
 ```
 
 Download top albums:
 
-```ps
+```bash
 lsd -s yuri -d --sorting rating_all_time
 ```
 
 CLI options:
 
-```ps
+```
 Options:
     -h, --help              show help message
   # Download
