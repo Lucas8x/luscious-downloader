@@ -2,18 +2,21 @@
 CLI tool for downloading albums from [Luscious](https://luscious.net) 
 
 ![Downloads](https://img.shields.io/pypi/dm/luscious-downloader?style=flat-square)
+![PyPI](https://img.shields.io/pypi/v/luscious-downloader?style=flat-square)
 ![License](https://img.shields.io/github/license/lucas8x/luscious-downloader?style=flat-square)
 
 ## Manual Installation
 *If you have python and git installed.*
-<pre><code>git clone https://github.com/Lucas8x/luscious-downloader.git
+```bash
+git clone https://github.com/Lucas8x/luscious-downloader.git
 cd luscious-downloader
 python setup.py install
-</code></pre>
+```
 
 ## Installation (pip)
-<pre><code>pip install luscious-downloader
-</code></pre>
+```bash
+pip install luscious-downloader
+```
 
 ## Installation #2 (Windows Only)
 *If you don't have python or git installed.*
@@ -28,45 +31,55 @@ python setup.py install
 **NOTE²:** You can enter multiple url and ids separated by commas.
 
 Download albums:
-<pre><code>lsd -a https://members.luscious.net/albums/light-yuri_275719/
+```bash
+lsd -a https://members.luscious.net/albums/light-yuri_275719/
 lsd -a 275719,292887
-</code></pre>
+```
 
 Download all user's albums:
-<pre><code>lsd -u https://members.luscious.net/users/668124/
+```bash
+lsd -u https://members.luscious.net/users/668124/
 lsd -u 668124,274991
-</code></pre>
+```
 
 Download search albums:
-<pre><code>lsd -s yuri -d
+```bash
+lsd -s yuri -d
 lsd -s yuri -d --page 2 --max-page 5
-</code></pre>
+```
+
+Download top albums:
+```bash
+lsd -s yuri -d --sorting rating_all_time
+```
 
 <pre><code>Options:
-  -h, --help            show help message
+  -h, --help              show help message
 # Download
   -a ALBUM_INPUTS, --album ALBUM_INPUTS
-                        download album by url or id
+                          download album by url or id
   -u USER_INPUTS, --user USER_INPUTS
-                        download all user albums by url or id
+                          download all user albums by url or id
   -s KEYWORD, --search KEYWORD
-                        search albums by keyword
+                          search albums by keyword
 # Search Options
-  --download, -d        download albums from search results
-  --page PAGE           page number of search results
-  --max-page MAX_PAGES  max pages of search results
+  --download, -d          download albums from search results
+  --page PAGE             page number of search results
+  --max-page MAX_PAGES    max pages of search results
+  --sorting {date_trending,rating_all_time}
+                          sorting of search albums
 
 # Download Options
   --output DIRECTORY, -o DIRECTORY
-                        output directory
+                          output directory
   --threads THREADS, -t THREADS
-                        how many download threads
+                          how many download threads
   --retries RETRIES, -R RETRIES
-                        download retries
+                          download retries
   --timeout TIMEOUT, -T TIMEOUT
-                        download timeout
+                          download timeout
   --delay DELAY, -D DELAY
-                        delay between downloading multiple albums
+                          delay between downloading multiple albums
 </code></pre>
 
 ## Menu
