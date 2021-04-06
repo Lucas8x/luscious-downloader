@@ -64,6 +64,21 @@ Download top albums:
 lsd -s yuri -d --sorting rating_all_time
 ```
 
+Format output album folder name:
+
+```bash
+lsd -a 275719 --format [%i][%t]
+#Output: [275719][Light Yuri]
+```
+
+Supported album folder formatter:
+
+- %i = Album ID
+- %t = Album name/title
+- %a = Album authors' name
+- %p = Album total pictures
+- %g = Album total gifs
+
 CLI options:
 
 ```
@@ -94,6 +109,8 @@ Options:
                             download timeout
     --delay DELAY, -D DELAY
                             delay between downloading multiple albums
+    --format FORMAT
+                            format output album folder name
 ```
 
 ## Menu
