@@ -7,6 +7,9 @@ tests/
 reinstall.bat
 config.json
 list*.txt
+test/
+
+.vscode
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
