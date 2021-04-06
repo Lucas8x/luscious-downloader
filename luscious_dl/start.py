@@ -10,11 +10,12 @@ from luscious_dl.user import User
 from luscious_dl.utils import info
 
 
-def albums_download(albums_ids: list[int], downloader: Downloader) -> None:
+def albums_download(albums_ids: list[int], downloader: Downloader, foldername_format='%t') -> None:
   """
   Start albums download process.
   :param albums_ids: list of album ids
   :param downloader: Downloder object
+  :param foldername_format: album folder name format
   """
   for id_ in albums_ids:
     album = Album(id_)
@@ -22,18 +23,19 @@ def albums_download(albums_ids: list[int], downloader: Downloader) -> None:
       if album.fetch_info():
         album.show()
         album.fetch_pictures()
-        album.download(downloader)
+        album.download(downloader, foldername_format)
       else:
         raise Exception('Album Information not found.')
     except Exception as e:
       logger.critical(f'Album: {id_} Error: {e}')
 
 
-def users_download(users_ids: list[int], downloader: Downloader) -> None:
+def users_download(users_ids: list[int], downloader: Downloader, foldername_format='%t') -> None:
   """
   Start users download process.
   :param users_ids: list of user ids
   :param downloader: Downloder object
+  :param foldername_format: album folder name format
   """
   for id_ in users_ids:
     user = User(id_)
@@ -41,7 +43,7 @@ def users_download(users_ids: list[int], downloader: Downloader) -> None:
       if user.fetch_info():
         user.fetch_albums()
         user.show()
-        albums_download(user.albums_ids, downloader)
+        albums_download(user.albums_ids, downloader, foldername_format)
       else:
         raise Exception('User Information not found.')
     except Exception as e:
@@ -82,12 +84,12 @@ def start(args: Namespace = None) -> None:
   if not args:
     info()
   args = normalize_args(args or command_line())
-  downloader = Downloader(args.directory, args.threads, args.retries, args.timeout, args.delay, args.foldername_format)
+  downloader = Downloader(args.directory, args.threads, args.retries, args.timeout, args.delay)
 
   if args.albums_ids:
-    albums_download(args.albums_ids, downloader)
+    albums_download(args.albums_ids, downloader, args.foldername_format)
   elif args.users_ids:
-    users_download(args.users_ids, downloader)
+    users_download(args.users_ids, downloader, args.foldername_format)
   elif args.keyword:
     result = search_albums(args.keyword, args.sorting, args.page, args.max_pages)
     print_search(result)
