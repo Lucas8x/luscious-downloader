@@ -41,6 +41,8 @@ def command_line() -> argparse.Namespace:
 
   parser.add_argument('--delay', '-D', dest='delay', action='store', type=int, default=0,
                       help='delay between downloading multiple albums')
+  parser.add_argument('--format', dest='folder_format', action='store', default='%t',
+                      help='format album folder name')
 
   args = parser.parse_args()
 

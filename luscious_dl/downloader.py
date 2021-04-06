@@ -1,6 +1,5 @@
 ﻿import multiprocessing as mp
 import os
-import re
 import time
 from itertools import repeat
 
@@ -12,18 +11,20 @@ from luscious_dl.utils import create_folder
 
 class Downloader:
   """Downloader class."""
-  def __init__(self, output_dir: str, threads: int = 1, retries: int = 5, timeout: int = 30, delay: int = 0) -> None:
+  def __init__(self, output_dir: str, threads: int = 1, retries: int = 5, timeout: int = 30, delay: int = 0,
+               foldername_format: str = '%t') -> None:
     self.output_dir = output_dir
     self.threads = threads
     self.retries = retries
     self.timeout = timeout
     self.delay = delay
+    self.foldername_format = foldername_format
 
   def download_picture(self, picture_url: str, album_folder: str) -> None:
     """
     Download picture.
     :param picture_url: picture url
-    :param album_folder: folder path
+    :param album_folder: album folder path
     """
     try:
       if picture_url.startswith('//'):
@@ -51,24 +52,21 @@ class Downloader:
     except Exception as e:
       logger.error(f'Failed to download picture: {picture_url}\n{e}')
 
-  def download(self, album_title: str, urls: list[str]) -> None:
+  def download(self, urls: list[str], folder_name: str) -> None:
     """
     Start download process.
-    :param album_title: Album title
     :param urls: list of image URLs
+    :param folder_name: album folder name
     """
     start_time = time.time()
 
-    album_name = re.sub(r'[^\w\-_\. ]', '_', album_title)
-    album_folder = os.path.join(self.output_dir, album_name)
+    album_folder = os.path.join(self.output_dir, folder_name)
     create_folder(album_folder)
 
     pool = mp.Pool(self.threads)
     pool.starmap(self.download_picture, zip(urls, repeat(album_folder)))
 
     end_time = time.time()
-
-    logger.info(f'Album download completed: {album_title}')
     logger.info(f'Finished in {time.strftime("%H:%M:%S", time.gmtime(end_time - start_time))}')
 
     if self.delay:

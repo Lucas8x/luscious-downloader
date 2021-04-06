@@ -1,6 +1,5 @@
 import os
 from argparse import Namespace
-from typing import Optional
 
 from luscious_dl.album import Album, search_albums, print_search
 from luscious_dl.command_line import command_line
@@ -52,6 +51,8 @@ def users_download(users_ids: list[int], downloader: Downloader) -> None:
 def normalize_args(args: Namespace) -> Namespace:
   if args.threads <= 0:
     args.threads = os.cpu_count()
+    if not args.threads:
+      args.threads = 1
   if args.page <= 0:
     args.page = 1
   if args.max_pages <= 0:
@@ -81,7 +82,7 @@ def start(args: Namespace = None) -> None:
   if not args:
     info()
   args = normalize_args(args or command_line())
-  downloader = Downloader(args.directory, args.threads, args.retries, args.timeout, args.delay)
+  downloader = Downloader(args.directory, args.threads, args.retries, args.timeout, args.delay, args.foldername_format)
 
   if args.albums_ids:
     albums_download(args.albums_ids, downloader)

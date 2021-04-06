@@ -1,6 +1,7 @@
 import json
 import os
-from typing import Any
+import re
+from typing import Any, Union
 
 from luscious_dl import __version__
 from luscious_dl.logger import logger
@@ -20,6 +21,35 @@ def cls() -> None:
   pass"""
 
 
+def format_foldername(album_id: Union[str, int], album_title: str, album_author: str,
+                      number_of_pictures: Union[str, int], number_of_animated_pictures: Union[str, int],
+                      foldername_format: str = '%t') -> str:
+  """
+  Format album folder name
+  :param album_id: Album id
+  :param album_title: Album title
+  :param album_author: Album author
+  :param number_of_pictures: total album pictures
+  :param number_of_animated_pictures: total album gifs
+  :param foldername_format:
+    %i = album id
+    %t = album name
+    %a = album author
+    %p = album pictures
+    %g = album gifs
+  :return: formatted folder name string
+  """
+  album_name = re.sub(r'[^\w\-_\. ]', '_', album_title)
+  folder_name = foldername_format \
+    .replace('%i', str(album_id)) \
+    .replace('%t', album_name) \
+    .replace('%a', album_author) \
+    .replace('%p', str(number_of_pictures)) \
+    .replace('%g', str(number_of_animated_pictures)) \
+    .replace('[]', '').strip()
+  return folder_name
+
+
 def get_config_setting(setting: str) -> Any:
   """
   Retrieve the key value
@@ -28,7 +58,7 @@ def get_config_setting(setting: str) -> Any:
   """
   with open('./config.json') as config:
     data = json.load(config)
-  return data[setting]
+  return data[setting] if setting in data else None
 
 
 def read_list() -> list[str]:

@@ -6,6 +6,7 @@ from tabulate import tabulate
 from luscious_dl.downloader import Downloader
 from luscious_dl.logger import logger
 from luscious_dl.querys import album_info_query, album_list_pictures_query, album_search_query
+from luscious_dl.utils import format_foldername
 
 
 class Album:
@@ -62,14 +63,23 @@ class Album:
         break
     logger.info(f'Total of {len(self.pictures)} links found.')
 
-  def download(self, downloader: Downloader) -> None:
+  def download(self, downloader: Downloader, foldername_format: str = '%t') -> None:
     """
     Start album download.
     :param downloader: Downloder object
+    :param foldername_format:
+      %i = album id
+      %t = album name
+      %a = album author
+      %p = album pictures
+      %g = album gifs
     """
     logger.info(f'Starting album download: {self.title}')
     if downloader:
-      downloader.download(self.title, self.pictures)
+      folder_name = format_foldername(self.id_, self.title, self.author, self.number_of_pictures,
+                                      self.number_of_animated_pictures, foldername_format)
+      downloader.download(self.pictures, folder_name)
+      logger.info(f'Album download completed: {self.title}')
     else:
       logger.critical(f'Downloader not set in album: {self.id_} | {self.title}')
 

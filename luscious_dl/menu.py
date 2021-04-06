@@ -10,6 +10,7 @@ from luscious_dl.utils import cls, create_default_files, open_config_menu, get_c
 
 def list_txt_organizer(items: list[str], prefix: str) -> None:
   """
+  Remove from list.txt and then add to list_completed.txt
   :param items: List of urls or ids
   :param prefix: album/user
   """
@@ -19,10 +20,11 @@ def list_txt_organizer(items: list[str], prefix: str) -> None:
 
 
 def create_namespace(album_inputs=None, user_inputs=None, keyword=None, search_download=False, page=1, max_pages=1,
-                     directory=None, threads=os.cpu_count(), retries=5, timeout=30, delay=0) -> Namespace:
+                     directory=None, threads=os.cpu_count(), retries=5, timeout=30, delay=0,
+                     foldername_format='%t') -> Namespace:
   return Namespace(album_inputs=album_inputs, user_inputs=user_inputs, keyword=keyword, search_download=search_download,
                    page=page, max_pages=max_pages, directory=directory, threads=threads, retries=retries,
-                   timeout=timeout, delay=delay)
+                   timeout=timeout, delay=delay, foldername_format=foldername_format)
 
 
 def menu() -> None:
@@ -30,11 +32,12 @@ def menu() -> None:
   info()
   create_default_files()
   logger_file_handler()
-  output_dir = os.path.abspath(os.path.normcase(get_config_setting('directory')))
-  pool_size = get_config_setting('pool')
-  retries = get_config_setting('retries')
-  timeout = get_config_setting('timeout')
-  delay = get_config_setting('delay')
+  output_dir = os.path.abspath(os.path.normcase(get_config_setting('directory') or './Albums/'))
+  pool_size = get_config_setting('pool') or 1
+  retries = get_config_setting('retries') or 5
+  timeout = get_config_setting('timeout') or 30
+  delay = get_config_setting('delay') or 0
+  foldername_format = get_config_setting('foldername_format') or '%t'
 
   while True:
     option = input('Options:\n'
@@ -54,7 +57,8 @@ def menu() -> None:
       if inputs != '0':
         args = create_namespace(album_inputs=inputs if option == '1' else None,
                                 user_inputs=inputs if option == '2' else None,
-                                directory=output_dir, threads=pool_size, retries=retries, timeout=timeout, delay=delay)
+                                directory=output_dir, threads=pool_size, retries=retries, timeout=timeout, delay=delay,
+                                foldername_format=foldername_format)
         start(args)
         list_txt_organizer([input_.strip() for input_ in inputs.split(',')], 'album' if option == '1' else 'user')
         logger.log(5, 'URLs/IDs added to completed list.')
