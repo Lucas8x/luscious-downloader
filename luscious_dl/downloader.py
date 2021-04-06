@@ -28,6 +28,8 @@ class Downloader:
     try:
       if picture_url.startswith('//'):
         picture_url = picture_url.replace('//', '', 1)
+      if not picture_url.startswith('http://') and not picture_url.startswith('https://'):
+        picture_url = 'https://' + picture_url
       picture_name = picture_url.rsplit('/', 1)[1]
       picture_path = os.path.join(album_folder, picture_name)
       if not os.path.exists(picture_path):
