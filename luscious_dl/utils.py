@@ -58,13 +58,20 @@ def get_config_setting(setting: str) -> Any:
   """
   with open('./config.json') as config:
     data = json.load(config)
-  return data[setting] if setting in data else None
+  try:
+    return data[setting]
+  except KeyError:
+    # logger.warning(f'Key: {setting} doesnt exist in config file')
+    return None
+  except Exception as e:
+    logger.warning(f'Something went wrong in config file: {e}')
+    return None
 
 
 def read_list() -> list[str]:
   """
-  Read text file content.
-  :return: list content
+  Read list.txt file content.
+  :return: list.txt content
   """
   try:
     logger.log(5, 'Reading list...')
@@ -84,7 +91,8 @@ def create_default_files() -> None:
       "pool": os.cpu_count(),
       "retries": 5,
       "timeout": 30,
-      "delay": 0
+      "delay": 0,
+      "foldername_format": "%t"
     }
     with open('./config.json', 'a+') as config_file:
       json.dump(data, config_file, indent=2)
@@ -138,20 +146,21 @@ class ListOrganizer:
 
 
 def open_config_menu() -> None:
-  """Open config.json menu"""
+  """Open settings/config menu"""
   with open('./config.json', 'r+') as j:
     data = json.load(j)
     while True:
-      config_menu = input(f'1 - Change Directory [Current: {data["directory"]}]\n'
-                          f'2 - CPU Pool [Current: {data["pool"]}]\n'
-                          f'3 - Picture Retries [Current: {data["retries"]}]\n'
-                          f'4 - Picture Timeout [Current: {data["timeout"]}]\n'
-                          f'5 - Download Delay [Current: {data["delay"]}]\n'
-                          '0 - Back and Save.\n'
+      config_menu = input(f'1 - Change Directory [Current: {get_config_setting("directory")}]\n'
+                          f'2 - CPU Pool [Current: {get_config_setting("pool")}]\n'
+                          f'3 - Picture Retries [Current: {get_config_setting("retries")}]\n'
+                          f'4 - Picture Timeout [Current: {get_config_setting("timeout")}]\n'
+                          f'5 - Download Delay [Current: {get_config_setting("delay")}]\n'
+                          f'6 - Format output album folder name [Current: {get_config_setting("foldername_format")}]\n'
+                          '0 - Back.\n'
                           '> ')
       cls()
       if config_menu == '1':
-        new_path = input(f'Current directory: {data["directory"]}\n'
+        new_path = input(f'Current directory: {get_config_setting("directory")}\n'
                          '1 - Restore default directory\n'
                          '0 - Back\n'
                          'Directory: ')
@@ -170,11 +179,28 @@ def open_config_menu() -> None:
         data['timeout'] = int(input('Enter picture timeout.\n> '))
       elif config_menu == '5':
         data['delay'] = int(input('Enter album download delay.\n> '))
+      elif config_menu == '6':
+        print(
+          'Supported album folder formatter:',
+          '%i = Album ID',
+          '%t = Album name/title',
+          '%a = Album authors name',
+          '%p = Album total pictures',
+          '%g = Album total gifs',
+          sep='\n'
+        )
+        response = input('\nEnter album folder format.\n> ')
+        if not any(identifier in response for identifier in ('%i', '%t', '%a')):
+          if input('\nNo album identifiers found.\nYou sure? ("Y/N")\n> ') in 'nN':
+            print('\nAlbum folder format set to the default.\n')
+            response = '%t'
+        data['foldername_format'] = response
+
       elif config_menu == '0':
         cls()
         break
       else:
         print('Invalid Option.\n')
-    j.seek(0)
-    json.dump(data, j, indent=2)
-    j.truncate()
+      j.seek(0)
+      json.dump(data, j, indent=2)
+      j.truncate()
