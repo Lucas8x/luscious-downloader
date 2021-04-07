@@ -129,4 +129,5 @@ Options:
 3. Picture Retries (download attempts for each picture. Default = 5).
 4. Picture Timeout (download timeout for each picture. Default = 30).
 5. Download Delay (delay between downloading multiple albums. Default = 0)
-0. Back.
+6. Format output album folder name (Default = %t)
+7. Back.
