@@ -30,7 +30,7 @@ class Downloader:
       if picture_url.startswith('//'):
         picture_url = picture_url.replace('//', '', 1)
       if not picture_url.startswith('http://') and not picture_url.startswith('https://'):
-        picture_url = 'https://' + picture_url
+        picture_url = f'https://{picture_url}'
       picture_name = picture_url.rsplit('/', 1)[1]
       picture_path = os.path.join(album_folder, picture_name)
       if not os.path.exists(picture_path):
@@ -41,6 +41,8 @@ class Downloader:
           logger.warning(f'{retry}º Retry: {picture_name}')
           response = requests.get(picture_url, stream=True, timeout=self.timeout)
           retry += 1
+        if retry > self.retries:
+          raise Exception('Reached maximum number of retries')
         if len(response.content) > 0:
           with open(picture_path, 'wb') as image:
             image.write(response.content)
