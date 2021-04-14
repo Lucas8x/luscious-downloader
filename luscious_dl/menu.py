@@ -64,7 +64,7 @@ def menu() -> None:
         logger.log(5, 'URLs/IDs added to completed list.')
 
     elif option == '3':
-      list_txt = read_list()
+      list_txt = list(set(read_list()))
       args = create_namespace(album_inputs=','.join(list_txt),
                               directory=output_dir, threads=pool_size, retries=retries, timeout=timeout, delay=delay)
       start(args)
