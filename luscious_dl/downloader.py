@@ -9,6 +9,15 @@ from luscious_dl.logger import logger
 from luscious_dl.utils import create_folder
 
 
+def normalize_url(picture_url: str) -> str:
+  if picture_url.startswith('//'):
+    picture_url = picture_url.replace('//', '', 1)
+  if not picture_url.startswith('http://') and not picture_url.startswith('https://'):
+    picture_url = f'https://{picture_url}'
+  picture_url = picture_url.replace('cdnio.', 'w315.')
+  return picture_url
+
+
 class Downloader:
   """Downloader class."""
   def __init__(self, output_dir: str, threads: int = 1, retries: int = 5, timeout: int = 30, delay: int = 0,
@@ -27,10 +36,7 @@ class Downloader:
     :param album_folder: album folder path
     """
     try:
-      if picture_url.startswith('//'):
-        picture_url = picture_url.replace('//', '', 1)
-      if not picture_url.startswith('http://') and not picture_url.startswith('https://'):
-        picture_url = f'https://{picture_url}'
+      picture_url = normalize_url(picture_url)
       picture_name = picture_url.rsplit('/', 1)[1]
       picture_path = os.path.join(album_folder, picture_name)
       if not os.path.exists(picture_path):
