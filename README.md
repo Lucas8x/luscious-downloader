@@ -51,6 +51,12 @@ lsd -u https://members.luscious.net/users/668124/
 lsd -u 668124,274991
 ```
 
+Download all user's favorites:
+```bash
+lsd -u https://members.luscious.net/users/668124/ -f
+lsd -u 668124,274991 -f
+```
+
 Download search albums:
 
 ```bash
@@ -91,6 +97,8 @@ Options:
                             download all user albums by url or id
     -s KEYWORD,      --search KEYWORD
                             search albums by keyword
+    --favorites, -f
+                            download only the user's favorites
   # Search Options
     --download, -d          download albums from search results
     --page PAGE             page number of search results
@@ -117,9 +125,10 @@ Options:
 
 1. Download albums by URL or ID.
 2. Download all user albums.
-3. Download albums from list.txt.
+3. Download all user favorites.
 4. Search albums by keyword.
-5. [Settings](#settings).
+5. Download albums from list.txt.
+6. [Settings](#settings).
 0. Exit.
 
 ### Settings
@@ -130,4 +139,4 @@ Options:
 4. Picture Timeout (download timeout for each picture. Default = 30).
 5. Download Delay (delay between downloading multiple albums. Default = 0)
 6. Format output album folder name (Default = %t)
-7. Back.
+0. Back.
