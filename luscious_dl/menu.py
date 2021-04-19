@@ -21,10 +21,10 @@ def list_txt_organizer(items: list[str], prefix: str) -> None:
 
 def create_namespace(album_inputs=None, user_inputs=None, keyword=None, search_download=False, page=1, max_pages=1,
                      directory=None, threads=os.cpu_count(), retries=5, timeout=30, delay=0,
-                     foldername_format='%t') -> Namespace:
+                     foldername_format='%t', only_favorites=False) -> Namespace:
   return Namespace(album_inputs=album_inputs, user_inputs=user_inputs, keyword=keyword, search_download=search_download,
                    page=page, max_pages=max_pages, directory=directory, threads=threads, retries=retries,
-                   timeout=timeout, delay=delay, foldername_format=foldername_format)
+                   timeout=timeout, delay=delay, foldername_format=foldername_format, only_favorites=only_favorites)
 
 
 def menu() -> None:
@@ -42,34 +42,27 @@ def menu() -> None:
   while True:
     option = input('Options:\n'
                    '1 - Download albums by URL or ID.\n'
-                   '2 - Download all user albums\n'
-                   '3 - Download albums from list.txt.\n'
+                   '2 - Download all user albums.\n'
+                   '3 - Download all user favorites.\n'
                    '4 - Search albums by keyword.\n'
-                   '5 - Settings.\n'
+                   '5 - Download albums from list.txt.\n'
+                   '6 - Settings.\n'
                    '0 - Exit.\n'
                    '> ')
-    cls()
 
-    if option in ['1', '2']:
-      inputs = input('0 - Back.\n'
+    if option in ('1', '2', '3'):
+      inputs = input('\n0 - Back.\n'
                      f'Enter {"album" if option == "1" else "user"} URL or ID.\n> ')
       cls()
       if inputs != '0':
         args = create_namespace(album_inputs=inputs if option == '1' else None,
-                                user_inputs=inputs if option == '2' else None,
+                                user_inputs=inputs if option in ('2', '3') else None,
                                 directory=output_dir, threads=pool_size, retries=retries, timeout=timeout, delay=delay,
-                                foldername_format=foldername_format)
+                                foldername_format=foldername_format,
+                                only_favorites=True if option == '3' else False)
         start(args)
         list_txt_organizer([input_.strip() for input_ in inputs.split(',')], 'album' if option == '1' else 'user')
         logger.log(5, 'URLs/IDs added to completed list.')
-
-    elif option == '3':
-      list_txt = list(set(read_list()))
-      args = create_namespace(album_inputs=','.join(list_txt),
-                              directory=output_dir, threads=pool_size, retries=retries, timeout=timeout, delay=delay)
-      start(args)
-      list_txt_organizer(list_txt, 'album')
-      logger.log(5, 'URLs/IDs added to completed list.')
 
     elif option == '4':
       keyword = input('Enter keyword\n> ')
@@ -85,6 +78,14 @@ def menu() -> None:
       start(args)
 
     elif option == '5':
+      list_txt = list(set(read_list()))
+      args = create_namespace(album_inputs=','.join(list_txt),
+                              directory=output_dir, threads=pool_size, retries=retries, timeout=timeout, delay=delay)
+      start(args)
+      list_txt_organizer(list_txt, 'album')
+      logger.log(5, 'URLs/IDs added to completed list.')
+
+    elif option == '6':
       open_config_menu()
 
     elif option == '0':

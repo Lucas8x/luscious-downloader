@@ -161,7 +161,8 @@ def user_info_query(user_id: str) -> dict:
                     get(user_id: $user_id) {
                       ... on UserProfile {
                         id user {id name display_name user_title}
-                        number_of_posts number_of_albums number_of_videos is_banned filter_settings {
+                        number_of_posts number_of_albums number_of_videos number_of_favorite_albums is_banned
+                        filter_settings {
                           uses_default_warnings audience_ids genres_blocked_ids genres_subscribed_ids
                         }
                       }
@@ -172,5 +173,44 @@ def user_info_query(user_id: str) -> dict:
     """,
     "variables": {
       "user_id": user_id
+    }
+  }
+
+
+def user_favorites_query(user_id: str, page_number: int) -> dict:
+  """
+  Build User favorites query.
+  :param user_id: User id
+  :param page_number: page number
+  :return: Query
+  """
+  return {
+    "operationName": "AlbumList",
+    "query": """query AlbumList($input: AlbumListInput!) {
+                  album {
+                    list(input: $input) {
+                      info {
+                        ...FacetCollectionInfo}items {...AlbumMinimal}
+                      }
+                    }
+                  }
+                  fragment FacetCollectionInfo on FacetCollectionInfo {
+                    page has_next_page has_previous_page total_items total_pages url_complete
+                  }
+                  fragment AlbumMinimal on Album {
+                    id
+                  }
+    """,
+    "variables": {
+      "input": {
+        "display": "date_newest",
+        "filters": [
+          {
+            "name": "favorite_by_user_id",
+            "value": user_id
+          }
+        ],
+        "page": page_number
+      }
     }
   }

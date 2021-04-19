@@ -4,7 +4,7 @@ import requests
 from tabulate import tabulate
 
 from luscious_dl.logger import logger
-from luscious_dl.querys import user_info_query, user_albums_query
+from luscious_dl.querys import user_info_query, user_albums_query, user_favorites_query
 
 
 class User:
@@ -13,6 +13,7 @@ class User:
     self.id_ = id_
     self.name = None
     self.number_of_albums = None
+    self.number_of_favorites = None
     self.albums_ids = []
 
   def show(self) -> None:
@@ -20,7 +21,8 @@ class User:
     table = [
       ['ID', self.id_],
       ['Name', self.name],
-      ['Albums', self.number_of_albums]
+      ['Albums', self.number_of_albums],
+      ['Favorites', self.number_of_favorites]
     ]
     logger.log(5, f'User information:\n{tabulate(table, tablefmt="jira")}')
 
@@ -39,16 +41,18 @@ class User:
       return False
     self.name = data['user']['name']
     self.number_of_albums = data['number_of_albums']
+    self.number_of_favorites = data['number_of_favorite_albums']
     return True
 
-  def fetch_albums(self) -> None:
+  def fetch_albums(self, only_favorites=False):
     """Fetch user albums."""
-    logger.log(5, 'Fetching user albums...')
+    logger.log(5, f'Fetching user {"favorites" if only_favorites else "albums"}...')
     n = 1
     while True:
-      logger.info(f'Fetching user albums page: {n}...')
+      logger.info(f'Fetching user {"favorites" if only_favorites else "albums"} page: {n}...')
+      json_query = user_favorites_query if only_favorites else user_albums_query
       response = requests.post('https://members.luscious.net/graphql/nobatch/?operationName=AlbumList',
-                               json=user_albums_query(str(self.id_), n)).json()
+                               json=json_query(str(self.id_), n)).json()
       self.albums_ids.extend([album['id'] for album in response['data']['album']['list']['items']])
       n += 1
       if not response['data']['album']['list']['info']['has_next_page']:

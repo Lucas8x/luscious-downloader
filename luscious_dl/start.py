@@ -14,7 +14,7 @@ def albums_download(albums_ids: list[int], downloader: Downloader, foldername_fo
   """
   Start albums download process.
   :param albums_ids: list of album ids
-  :param downloader: Downloder object
+  :param downloader: Downloader object
   :param foldername_format: album folder name format
   """
   for id_ in albums_ids:
@@ -30,18 +30,19 @@ def albums_download(albums_ids: list[int], downloader: Downloader, foldername_fo
       logger.critical(f'Album: {id_} Error: {e}')
 
 
-def users_download(users_ids: list[int], downloader: Downloader, foldername_format='%t') -> None:
+def users_download(users_ids: list[int], downloader: Downloader, foldername_format='%t', only_favorites=False) -> None:
   """
   Start users download process.
   :param users_ids: list of user ids
-  :param downloader: Downloder object
+  :param downloader: Downloader object
   :param foldername_format: album folder name format
+  :param only_favorites: defines if it's to download only the favorites
   """
   for id_ in users_ids:
     user = User(id_)
     try:
       if user.fetch_info():
-        user.fetch_albums()
+        user.fetch_albums(only_favorites)
         user.show()
         albums_download(user.albums_ids, downloader, foldername_format)
       else:
@@ -61,6 +62,10 @@ def normalize_args(args: Namespace) -> Namespace:
     args.max_pages = 1
   if args.page > args.max_pages:
     args.max_pages = args.page
+
+  if args.only_favorites and not args.user_inputs:
+    logger.warn(f"You're passing --favorites/-f flag without any user input")
+    args.only_favorites = False
 
   args.keyword = args.keyword.strip() if args.keyword else None
 
@@ -89,7 +94,7 @@ def start(args: Namespace = None) -> None:
   if args.albums_ids:
     albums_download(args.albums_ids, downloader, args.foldername_format)
   elif args.users_ids:
-    users_download(args.users_ids, downloader, args.foldername_format)
+    users_download(args.users_ids, downloader, args.foldername_format, args.only_favorites)
   elif args.keyword:
     result = search_albums(args.keyword, args.sorting, args.page, args.max_pages)
     print_search(result)

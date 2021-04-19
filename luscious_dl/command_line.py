@@ -17,11 +17,15 @@ def command_line() -> argparse.Namespace:
 
   group.add_argument('--search', '-s', dest='keyword', action='store', help='search albums by keyword')
 
+  # user args
+  parser.add_argument('--favorites', '-f', dest='only_favorites', action='store_true',
+                      help='download user favorites only')
+
   # search args
   parser.add_argument('--download', '-d', dest='search_download', action='store_true',
                       help='download albums from search results')
 
-  parser.add_argument('--page', dest='page', action='store', type=int, default=1, help='page numebr of search results')
+  parser.add_argument('--page', dest='page', action='store', type=int, default=1, help='page number of search results')
 
   parser.add_argument('--max-page', dest='max_pages', action='store', type=int, default=1,
                       help='max pages of search results')
@@ -29,7 +33,7 @@ def command_line() -> argparse.Namespace:
   parser.add_argument('--sorting', dest='sorting', action='store', default='date_trending',
                       help='search sorting', choices=['date_trending', 'rating_all_time'])
 
-  # download args
+  # downloader args
   parser.add_argument('--output', '-o', dest='directory', action='store', default=os.getcwd(), help='output directory')
 
   parser.add_argument('--threads', '-t', dest='threads', action='store', type=int, default=os.cpu_count(),
