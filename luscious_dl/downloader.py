@@ -14,7 +14,7 @@ def normalize_url(picture_url: str) -> str:
     picture_url = picture_url.replace('//', '', 1)
   if not picture_url.startswith('http://') and not picture_url.startswith('https://'):
     picture_url = f'https://{picture_url}'
-  picture_url = picture_url.replace('cdnio.', 'w315.')
+  # picture_url = picture_url.replace('cdnio.', 'w315.')
   return picture_url
 
 
