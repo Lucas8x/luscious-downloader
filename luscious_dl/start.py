@@ -102,7 +102,7 @@ def start(args: Namespace = None) -> None:
       for album in result:
         album.show()
         album.fetch_pictures()
-        album.download(downloader)
+        album.download(downloader, args.foldername_format)
 
 
 if __name__ == '__main__':
