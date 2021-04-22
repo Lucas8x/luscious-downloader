@@ -66,7 +66,7 @@ class Album:
   def download(self, downloader: Downloader, foldername_format: str = '%t') -> None:
     """
     Start album download.
-    :param downloader: Downloder object
+    :param downloader: Downloader object
     :param foldername_format:
       %i = album id
       %t = album name

@@ -19,7 +19,7 @@ def command_line() -> argparse.Namespace:
 
   # user args
   parser.add_argument('--favorites', '-f', dest='only_favorites', action='store_true',
-                      help='download user favorites only')
+                      help="download only user favorites")
 
   # search args
   parser.add_argument('--download', '-d', dest='search_download', action='store_true',
