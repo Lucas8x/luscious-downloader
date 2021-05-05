@@ -50,6 +50,21 @@ def format_foldername(album_id: Union[str, int], album_title: str, album_author:
   return folder_name
 
 
+def create_folder(directory: str) -> None:
+  """
+  Creates folder in the specified path.
+  :param directory: folder path
+  """
+  try:
+    if not os.path.exists(directory):
+      os.makedirs(directory, exist_ok=True)
+      logger.info(f'Album folder created in: {directory}')
+    else:
+      logger.warn(f'Album folder already exist in: {directory}')
+  except OSError:
+    logger.error(f'Creating directory in: {directory}')
+
+
 def get_config_setting(setting: str) -> Any:
   """
   Retrieve the key value
@@ -100,21 +115,6 @@ def create_default_files() -> None:
     open('./list.txt', 'a+')
   if not os.path.exists('./list_completed.txt'):
     open('./list_completed.txt', 'a+')
-
-
-def create_folder(directory: str) -> None:
-  """
-  Creates folder in the specified path.
-  :param directory: folder path
-  """
-  try:
-    if not os.path.exists(directory):
-      os.makedirs(directory, exist_ok=True)
-      logger.info(f'Album folder created in: {directory}')
-    else:
-      logger.warn(f'Album folder already exist in: {directory}')
-  except OSError:
-    logger.error(f'Creating directory in: {directory}')
 
 
 class ListOrganizer:
