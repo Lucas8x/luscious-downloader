@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
-from luscious_dl import __author__, __version__, __email__
 
+from luscious_dl import __author__, __version__, __email__
 
 with open('requirements.txt') as r:
   requirements = r.readlines()
@@ -17,7 +17,7 @@ setup(
   license='MIT',
   author=__author__,
   author_email=__email__,
-  description='Download Luscious Albums',
+  description='CLI tool for downloading albums from Luscious',
   long_description=long_description,
   long_description_content_type="text/markdown",
   install_requires=requirements,
@@ -31,8 +31,15 @@ setup(
   },
   classifiers=[
     'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.6',
+    'Programming Language :: Python :: 3.7',
+    'Programming Language :: Python :: 3.8',
+    'Programming Language :: Python :: 3.9',
     'Environment :: Console',
     'Intended Audience :: End Users/Desktop',
     'License :: OSI Approved :: MIT License',
+    'Natural Language :: English',
+    'Topic :: Terminals',
+    'Topic :: Utilities',
   ],
 )
