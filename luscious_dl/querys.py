@@ -15,7 +15,29 @@ def album_info_query(album_id: str) -> dict:
                   }
                 }
                 fragment AlbumStandard on Album {
-                  id title created_by number_of_pictures, number_of_animated_pictures
+                  id
+                  title
+                  slug
+                  url
+                  description
+                  created_by {
+                    name
+                    display_name
+                  }
+                  number_of_pictures
+                  number_of_animated_pictures
+                  language {
+                    title
+                  }
+                  tags {
+                    text
+                  }
+                  genres {
+                    title
+                  }
+                  audiences {
+                    title
+                  }
                 }
     """,
     "variables": {
@@ -42,10 +64,17 @@ def album_list_pictures_query(album_id: str, page_number: int) -> dict:
                   }
                 }
                 fragment FacetCollectionInfo on FacetCollectionInfo {
-                  page has_next_page has_previous_page total_items total_pages items_per_page
+                  page
+                  has_next_page
+                  has_previous_page
+                  total_items
+                  total_pages
+                  items_per_page
                 }
                 fragment PictureStandardWithoutAlbum on Picture {
-                  url_to_original url_to_video url
+                  url_to_original
+                  url_to_video
+                  url
                 }
     """,
     "variables": {
@@ -82,11 +111,25 @@ def album_search_query(search_query: str, sorting: str = 'date_trending', page: 
                   }
                 }
                 fragment FacetCollectionInfo on FacetCollectionInfo {
-                  page has_next_page has_previous_page total_items total_pages items_per_page
+                  page
+                  has_next_page
+                  has_previous_page
+                  total_items
+                  total_pages
+                  items_per_page
                 }
                 fragment AlbumMinimal on Album {
-                  __typename id title number_of_pictures number_of_animated_pictures created_by {
-                    id url name display_name user_title
+                  __typename
+                  id
+                  title
+                  number_of_pictures
+                  number_of_animated_pictures
+                  created_by {
+                    id
+                    url
+                    name
+                    display_name
+                    user_title
                   }
                 }
     """,
@@ -127,7 +170,12 @@ def user_albums_query(user_id: str, page_number: int) -> dict:
                   }
                 }
                 fragment FacetCollectionInfo on FacetCollectionInfo {
-                  page has_next_page has_previous_page total_items total_pages url_complete
+                  page
+                  has_next_page
+                  has_previous_page
+                  total_items
+                  total_pages
+                  url_complete
                 }
                 fragment AlbumMinimal on Album {
                   id
@@ -160,10 +208,23 @@ def user_info_query(user_id: str) -> dict:
                   userprofile {
                     get(user_id: $user_id) {
                       ... on UserProfile {
-                        id user {id name display_name user_title}
-                        number_of_posts number_of_albums number_of_videos number_of_favorite_albums is_banned
+                        id 
+                        user {
+                          id
+                          name
+                          display_name
+                          user_title
+                        }
+                        number_of_posts
+                        number_of_albums
+                        number_of_videos
+                        number_of_favorite_albums
+                        is_banned
                         filter_settings {
-                          uses_default_warnings audience_ids genres_blocked_ids genres_subscribed_ids
+                          uses_default_warnings
+                          audience_ids
+                          genres_blocked_ids
+                          genres_subscribed_ids
                         }
                       }
                       ... on MutationError {errors {code message}}
@@ -195,7 +256,12 @@ def user_favorites_query(user_id: str, page_number: int) -> dict:
                     }
                   }
                   fragment FacetCollectionInfo on FacetCollectionInfo {
-                    page has_next_page has_previous_page total_items total_pages url_complete
+                    page
+                    has_next_page
+                    has_previous_page
+                    total_items
+                    total_pages
+                    url_complete
                   }
                   fragment AlbumMinimal on Album {
                     id
