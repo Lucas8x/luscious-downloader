@@ -90,6 +90,9 @@ def generate_pdf(output_dir: Path, formmatted_name: str, album_folder: Path, rm_
         continue
       pictures_path_list.append(str(picture_path))
 
+    if len(pictures_path_list) == 0:
+      raise Exception('Pictures path list is empty, probably has no valid images [jpg, jpeg]')
+
     pdf_filename = f'{formmatted_name}.pdf'
     pdf_path = Path.joinpath(output_dir, pdf_filename)
     layout = img2pdf.get_fixed_dpi_layout_fun((300, 300))
