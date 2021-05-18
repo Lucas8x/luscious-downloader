@@ -1,5 +1,6 @@
 import argparse
 import os
+from pathlib import Path
 
 
 def command_line() -> argparse.Namespace:
@@ -33,8 +34,14 @@ def command_line() -> argparse.Namespace:
   parser.add_argument('--sorting', dest='sorting', action='store', default='date_trending',
                       help='search sorting', choices=['date_trending', 'rating_all_time'])
 
+  # generate options
+  parser.add_argument('--pdf', '-p', dest='gen_pdf', action='store_true',
+                      help='enable pdf generation')
+  parser.add_argument('--rm-origin-dir', dest='rm_origin_dir', action='store_true',
+                      help='remove downloaded album dir when generated PDF file.')
+
   # downloader args
-  parser.add_argument('--output', '-o', dest='directory', action='store', default=os.getcwd(), help='output directory')
+  parser.add_argument('--output', '-o', dest='output_dir', action='store', default=Path.cwd(), help='output directory')
 
   parser.add_argument('--threads', '-t', dest='threads', action='store', type=int, default=os.cpu_count(),
                       help='how many download threads')

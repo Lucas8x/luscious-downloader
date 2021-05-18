@@ -1,3 +1,5 @@
+import json
+from pathlib import Path
 from typing import Union
 
 import requests
@@ -6,7 +8,6 @@ from tabulate import tabulate
 from luscious_dl.downloader import Downloader
 from luscious_dl.logger import logger
 from luscious_dl.querys import album_info_query, album_list_pictures_query, album_search_query
-from luscious_dl.utils import format_foldername
 
 
 class Album:
@@ -18,6 +19,7 @@ class Album:
     self.author = author
     self.number_of_pictures = number_of_pictures
     self.number_of_animated_pictures = number_of_animated_pictures
+    self.info = {}
     self.pictures = []
 
   def show(self) -> None:
@@ -48,6 +50,13 @@ class Album:
     self.author = data['created_by']['display_name']
     self.number_of_pictures = data['number_of_pictures']
     self.number_of_animated_pictures = data['number_of_animated_pictures']
+    self.info.update({
+      'slug': data.get('slug', self.title),
+      'language': data.get('language', {}).get('title', ''),
+      'tags':  [tag.get('text', '') for tag in data.get('tags', {})],
+      'genres':  [genre.get('title', '') for genre in data.get('genres', {})],
+      'audiences':  [audience.get('title', '') for audience in data.get('audiences', {})],
+    })
     return True
 
   def fetch_pictures(self) -> None:
@@ -63,25 +72,38 @@ class Album:
         break
     logger.info(f'Total of {len(self.pictures)} links found.')
 
-  def download(self, downloader: Downloader, foldername_format: str = '%t') -> None:
+  def download(self, downloader: Downloader, album_folder: Path) -> None:
     """
     Start album download.
     :param downloader: Downloader object
-    :param foldername_format:
-      %i = album id
-      %t = album name
-      %a = album author
-      %p = album pictures
-      %g = album gifs
+    :param album_folder: album folder
     """
     logger.info(f'Starting album download: {self.title}')
     if downloader:
-      folder_name = format_foldername(self.id_, self.title, self.author, self.number_of_pictures,
-                                      self.number_of_animated_pictures, foldername_format)
-      downloader.download(self.pictures, folder_name)
+      downloader.download(self.pictures, album_folder)
       logger.info(f'Album download completed: {self.title}')
     else:
       logger.critical(f'Downloader not set in album: {self.id_} | {self.title}')
+
+  def generate_metadata(self, album_dir: Path) -> None:
+    """
+    Create album metadata.json.
+    :param album_dir: album folder path
+    """
+    metadata = {
+      'id': self.id_,
+      'title': self.title,
+      'slug': self.info.get('slug', ''),
+      'author': self.author,
+      'pictures': self.number_of_pictures,
+      'gifs': self.number_of_animated_pictures,
+      'language': self.info.get('language', ''),
+      'tags': self.info.get('tags', ''),
+      'genres': self.info.get('genres', ''),
+      'audiences': self.info.get('audiences', '')
+    }
+    with Path.joinpath(album_dir, 'metadata.json').open('w') as metadata_file:
+      json.dump(metadata, metadata_file, indent=2)
 
 
 def search_albums(search_query: str, sorting: str = 'date_trending', page: int = 1, max_pages: int = 1) -> list[Album]:
