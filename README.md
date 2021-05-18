@@ -52,6 +52,7 @@ lsd -u 668124,274991
 ```
 
 Download all user's favorites:
+
 ```bash
 lsd -u https://members.luscious.net/users/668124/ -f
 lsd -u 668124,274991 -f
@@ -105,6 +106,10 @@ Options:
     --max-page MAX_PAGES    max pages of search results
     --sorting {date_trending,rating_all_time}
                             sorting of search albums
+
+  # Generate Options
+    --pdf                   Enable album pdf generation
+    --rm-origin-dir         Delete album folder when generate pdf
 
   # Download Options
     --output DIRECTORY, -o DIRECTORY
