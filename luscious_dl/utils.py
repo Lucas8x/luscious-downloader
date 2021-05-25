@@ -78,34 +78,46 @@ def generate_pdf(output_dir: Path, formmatted_name: str, album_folder: Path, rm_
   :param rm_origin_dir: indicates whether the source folder will be deleted
   """
   try:
-    import img2pdf
+    from PIL import Image
     logger.info('Generating album pdf file...')
 
     pictures_path_list = []
     for file_name in album_folder.iterdir():
-      if file_name.suffix.lower() not in ['.jpg', '.jpeg']:
+      if file_name.suffix.lower() not in ['.jpg', '.jpeg', '.png']:
         continue
       picture_path = Path.joinpath(album_folder, file_name)
       if picture_path.is_dir():
         continue
-      pictures_path_list.append(str(picture_path))
+      pictures_path_list.append(picture_path)
 
-    if len(pictures_path_list) == 0:
-      raise Exception('Pictures path list is empty, probably has no valid images [jpg, jpeg]')
+    pictures = []
+    if len(pictures_path_list) > 0:
+      for picture_path in pictures_path_list:
+        img = Image.open(picture_path)
+        if picture_path.suffix.lower() == '.png':
+          pictures.append(img.convert('RGB'))
+          continue
+        pictures.append(img)
+
+    if len(pictures) == 0:
+      raise Exception('Pictures list is empty, probably has no valid images [jpg, jpeg, png]')
 
     pdf_filename = f'{formmatted_name}.pdf'
     pdf_path = Path.joinpath(output_dir, pdf_filename)
-    layout = img2pdf.get_fixed_dpi_layout_fun((300, 300))
-    with pdf_path.open('wb') as pdf_file:
-      pdf_file.write(img2pdf.convert(pictures_path_list, layout_fun=layout))
-      logger.log(5, f'Album PDF saved to: {output_dir}')
+
+    first_pic = pictures[0]
+    pictures.pop(0)
+
+    logger.info(f'Adding {len(pictures)+1} pictures to pdf...')
+    first_pic.save(pdf_path, save_all=True, append_images=pictures)
+    logger.log(5, f'Album PDF saved to: {output_dir}')
 
     if rm_origin_dir:
       shutil.rmtree(album_folder, ignore_errors=True)
       logger.log(5, f'Album {formmatted_name} folder deleted.')
 
   except ImportError:
-    logger.error('Please install img2pdf package by using pip.')
+    logger.error('Please install Pillow package by using pip.')
   except Exception as e:
     logger.error(f'Failed to generate album pdf: {e}')
 
