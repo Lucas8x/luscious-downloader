@@ -19,14 +19,6 @@ def cls() -> None:
   os.system('cls' if os.name == 'nt' else 'clear')
 
 
-def get_root_path() -> Path:
-  """
-  Return project root path.
-  :return: PurePath subclass
-  """
-  return Path(__file__).parent.parent
-
-
 """def format_filename(name: str) -> str:
   pass"""
 
@@ -95,8 +87,7 @@ def generate_pdf(output_dir: Path, formmatted_name: str, album_folder: Path, rm_
       for picture_path in pictures_path_list:
         img = Image.open(picture_path)
         if picture_path.suffix.lower() == '.png':
-          pictures.append(img.convert('RGB'))
-          continue
+          img = img.convert('RGB')
         pictures.append(img)
 
     if len(pictures) == 0:
@@ -105,10 +96,10 @@ def generate_pdf(output_dir: Path, formmatted_name: str, album_folder: Path, rm_
     pdf_filename = f'{formmatted_name}.pdf'
     pdf_path = Path.joinpath(output_dir, pdf_filename)
 
+    logger.info(f'Adding {len(pictures)} pictures to pdf...')
     first_pic = pictures[0]
     pictures.pop(0)
 
-    logger.info(f'Adding {len(pictures)+1} pictures to pdf...')
     first_pic.save(pdf_path, save_all=True, append_images=pictures)
     logger.log(5, f'Album PDF saved to: {output_dir}')
 
@@ -120,6 +111,16 @@ def generate_pdf(output_dir: Path, formmatted_name: str, album_folder: Path, rm_
     logger.error('Please install Pillow package by using pip.')
   except Exception as e:
     logger.error(f'Failed to generate album pdf: {e}')
+
+
+# \/ Menu only functions \/ #
+
+def get_root_path() -> Path:
+  """
+  Return project root path.
+  :return: PurePath subclass
+  """
+  return Path(__file__).parent.parent
 
 
 def get_config_data() -> Optional[dict]:

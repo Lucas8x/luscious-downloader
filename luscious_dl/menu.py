@@ -65,7 +65,7 @@ def menu() -> None:
                                 user_inputs=inputs if option in ('2', '3') else None,
                                 output_dir=output_dir, threads=pool_size, retries=retries, timeout=timeout, delay=delay,
                                 foldername_format=foldername_format,
-                                only_favorites=True if option == '3' else False,
+                                only_favorites=option == '3',
                                 gen_pdf=gen_pdf, rm_origin_dir=rm_origin_dir)
         start(args)
         list_txt_organizer([input_.strip() for input_ in inputs.split(',')], 'album' if option == '1' else 'user')
@@ -80,7 +80,7 @@ def menu() -> None:
       page = int(page) if is_a_valid_integer(page) else 1
       max_pages = input('Enter max page or leave blank\n> ')
       max_pages = int(max_pages) if is_a_valid_integer(max_pages) else 1
-      search_download = True if input('Download search results? ("Y/N") ').strip() in 'yY' else False
+      search_download = input('Download search results? ("Y/N") ').strip() in 'yY'
       args = create_namespace(keyword=keyword, search_download=search_download, page=page, max_pages=max_pages)
       start(args)
 
