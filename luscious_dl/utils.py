@@ -35,7 +35,7 @@ def format_foldername(album, foldername_format: str = '%t') -> str:
     %g = album gifs
   :return: formatted folder name string
   """
-  album_name = re.sub(r'[^\w\-_\. ]', '_', album.title)
+  album_name = re.sub(r'[^\w\-_\.]', '_', album.title)
   folder_name = foldername_format \
       .replace('%i', str(album.id_)) \
       .replace('%t', album_name) \
