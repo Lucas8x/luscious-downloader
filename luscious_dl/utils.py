@@ -86,7 +86,7 @@ def generate_pdf(output_dir: Path, formmatted_name: str, album_folder: Path, rm_
     if len(pictures_path_list) > 0:
       for picture_path in pictures_path_list:
         img = Image.open(picture_path)
-        if picture_path.suffix.lower() == '.png':
+        if picture_path.suffix.lower() == '.png' or img.mode == 'RGBA':
           img = img.convert('RGB')
         pictures.append(img)
 
