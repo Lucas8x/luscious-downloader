@@ -97,11 +97,12 @@ def generate_pdf(output_dir: Path, formmatted_name: str, album_folder: Path, rm_
     pdf_path = Path.joinpath(output_dir, pdf_filename)
 
     logger.info(f'Adding {len(pictures)} pictures to pdf...')
-    first_pic = pictures[0]
-    pictures.pop(0)
 
-    first_pic.save(pdf_path, save_all=True, append_images=pictures)
+    pictures[0].save(pdf_path, save_all=True, append_images=pictures[1:])
     logger.log(5, f'Album PDF saved to: {output_dir}')
+
+    for img in pictures:
+      img.close()
 
     if rm_origin_dir:
       shutil.rmtree(album_folder, ignore_errors=True)
