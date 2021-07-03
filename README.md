@@ -145,3 +145,8 @@ Options:
 5. Download Delay (delay between downloading multiple albums. Default = 0)
 6. Format output album folder name (Default = %t)
 0. Back.
+
+
+## License
+
+[MIT](LICENSE)
