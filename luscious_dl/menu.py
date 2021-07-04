@@ -36,7 +36,7 @@ def menu() -> None:
   create_default_files()
   logger_file_handler()
   configs = get_config_data()
-  output_dir = Path(os.path.normcase(configs.get('directory', './Albums/'))).resolve()
+  output_dir = Path(os.path.normcase(configs.get('directory', './albums/'))).resolve()
   pool_size = configs.get('pool', 1)
   retries = configs.get('retries', 5)
   timeout = configs.get('timeout', 30)

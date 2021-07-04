@@ -53,7 +53,7 @@ def create_folder(directory: Path) -> None:
   """
   try:
     if not Path.exists(directory):
-      Path.mkdir(directory, exist_ok=True)
+      Path.mkdir(directory, parents=True, exist_ok=True)
       logger.info(f'Album folder created in: {directory}')
     else:
       logger.warn(f'Album folder already exist in: {directory}')
@@ -124,10 +124,10 @@ def get_root_path() -> Path:
   return Path(__file__).parent.parent
 
 
-def get_config_data() -> Optional[dict]:
+def get_config_data() -> dict:
   """
   Load and return config.json data.
-  :return: key value
+  :return: dictionary
   """
   try:
     with get_root_path().joinpath('config.json').open() as config:
@@ -135,7 +135,7 @@ def get_config_data() -> Optional[dict]:
       return data
   except Exception as e:
     logger.warning(f'Something went wrong loading config file: {e}')
-    return None
+    return {}
 
 
 def read_list() -> list[str]:
@@ -160,7 +160,7 @@ def create_default_files() -> None:
   root = get_root_path()
   if not Path.exists(root.joinpath('config.json')):
     data = {
-      "directory": os.path.normcase("./Albums/"),
+      "directory": "./albums/",
       "pool": os.cpu_count() or 1,
       "retries": 5,
       "timeout": 30,
@@ -220,7 +220,7 @@ def open_config_menu() -> None:
                           f'5 - Download Delay [Current: {data.get("delay")}]\n'
                           f'6 - Format output album folder name [Current: {data.get("foldername_format")}]\n'
                           f'7 - Generate PDF: [Current: {data.get("gen_pdf")}]\n'
-                          f'8 - Remove origin directory [Current: {data.get("rm_origin_dir")}]\n  '
+                          f'8 - Remove origin directory [Current: {data.get("rm_origin_dir")}]\n'
                           '0 - Back.\n'
                           '> ')
       cls()
