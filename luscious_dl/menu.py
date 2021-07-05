@@ -1,6 +1,7 @@
 import os
 from argparse import Namespace
 from pathlib import Path
+from copy import copy
 
 from luscious_dl.logger import logger_file_handler, logger
 from luscious_dl.parser import is_a_valid_integer
@@ -45,6 +46,11 @@ def menu() -> None:
   gen_pdf = configs.get('gen_pdf', False)
   rm_origin_dir = configs.get('rm_origin_dir', False)
 
+  base_args = create_namespace(output_dir=output_dir,
+                               threads=pool_size, retries=retries, timeout=timeout, delay=delay,
+                               foldername_format=foldername_format,
+                               gen_pdf=gen_pdf, rm_origin_dir=rm_origin_dir)
+
   while True:
     option = input('Options:\n'
                    '1 - Download albums by URL or ID.\n'
@@ -61,12 +67,10 @@ def menu() -> None:
                      f'Enter {"album" if option == "1" else "user"} URL or ID.\n> ')
       cls()
       if inputs != '0':
-        args = create_namespace(album_inputs=inputs if option == '1' else None,
-                                user_inputs=inputs if option in ('2', '3') else None,
-                                output_dir=output_dir, threads=pool_size, retries=retries, timeout=timeout, delay=delay,
-                                foldername_format=foldername_format,
-                                only_favorites=option == '3',
-                                gen_pdf=gen_pdf, rm_origin_dir=rm_origin_dir)
+        args = copy(base_args)
+        args.album_inputs = inputs if option == '1' else None
+        args.user_inputs = inputs if option in ('2', '3') else None
+        args.only_favorites = option == '3'
         start(args)
         list_txt_organizer([input_.strip() for input_ in inputs.split(',')], 'album' if option == '1' else 'user')
         logger.log(5, 'URLs/IDs added to completed list.')
@@ -81,14 +85,17 @@ def menu() -> None:
       max_pages = input('Enter max page or leave blank\n> ')
       max_pages = int(max_pages) if is_a_valid_integer(max_pages) else 1
       search_download = input('Download search results? ("Y/N") ').strip() in 'yY'
-      args = create_namespace(keyword=keyword, search_download=search_download, page=page, max_pages=max_pages)
+      args = copy(base_args)
+      args.keyword = keyword
+      args.search_download = search_download
+      args.page = page
+      args.max_pages = max_pages
       start(args)
 
     elif option == '5':
       list_txt = list(set(read_list()))
-      args = create_namespace(album_inputs=','.join(list_txt),
-                              output_dir=output_dir,
-                              threads=pool_size, retries=retries, timeout=timeout, delay=delay)
+      args = copy(base_args)
+      args.album_inputs = ','.join(list_txt)
       start(args)
       list_txt_organizer(list_txt, 'album')
       logger.log(5, 'URLs/IDs added to completed list.')
