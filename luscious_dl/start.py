@@ -8,7 +8,7 @@ from luscious_dl.downloader import Downloader
 from luscious_dl.logger import logger
 from luscious_dl.parser import extract_ids_from_list, extract_album_id, extract_user_id
 from luscious_dl.user import User
-from luscious_dl.utils import info, format_foldername, generate_pdf
+from luscious_dl.utils import info, format_foldername, generate_pdf, inputs_string_to_list
 
 
 def albums_download(albums_ids: list[int], downloader: Downloader, output_dir: Path,
@@ -74,6 +74,8 @@ def normalize_args(args: Namespace) -> Namespace:
   if args.threads <= 0:
     args.threads = os.cpu_count()
     if not args.threads:
+      logger.warning('It was not possible to determine the number of CPUs in your system. '
+                     'Only one will be used, this will decrease the amount of downloads.')
       args.threads = 1
   if args.page <= 0:
     args.page = 1
@@ -93,13 +95,13 @@ def normalize_args(args: Namespace) -> Namespace:
   args.keyword = args.keyword.strip() if args.keyword else None
 
   if args.album_inputs:
-    inputs = [input_.strip() for input_ in args.album_inputs.split(',')]
+    inputs = inputs_string_to_list(args.album_inputs)
     args.albums_ids = extract_ids_from_list(inputs, extract_album_id)
   else:
     args.albums_ids = None
 
   if args.user_inputs:
-    inputs = [input_.strip() for input_ in args.user_inputs.split(',')]
+    inputs = inputs_string_to_list(args.user_inputs)
     args.users_ids = extract_ids_from_list(inputs, extract_user_id)
   else:
     args.users_ids = None

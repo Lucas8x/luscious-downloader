@@ -1,13 +1,13 @@
 import os
 from argparse import Namespace
-from pathlib import Path
 from copy import copy
+from pathlib import Path
 
 from luscious_dl.logger import logger_file_handler, logger
 from luscious_dl.parser import is_a_valid_integer
 from luscious_dl.start import start
 from luscious_dl.utils import cls, create_default_files, open_config_menu, get_config_data, read_list, info, \
-  ListFilesManager
+  ListFilesManager, inputs_string_to_list
 
 
 def list_txt_organizer(items: list[str], prefix: str) -> None:
@@ -72,7 +72,7 @@ def menu() -> None:
         args.user_inputs = inputs if option in ('2', '3') else None
         args.only_favorites = option == '3'
         start(args)
-        list_txt_organizer([input_.strip() for input_ in inputs.split(',')], 'album' if option == '1' else 'user')
+        list_txt_organizer(inputs_string_to_list(inputs), 'album' if option == '1' else 'user')
         logger.log(5, 'URLs/IDs added to completed list.')
 
     elif option == '4':

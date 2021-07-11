@@ -3,7 +3,6 @@ import os
 import re
 import shutil
 from pathlib import Path
-from typing import Optional
 
 from luscious_dl import __version__
 from luscious_dl.logger import logger
@@ -21,6 +20,15 @@ def cls() -> None:
 
 """def format_filename(name: str) -> str:
   pass"""
+
+
+def inputs_string_to_list(inputs_string: str) -> list[str]:
+  """
+  Convert a string with comma-separated items into a list of strings.
+  :param inputs_string: a string with comma-separated items
+  :return: list of strings
+  """
+  return [input_.strip() for input_ in inputs_string.split(',')]
 
 
 def format_foldername(album, foldername_format: str = '%t') -> str:
