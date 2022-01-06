@@ -40,8 +40,8 @@ def albums_download(albums_ids: list[int], downloader: Downloader, output_dir: P
       logger.critical(f'Album: {id_} Error: {e}')
 
 
-def users_download(users_ids: list[int], downloader: Downloader, output_dir: Path,
-                   foldername_format='%t', only_favorites=False, gen_pdf=False, rm_origin_dir=False) -> None:
+def users_download(users_ids: list[int], downloader: Downloader, output_dir: Path, foldername_format='%t',
+                   only_favorites=False, gen_pdf=False, rm_origin_dir=False, group_by_user=False) -> None:
   """
   Start users download process.
   :param users_ids: list of user ids
@@ -51,6 +51,7 @@ def users_download(users_ids: list[int], downloader: Downloader, output_dir: Pat
   :param only_favorites: defines if it's to download only the favorites
   :param gen_pdf: whether to generate the pdf file
   :param rm_origin_dir: indicates whether the source folder will be deleted
+  :param group_by_user:
   """
   for id_ in users_ids:
     user = User(id_)
@@ -58,6 +59,8 @@ def users_download(users_ids: list[int], downloader: Downloader, output_dir: Pat
       if user.fetch_info():
         user.fetch_albums(only_favorites)
         user.show()
+        if group_by_user:
+          output_dir = output_dir.joinpath(os.path.normcase(user.name))
         albums_download(user.albums_ids, downloader, output_dir, foldername_format, gen_pdf, rm_origin_dir)
       else:
         raise Exception('User Information not found.')
@@ -121,7 +124,7 @@ def start(args: Namespace = None) -> None:
                     args.gen_pdf, args.rm_origin_dir)
   elif args.users_ids:
     users_download(args.users_ids, downloader, args.output_dir, args.foldername_format,
-                   args.only_favorites, args.gen_pdf, args.rm_origin_dir)
+                   args.only_favorites, args.gen_pdf, args.rm_origin_dir, args.group_by_user)
   elif args.keyword:
     result = search_albums(args.keyword, args.sorting, args.page, args.max_pages)
     print_search(result)
