@@ -102,6 +102,8 @@ Options:
                             search albums by keyword
     --favorites, -f
                             download only the user's favorites
+    --group, --agroup, -g
+                            group albums by uploader name
   # Search Options
     --download, -d          download albums from search results
     --page PAGE             page number of search results
