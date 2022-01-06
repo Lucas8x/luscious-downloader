@@ -6,7 +6,9 @@ CLI tool for downloading albums from [Luscious](https://luscious.net)
 ![PyPI](https://img.shields.io/pypi/v/luscious-downloader?style=flat-square)
 ![License](https://img.shields.io/github/license/lucas8x/luscious-downloader?style=flat-square)
 
-## Manual Installation
+## 🚀 Installation
+
+### Manual
 
 _If you have python and git installed._
 
@@ -16,13 +18,13 @@ cd luscious-downloader
 python setup.py install
 ```
 
-## Installation (pip)
+### PIP
 
 ```bash
 pip install luscious-downloader
 ```
 
-## Installation #2 (Windows Only)
+### Windows Only
 
 _If you don't have python or git installed._
 
@@ -32,7 +34,7 @@ _If you don't have python or git installed._
 4. Wait install.
 5. [Menu](#Menu)
 
-## Usage
+## 🔨 Usage
 
 **NOTE:** The default download folder will be the path where you are executing the command.\
 **NOTE²:** You can enter multiple url and ids separated by commas.
@@ -86,7 +88,7 @@ Supported album folder formatter:
 - %p = Album total pictures
 - %g = Album total gifs
 
-CLI options:
+**⌨ CLI options:**
 
 ```
 Options:
@@ -126,7 +128,7 @@ Options:
                             format output album folder name
 ```
 
-## Menu
+## 📜 Menu
 
 1. Download albums by URL or ID.
 2. Download all user albums.
@@ -136,7 +138,7 @@ Options:
 6. [Settings](#settings).
 0. Exit.
 
-### Settings
+### ⚙️ Settings
 
 1. Change Directory (Change albums download directory. Default = "./Albums/").
 2. CPU Pool (Default = Your CPU Count).
@@ -146,7 +148,6 @@ Options:
 6. Format output album folder name (Default = %t)
 0. Back.
 
-
-## License
+## 📝 License
 
 [MIT](LICENSE)
