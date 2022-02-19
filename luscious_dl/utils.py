@@ -175,7 +175,8 @@ def create_default_files() -> None:
       "delay": 0,
       "foldername_format": "%t",
       "gen_pdf": False,
-      "rm_origin_dir": False
+      "rm_origin_dir": False,
+      "group_by_user": False,
     }
     with root.joinpath('config.json').open('a+') as config_file:
       json.dump(data, config_file, indent=2)
@@ -229,6 +230,7 @@ def open_config_menu() -> None:
                           f'6 - Format output album folder name [Current: {data.get("foldername_format")}]\n'
                           f'7 - Generate PDF: [Current: {data.get("gen_pdf")}]\n'
                           f'8 - Remove origin directory [Current: {data.get("rm_origin_dir")}]\n'
+                          f'9 - Group Albums by Uploader name [Current: {data.get("group_by_user")}]\n'
                           '0 - Back.\n'
                           '> ')
       cls()
@@ -270,6 +272,8 @@ def open_config_menu() -> None:
         data['gen_pdf'] = not data.get('gen_pdf')
       elif config_menu == '8':
         data['rm_origin_dir'] = not data.get('rm_origin_dir')
+      elif config_menu == '9':
+        data['group_by_user'] = not data.get('group_by_user')
       elif config_menu == '0':
         cls()
         break
