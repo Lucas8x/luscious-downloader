@@ -219,6 +219,16 @@ class ListFilesManager:
 
 def open_config_menu() -> None:
   """Open settings/config menu"""
+  options = {
+    '2': {'key': 'pool', 'msg': 'Enter CPU Pool for download pictures.\n> '},
+    '3': {'key': 'retries', 'msg': 'Enter CPU Pool for download pictures.\n> '},
+    '4': {'key': 'timeout', 'msg': 'Enter picture timeout.\n> '},
+    '5': {'key': 'delay', 'msg': 'Enter album download delay.\n> '},
+    '7': {'key': 'gen_pdf', 'switch': True},
+    '8': {'key': 'rm_origin_dir', 'switch': True},
+    '9': {'key': 'group_by_user', 'switch': True}
+  }
+
   with get_root_path().joinpath('config.json').open('r+') as json_file:
     data = json.load(json_file)
     while True:
@@ -243,15 +253,12 @@ def open_config_menu() -> None:
           data['directory'] = os.path.normcase(new_path)
         elif new_path == '1':
           data['directory'] = './Albums/'
-      elif config_menu == '2':
-        print(f'You have: {os.cpu_count()} cores.')
-        data['pool'] = int(input('Enter CPU Pool for download pictures.\n> '))
-      elif config_menu == '3':
-        data['retries'] = int(input('Enter how many pictures retries.\n> '))
-      elif config_menu == '4':
-        data['timeout'] = int(input('Enter picture timeout.\n> '))
-      elif config_menu == '5':
-        data['delay'] = int(input('Enter album download delay.\n> '))
+      elif config_menu in [*[str(x) for x in range(2, 6)], *[str(x) for x in range(7, 10)]]:
+        if config_menu == '2':
+          print(f'You have: {os.cpu_count()} cores.')
+        opt = options[config_menu]
+        key = opt.get('key')
+        data[key] = not data.get(key) if opt.get('switch') else int(input(opt.get('msg')))
       elif config_menu == '6':
         print(
           'Supported album folder formatter:',
@@ -268,12 +275,6 @@ def open_config_menu() -> None:
             print('\nAlbum folder format set to the default.\n')
             new_folderformat = '%t'
         data['foldername_format'] = new_folderformat
-      elif config_menu == '7':
-        data['gen_pdf'] = not data.get('gen_pdf')
-      elif config_menu == '8':
-        data['rm_origin_dir'] = not data.get('rm_origin_dir')
-      elif config_menu == '9':
-        data['group_by_user'] = not data.get('group_by_user')
       elif config_menu == '0':
         cls()
         break
