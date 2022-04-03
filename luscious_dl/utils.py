@@ -238,7 +238,7 @@ def open_config_menu() -> None:
                           f'4 - Picture Timeout [Current: {data.get("timeout")}]\n'
                           f'5 - Download Delay [Current: {data.get("delay")}]\n'
                           f'6 - Format output album folder name [Current: {data.get("foldername_format")}]\n'
-                          f'7 - Generate PDF: [Current: {data.get("gen_pdf")}]\n'
+                          f'7 - Generate PDF [Current: {data.get("gen_pdf")}]\n'
                           f'8 - Remove origin directory [Current: {data.get("rm_origin_dir")}]\n'
                           f'9 - Group Albums by Uploader name [Current: {data.get("group_by_user")}]\n'
                           '0 - Back.\n'

@@ -21,6 +21,9 @@ setup(
   long_description=long_description,
   long_description_content_type="text/markdown",
   install_requires=requirements,
+  extras_require={
+    'pdf': ['Pillow>=8.2.0']
+  },
   include_package_data=True,
   zip_safe=False,
   python_requires='>=3.9',
