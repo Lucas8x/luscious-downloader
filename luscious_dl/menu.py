@@ -21,11 +21,7 @@ def list_txt_organizer(items: list[str], prefix: str) -> None:
     ListFilesManager.add(f'{prefix}-{int(item)}' if is_a_valid_integer(item) else item)
 
 
-def menu() -> None:
-  """Menu"""
-  info()
-  create_default_files()
-  logger_file_handler()
+def load_settings() -> Namespace:
   configs = get_config_data()
   base_namespace = Namespace(
     output_dir=Path(os.path.normcase(configs.get('directory', './albums/'))).resolve(),
@@ -38,7 +34,17 @@ def menu() -> None:
     rm_origin_dir=configs.get('rm_origin_dir', False),
     group_by_user=configs.get('group_by_user', False),
     album_inputs=None, user_inputs=None, only_favorites=False,
-    keyword=None, search_download=False, sorting='date_trending', page=1, max_pages=1)
+    keyword=None, search_download=False, sorting='date_trending', page=1, max_pages=1
+  )
+  return base_namespace
+
+
+def menu() -> None:
+  """Menu"""
+  info()
+  create_default_files()
+  logger_file_handler()
+  base_namespace = load_settings()
 
   while True:
     option = input('Options:\n'
@@ -91,6 +97,7 @@ def menu() -> None:
 
     elif option == '6':
       open_config_menu()
+      base_namespace = load_settings()
 
     elif option == '0':
       exit()
