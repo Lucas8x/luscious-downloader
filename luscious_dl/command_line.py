@@ -32,7 +32,9 @@ def command_line() -> argparse.Namespace:
 
   # generate options
   parser.add_argument('--pdf', '-p', dest='gen_pdf', action='store_true',
-                      help='enable pdf generation')
+                      help='enable pdf file generation')
+  parser.add_argument('--cbz', '-c', dest='gen_cbz', action='store_true',
+                      help='enable cbz file generation')
   parser.add_argument('--rm-origin-dir', dest='rm_origin_dir', action='store_true',
                       help='remove downloaded album dir when generated PDF file.')
 

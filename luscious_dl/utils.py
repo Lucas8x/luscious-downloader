@@ -3,6 +3,7 @@ import os
 import re
 import shutil
 from pathlib import Path
+from zipfile import ZipFile
 
 from luscious_dl import __version__
 from luscious_dl.logger import logger
@@ -69,26 +70,35 @@ def create_folder(directory: Path) -> None:
     logger.error(f'Create folder: {e}')
 
 
-def generate_pdf(output_dir: Path, formmatted_name: str, album_folder: Path, rm_origin_dir=False) -> None:
+def delete_folder(directory: Path, formmatted_name: str = '') -> None:
+  shutil.rmtree(directory, ignore_errors=True)
+  logger.log(5, f'Album {formmatted_name} folder deleted.')
+
+
+def get_files_paths_in_folder(folder: Path):
+  pictures_path_list = []
+  for file_name in folder.iterdir():
+    picture_path = Path.joinpath(folder, file_name)
+    if picture_path.is_dir():
+      continue
+    pictures_path_list.append(picture_path)
+  return pictures_path_list
+
+
+def generate_pdf(output_dir: Path, formmatted_name: str, album_folder: Path) -> None:
   """
-  Create pdf file containing album pictures [jpg,jpeg].
+  Create pdf file containing album pictures [jpg,jpeg,png].
   :param output_dir: output folder path
   :param formmatted_name: formmatted album name
   :param album_folder: album folder path
-  :param rm_origin_dir: indicates whether the source folder will be deleted
   """
+  valid_extensions = ('.jpg', '.jpeg', '.png')
   try:
     from PIL import Image
     logger.info('Generating album pdf file...')
 
-    pictures_path_list = []
-    for file_name in album_folder.iterdir():
-      if file_name.suffix.lower() not in ['.jpg', '.jpeg', '.png']:
-        continue
-      picture_path = Path.joinpath(album_folder, file_name)
-      if picture_path.is_dir():
-        continue
-      pictures_path_list.append(picture_path)
+    pictures_path_list = get_files_paths_in_folder(album_folder)
+    pictures_path_list = list(filter(lambda file: file.suffix.lower() not in valid_extensions, pictures_path_list))
 
     pictures = []
     if len(pictures_path_list) > 0:
@@ -112,14 +122,26 @@ def generate_pdf(output_dir: Path, formmatted_name: str, album_folder: Path, rm_
     for img in pictures:
       img.close()
 
-    if rm_origin_dir:
-      shutil.rmtree(album_folder, ignore_errors=True)
-      logger.log(5, f'Album {formmatted_name} folder deleted.')
-
   except ImportError:
     logger.error('Please install Pillow package by using pip.')
   except Exception as e:
     logger.error(f'Failed to generate album pdf: {e}')
+
+
+def generate_cbz(output_dir: Path, formmatted_name: str, album_folder: Path):
+  logger.info('Generating album CBZ file...')
+  try:
+    cbz_filename = f'{formmatted_name}.cbz'
+    cbz_path = Path.joinpath(output_dir, cbz_filename)
+
+    with ZipFile(cbz_path, 'w') as cbz_file:
+      for file in album_folder.rglob('*'):
+        cbz_file.write(file, file.name)
+
+    logger.log(5, f'Album CBZ saved to: {output_dir}')
+
+  except Exception as e:
+    logger.error(f'Failed to generate CBZ file: {e}')
 
 
 # \/ Menu only functions \/ #
@@ -175,6 +197,7 @@ def create_default_files() -> None:
       "delay": 0,
       "foldername_format": "%t",
       "gen_pdf": False,
+      "gen_cbz": False,
       "rm_origin_dir": False,
       "group_by_user": False,
     }
@@ -225,9 +248,12 @@ def open_config_menu() -> None:
     '4': {'key': 'timeout', 'msg': 'Enter picture timeout.\n> '},
     '5': {'key': 'delay', 'msg': 'Enter album download delay.\n> '},
     '7': {'key': 'gen_pdf', 'switch': True},
-    '8': {'key': 'rm_origin_dir', 'switch': True},
-    '9': {'key': 'group_by_user', 'switch': True}
+    '8': {'key': 'gen_cbz', 'switch': True},
+    '9': {'key': 'rm_origin_dir', 'switch': True},
+    '10': {'key': 'group_by_user', 'switch': True}
   }
+  common_options = [str(x) for x in range(2, 11)]
+  common_options.remove('6')
 
   with get_root_path().joinpath('config.json').open('r+') as json_file:
     data = json.load(json_file)
@@ -239,11 +265,13 @@ def open_config_menu() -> None:
                           f'5 - Download Delay [Current: {data.get("delay")}]\n'
                           f'6 - Format output album folder name [Current: {data.get("foldername_format")}]\n'
                           f'7 - Generate PDF [Current: {data.get("gen_pdf")}]\n'
-                          f'8 - Remove origin directory [Current: {data.get("rm_origin_dir")}]\n'
-                          f'9 - Group Albums by Uploader name [Current: {data.get("group_by_user")}]\n'
+                          f'8 - Generate CBZ [Current: {data.get("gen_cbz")}]\n'
+                          f'9 - Remove origin directory [Current: {data.get("rm_origin_dir")}]\n'
+                          f'10 - Group Albums by Uploader name [Current: {data.get("group_by_user")}]\n'
                           '0 - Back.\n'
                           '> ')
       cls()
+
       if config_menu == '1':
         new_path = input(f'Current directory: {data.get("directory")}\n'
                          '1 - Restore default directory\n'
@@ -253,12 +281,14 @@ def open_config_menu() -> None:
           data['directory'] = os.path.normcase(new_path)
         elif new_path == '1':
           data['directory'] = './Albums/'
-      elif config_menu in [*[str(x) for x in range(2, 6)], *[str(x) for x in range(7, 10)]]:
+
+      elif config_menu in common_options:
         if config_menu == '2':
           print(f'You have: {os.cpu_count()} cores.')
         opt = options[config_menu]
         key = opt.get('key')
         data[key] = not data.get(key) if opt.get('switch') else int(input(opt.get('msg')))
+
       elif config_menu == '6':
         print(
           'Supported album folder formatter:',
@@ -275,11 +305,14 @@ def open_config_menu() -> None:
             print('\nAlbum folder format set to the default.\n')
             new_folderformat = '%t'
         data['foldername_format'] = new_folderformat
+
       elif config_menu == '0':
         cls()
         break
+
       else:
         print('Invalid Option.\n')
+
       json_file.seek(0)
       json.dump(data, json_file, indent=2)
       json_file.truncate()

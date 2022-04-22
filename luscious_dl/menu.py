@@ -31,6 +31,7 @@ def load_settings() -> Namespace:
     delay=configs.get('delay', 0),
     foldername_format=configs.get('foldername_format', '%t'),
     gen_pdf=configs.get('gen_pdf', False),
+    gen_cbz=configs.get('gen_cbz', False),
     rm_origin_dir=configs.get('rm_origin_dir', False),
     group_by_user=configs.get('group_by_user', False),
     album_inputs=None, user_inputs=None, only_favorites=False,
