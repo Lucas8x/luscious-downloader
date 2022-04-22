@@ -98,7 +98,7 @@ def generate_pdf(output_dir: Path, formmatted_name: str, album_folder: Path) -> 
     logger.info('Generating album pdf file...')
 
     pictures_path_list = get_files_paths_in_folder(album_folder)
-    pictures_path_list = list(filter(lambda file: file.suffix.lower() not in valid_extensions, pictures_path_list))
+    pictures_path_list = list(filter(lambda file: file.suffix.lower() in valid_extensions, pictures_path_list))
 
     pictures = []
     if len(pictures_path_list) > 0:
