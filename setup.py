@@ -46,4 +46,8 @@ setup(
     'Topic :: Terminals',
     'Topic :: Utilities',
   ],
+  project_urls={
+    'Source': 'https://github.com/Lucas8x/luscious-downloader',
+    'Tracker': 'https://github.com/Lucas8x/luscious-downloader/issues'
+  }
 )
