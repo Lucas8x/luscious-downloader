@@ -22,6 +22,9 @@ python setup.py install
 
 ```bash
 pip install luscious-downloader
+
+# for PDF generation support use:
+pip install luscious-downloader[pdf]
 ```
 
 ### Windows Only
