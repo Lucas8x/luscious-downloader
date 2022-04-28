@@ -39,8 +39,9 @@ _If you don't have python or git installed._
 
 ## 🔨 Usage
 
-**NOTE:** The default download folder will be the path where you are executing the command.\
-**NOTE²:** You can enter multiple url and ids separated by commas.
+**NOTE:** On windows you can press shift + right click to open terminal in selected folder.\
+**NOTE²:** The default download folder will be the path where you're executing the command.\
+**NOTE³:** You can enter multiple url and ids separated by commas.
 
 Download albums:
 
@@ -103,10 +104,12 @@ Options:
                             download all user albums by url or id
     -s KEYWORD,      --search KEYWORD
                             search albums by keyword
-    --favorites, -f
+    -f, --favorites
                             download only the user's favorites
-    --group, --agroup, -g
+    -g, --group, --agroup
                             group albums by uploader name
+    -l, --list
+                            download albums from list.txt in the folder
   # Search Options
     --download, -d          download albums from search results
     --page PAGE             page number of search results
@@ -146,10 +149,10 @@ Options:
 
 ### ⚙️ Settings
 
-1. Change Directory (Change albums download directory. Default = "./Albums/").
-2. CPU Pool (Default = Your CPU Count).
-3. Picture Retries (download attempts for each picture. Default = 5).
-4. Picture Timeout (download timeout for each picture. Default = 30).
+1. Change Directory (Change albums download directory. Default = "./Albums/")
+2. CPU Pool (Default = Your CPU Count)
+3. Picture Retries (download attempts for each picture. Default = 5)
+4. Picture Timeout (download timeout for each picture. Default = 30)
 5. Download Delay (delay between downloading multiple albums. Default = 0)
 6. Format output album folder name (Default = %t)
 7. Generate PDF (Default = False)
