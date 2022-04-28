@@ -7,7 +7,7 @@ from luscious_dl.logger import logger_file_handler, logger
 from luscious_dl.parser import is_a_valid_integer
 from luscious_dl.start import start
 from luscious_dl.utils import cls, create_default_files, open_config_menu, get_config_data, read_list, info, \
-  ListFilesManager, inputs_string_to_list
+  ListFilesManager, inputs_string_to_list, get_root_path
 
 
 def list_txt_organizer(items: list[str], prefix: str) -> None:
@@ -34,7 +34,7 @@ def load_settings() -> Namespace:
     gen_cbz=configs.get('gen_cbz', False),
     rm_origin_dir=configs.get('rm_origin_dir', False),
     group_by_user=configs.get('group_by_user', False),
-    album_inputs=None, user_inputs=None, only_favorites=False,
+    album_inputs=None, user_inputs=None, read_list=False, only_favorites=False,
     keyword=None, search_download=False, sorting='date_trending', page=1, max_pages=1
   )
   return base_namespace
@@ -89,12 +89,13 @@ def menu() -> None:
       start(args)
 
     elif option == '5':
-      list_txt = list(set(read_list()))
-      args = copy(base_namespace)
-      args.album_inputs = ','.join(list_txt)
-      start(args)
-      list_txt_organizer(list_txt, 'album')
-      logger.log(5, 'URLs/IDs added to completed list.')
+      list_txt = read_list(get_root_path())
+      if len(list_txt) > 0:
+        args = copy(base_namespace)
+        args.album_inputs = ','.join(list_txt)
+        start(args)
+        list_txt_organizer(list_txt, 'album')
+        logger.log(5, 'URLs/IDs added to completed list.')
 
     elif option == '6':
       open_config_menu()

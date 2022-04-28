@@ -8,7 +8,8 @@ from luscious_dl.downloader import Downloader
 from luscious_dl.logger import logger
 from luscious_dl.parser import extract_ids_from_list, extract_album_id, extract_user_id
 from luscious_dl.user import User
-from luscious_dl.utils import info, format_foldername, generate_pdf, inputs_string_to_list, delete_folder, generate_cbz
+from luscious_dl.utils import info, format_foldername, generate_pdf, inputs_string_to_list, delete_folder, \
+  generate_cbz, read_list
 
 
 def albums_download(albums_ids: list[int], downloader: Downloader, output_dir: Path,
@@ -93,6 +94,10 @@ def normalize_args(args: Namespace) -> Namespace:
     args.max_pages = 1
   if args.page > args.max_pages:
     args.max_pages = args.page
+
+  if args.read_list:
+    list_data = read_list(Path.cwd())
+    args.album_inputs = ','.join(list_data)
 
   if args.only_favorites and not args.user_inputs:
     logger.warn(f"You're passing --favorites/-f flag without any user input.")

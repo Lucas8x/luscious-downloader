@@ -75,10 +75,10 @@ def delete_folder(directory: Path, formmatted_name: str = '') -> None:
   logger.log(5, f'Album {formmatted_name} folder deleted.')
 
 
-def get_files_paths_in_folder(folder: Path):
+def get_files_paths_in_folder(directory: Path):
   pictures_path_list = []
-  for file_name in folder.iterdir():
-    picture_path = Path.joinpath(folder, file_name)
+  for file_name in directory.iterdir():
+    picture_path = Path.joinpath(directory, file_name)
     if picture_path.is_dir():
       continue
     pictures_path_list.append(picture_path)
@@ -125,7 +125,7 @@ def generate_pdf(output_dir: Path, formmatted_name: str, album_folder: Path) -> 
   except ImportError:
     logger.error('Please install Pillow package by using pip.')
   except Exception as e:
-    logger.error(f'Failed to generate album pdf: {e}')
+    logger.error(f'Failed to generate album pdf: {e} | {e.__class__.__name__}')
 
 
 def generate_cbz(output_dir: Path, formmatted_name: str, album_folder: Path):
@@ -141,7 +141,30 @@ def generate_cbz(output_dir: Path, formmatted_name: str, album_folder: Path):
     logger.log(5, f'Album CBZ saved to: {output_dir}')
 
   except Exception as e:
-    logger.error(f'Failed to generate CBZ file: {e}')
+    logger.error(f'Failed to generate CBZ file: {e} | {e.__class__.__name__}')
+
+
+def read_list(directory: Path) -> list[str]:
+  """
+  Read list.txt file content.
+  :return: list.txt content
+  """
+  try:
+    logger.log(5, 'Reading list...')
+    with directory.joinpath('list.txt').open() as list_file:
+      list_txt = list_file.read()
+      if len(list_txt) > 0:
+        list_txt = list_txt.split('\n')
+      else:
+        raise Exception('list.txt has no data.')
+      logger.log(5, f'Total of Items: {len(list_txt)}.')
+    return list(set(list_txt))
+  except FileNotFoundError:
+    logger.error(f"The list.txt file doesn't exist in this folder.")
+    return []
+  except Exception as e:
+    logger.error(f'Failed to read the list.txt\n{e} | {e.__class__.__name__}')
+    return []
 
 
 # \/ Menu only functions \/ #
@@ -166,23 +189,6 @@ def get_config_data() -> dict:
   except Exception as e:
     logger.warning(f'Something went wrong loading config file: {e}')
     return {}
-
-
-def read_list() -> list[str]:
-  """
-  Read list.txt file content.
-  :return: list.txt content
-  """
-  try:
-    logger.log(5, 'Reading list...')
-    with get_root_path().joinpath('list.txt').open() as list_file:
-      list_txt = list_file.read()
-      if len(list_txt) > 0:
-        list_txt = list_txt.split('\n')
-      logger.log(5, f'Total of Items: {len(list_txt)}.')
-    return list_txt
-  except Exception as e:
-    print(f'Failed to read the list.txt.\n{e}')
 
 
 def create_default_files() -> None:

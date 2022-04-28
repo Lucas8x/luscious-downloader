@@ -14,6 +14,8 @@ def command_line() -> argparse.Namespace:
   group.add_argument('--album', '-a', dest='album_inputs', action='store', help='download album by url or id')
   group.add_argument('--user', '-u', dest='user_inputs', action='store', help='download all user albums by url or id')
   group.add_argument('--search', '-s', dest='keyword', action='store', help='search albums by keyword')
+  group.add_argument('--list', '-l', dest='read_list', action='store_true',
+                     help="read a file list.txt in the folder you're running this command")
 
   # user args
   parser.add_argument('--favorites', '-f', dest='only_favorites', action='store_true',
