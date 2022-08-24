@@ -22,7 +22,7 @@ setup(
   long_description_content_type="text/markdown",
   install_requires=requirements,
   extras_require={
-    'pdf': ['Pillow>=8.2.0']
+    'pdf': ['Pillow>=8.2.0', 'tqdm']
   },
   include_package_data=True,
   zip_safe=False,

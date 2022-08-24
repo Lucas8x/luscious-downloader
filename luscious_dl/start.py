@@ -100,20 +100,20 @@ def normalize_args(args: Namespace) -> Namespace:
     args.album_inputs = ','.join(list_data)
 
   if args.only_favorites and not args.user_inputs:
-    logger.warn(f"You're passing --favorites/-f flag without any user input.")
+    logger.warn("You're passing --favorites/-f flag without any user input.")
     args.only_favorites = False
 
   if args.gen_pdf and not args.album_inputs and not args.user_inputs and not args.search_download:
-    logger.warn(f"You're passing --pdf flag without any album/user input or search download.")
+    logger.warn("You're passing --pdf flag without any album/user input or search download.")
     args.gen_pdf = False
 
   if args.gen_cbz and not args.album_inputs and not args.user_inputs and not args.search_download:
-    logger.warn(f"You're passing --cbz flag without any album/user input or search download.")
+    logger.warn("You're passing --cbz flag without any album/user input or search download.")
     args.gen_cbz = False
 
   if args.rm_origin_dir and not args.gen_pdf and not args.gen_cbz:
-    logger.warn(f"You're passing --rm-origin-dir flag without any pdf or cbz generation. This would delete the album "
-                f"after download")
+    logger.warn("You're passing --rm-origin-dir flag without any pdf or cbz generation. This would delete the album "
+                "after download")
     args.rm_origin_dir = False
 
   args.keyword = args.keyword.strip() if args.keyword else None

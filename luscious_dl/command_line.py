@@ -51,8 +51,7 @@ def command_line() -> argparse.Namespace:
   parser.add_argument('--format', dest='foldername_format', action='store', default='%t',
                       help='format album folder name')
 
-  args = parser.parse_args()
-  return args
+  return parser.parse_args()
 
 
 if __name__ == '__main__':

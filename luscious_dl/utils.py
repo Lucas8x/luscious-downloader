@@ -2,11 +2,13 @@ import json
 import os
 import re
 import shutil
+from argparse import Namespace
 from pathlib import Path
 from zipfile import ZipFile
 
 from luscious_dl import __version__
 from luscious_dl.logger import logger
+from luscious_dl.parser import is_a_valid_integer
 
 
 def info() -> None:
@@ -94,6 +96,7 @@ def generate_pdf(output_dir: Path, formmatted_name: str, album_folder: Path) -> 
   """
   valid_extensions = ('.jpg', '.jpeg', '.png')
   try:
+    from tqdm import tqdm
     from PIL import Image
     logger.info('Generating album pdf file...')
 
@@ -102,7 +105,7 @@ def generate_pdf(output_dir: Path, formmatted_name: str, album_folder: Path) -> 
 
     pictures = []
     if len(pictures_path_list) > 0:
-      for picture_path in pictures_path_list:
+      for picture_path in tqdm(pictures_path_list, desc='Opening/Coverting images'):
         img = Image.open(picture_path)
         if picture_path.suffix.lower() == '.png' or img.mode == 'RGBA':
           img = img.convert('RGB')
@@ -123,7 +126,7 @@ def generate_pdf(output_dir: Path, formmatted_name: str, album_folder: Path) -> 
       img.close()
 
   except ImportError:
-    logger.error('Please install Pillow package by using pip.')
+    logger.error('Please install Pillow & tqdm package by using pip.')
   except Exception as e:
     logger.error(f'Failed to generate album pdf: {e} | {e.__class__.__name__}')
 
@@ -201,7 +204,7 @@ def create_default_files() -> None:
       "retries": 5,
       "timeout": 30,
       "delay": 0,
-      "foldername_format": "%t",
+      "foldername_format": "[%i][%t]",
       "gen_pdf": False,
       "gen_cbz": False,
       "rm_origin_dir": False,
@@ -213,6 +216,25 @@ def create_default_files() -> None:
     root.joinpath('list.txt').touch()
   if not Path.exists(root.joinpath('list_completed.txt')):
     root.joinpath('list_completed.txt').touch()
+
+
+def load_settings() -> Namespace:
+  configs = get_config_data()
+  base_namespace = Namespace(
+    output_dir=Path(os.path.normcase(configs.get('directory', './albums/'))).resolve(),
+    threads=configs.get('pool', os.cpu_count() or 1),
+    retries=configs.get('retries', 5),
+    timeout=configs.get('timeout', 30),
+    delay=configs.get('delay', 0),
+    foldername_format=configs.get('foldername_format', '[%i][%t]'),
+    gen_pdf=configs.get('gen_pdf', False),
+    gen_cbz=configs.get('gen_cbz', False),
+    rm_origin_dir=configs.get('rm_origin_dir', False),
+    group_by_user=configs.get('group_by_user', False),
+    album_inputs=None, user_inputs=None, read_list=False, only_favorites=False,
+    keyword=None, search_download=False, sorting='date_trending', page=1, max_pages=1
+  )
+  return base_namespace
 
 
 class ListFilesManager:
@@ -244,6 +266,17 @@ class ListFilesManager:
     with path.open('w') as list_txt:
       for line in temp:
         list_txt.write(line)
+
+
+def list_txt_organizer(items: list[str], prefix: str) -> None:
+  """
+  Remove from list.txt and then add to list_completed.txt
+  :param items: List of urls or ids
+  :param prefix: album/user
+  """
+  for item in items:
+    ListFilesManager.remove(item)
+    ListFilesManager.add(f'{prefix}-{int(item)}' if is_a_valid_integer(item) else item)
 
 
 def open_config_menu() -> None:
@@ -291,6 +324,11 @@ def open_config_menu() -> None:
       elif config_menu in common_options:
         if config_menu == '2':
           print(f'You have: {os.cpu_count()} cores.')
+        if config_menu == '9' and not data.get("rm_origin_dir") and not data.get("gen_pdf") and not data.get("gen_cbz"):
+          print('You enabled origin directory to be deleted.\n'
+                'Without any pdf or cbz generation enabled.\n'
+                'This will delete the album when the download is complete.\n'
+                'Be careful.\n')
         opt = options[config_menu]
         key = opt.get('key')
         data[key] = not data.get(key) if opt.get('switch') else int(input(opt.get('msg')))

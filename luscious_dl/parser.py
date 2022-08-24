@@ -56,4 +56,9 @@ def extract_ids_from_list(iterable: list[Union[str, int]], extractor: Callable[[
   :param extractor: extraction function
   :return: A list containing the ids
   """
-  return list(filter(None, set(int(item) if is_a_valid_integer(item) else extractor(item) for item in iterable)))
+  return list(
+      filter(
+          None, {
+              int(item) if is_a_valid_integer(item) else extractor(item)
+              for item in iterable
+          }))

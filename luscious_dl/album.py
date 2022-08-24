@@ -20,7 +20,7 @@ class Album:
     self.number_of_pictures = number_of_pictures
     self.number_of_animated_pictures = number_of_animated_pictures
     self.info = {}
-    self.pictures = []
+    self.pictures: list[str] = []
 
   def show(self) -> None:
     """Show album information."""
@@ -53,9 +53,9 @@ class Album:
     self.info.update({
       'slug': data.get('slug', self.title),
       'language': data.get('language', {}).get('title', ''),
-      'tags':  [tag.get('text', '') for tag in data.get('tags', {})],
-      'genres':  [genre.get('title', '') for genre in data.get('genres', {})],
-      'audiences':  [audience.get('title', '') for audience in data.get('audiences', {})],
+      'tags': [tag.get('text', '') for tag in data.get('tags', {})],
+      'genres': [genre.get('title', '') for genre in data.get('genres', {})],
+      'audiences': [audience.get('title', '') for audience in data.get('audiences', {})],
     })
     return True
 
@@ -122,9 +122,10 @@ def search_albums(search_query: str, sorting: str = 'date_trending', page: int =
                              json=album_search_query(search_query, sorting, page)).json()
     data = response['data']['album']['list']
     page += 1
-    for item in data['items']:
-      albums.append(Album(item['id'], item['title'], item['created_by']['display_name'],
-                          item['number_of_pictures'], item['number_of_animated_pictures']))
+    albums.extend(
+        Album(item['id'], item['title'], item['created_by']['display_name'],
+              item['number_of_pictures'], item['number_of_animated_pictures'])
+        for item in data['items'])
     if not data['info']['has_next_page'] or data['info']['page'] == max_pages:
       break
   return albums
@@ -136,12 +137,13 @@ def print_search(results: list[Album]) -> None:
   :param results: Album list
   """
   table = [
-    [album.id_,
-     album.title,
-     album.number_of_pictures,
-     album.number_of_animated_pictures,
-     album.author
-     ] for album in results
+    [
+      album.id_,
+      album.title,
+      album.number_of_pictures,
+      album.number_of_animated_pictures,
+      album.author
+    ] for album in results
   ]
   headers = ('ID', 'Title', 'Pictures', 'Gifs', 'Author')
   logger.log(5, f'Search Result Total: {len(results)}\n{tabulate(table, headers)}')
