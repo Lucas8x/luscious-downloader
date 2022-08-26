@@ -47,14 +47,11 @@ def format_foldername(album, foldername_format: str = '%t') -> str:
   :return: formatted folder name string
   """
   album_name = re.sub(r'[^\w\-_\. ]', '_', album.title)
-  folder_name = foldername_format \
-      .replace('%i', str(album.id_)) \
-      .replace('%t', album_name) \
-      .replace('%a', album.author) \
-      .replace('%p', str(album.number_of_pictures)) \
-      .replace('%g', str(album.number_of_animated_pictures)) \
-      .replace('[]', '').strip()
-  return folder_name
+  return (foldername_format.replace('%i', str(album.id_)).replace(
+      '%t', album_name).replace('%a', album.author).replace(
+          '%p', str(album.number_of_pictures)).replace(
+              '%g', str(album.number_of_animated_pictures)).replace(
+                  '[]', '').strip())
 
 
 def create_folder(directory: Path) -> None:
@@ -104,14 +101,14 @@ def generate_pdf(output_dir: Path, formmatted_name: str, album_folder: Path) -> 
     pictures_path_list = list(filter(lambda file: file.suffix.lower() in valid_extensions, pictures_path_list))
 
     pictures = []
-    if len(pictures_path_list) > 0:
+    if pictures_path_list:
       for picture_path in tqdm(pictures_path_list, desc='Opening/Coverting images'):
         img = Image.open(picture_path)
         if picture_path.suffix.lower() == '.png' or img.mode == 'RGBA':
           img = img.convert('RGB')
         pictures.append(img)
 
-    if len(pictures) == 0:
+    if not pictures:
       raise Exception('Pictures list is empty, probably has no valid images [jpg, jpeg, png]')
 
     pdf_filename = f'{formmatted_name}.pdf'
@@ -163,7 +160,7 @@ def read_list(directory: Path) -> list[str]:
       logger.log(5, f'Total of Items: {len(list_txt)}.')
     return list(set(list_txt))
   except FileNotFoundError:
-    logger.error(f"The list.txt file doesn't exist in this folder.")
+    logger.error("The list.txt file doesn't exist in this folder.")
     return []
   except Exception as e:
     logger.error(f'Failed to read the list.txt\n{e} | {e.__class__.__name__}')
@@ -187,8 +184,7 @@ def get_config_data() -> dict:
   """
   try:
     with get_root_path().joinpath('config.json').open() as config:
-      data = json.load(config)
-      return data
+      return json.load(config)
   except Exception as e:
     logger.warning(f'Something went wrong loading config file: {e}')
     return {}
@@ -220,21 +216,29 @@ def create_default_files() -> None:
 
 def load_settings() -> Namespace:
   configs = get_config_data()
-  base_namespace = Namespace(
-    output_dir=Path(os.path.normcase(configs.get('directory', './albums/'))).resolve(),
-    threads=configs.get('pool', os.cpu_count() or 1),
-    retries=configs.get('retries', 5),
-    timeout=configs.get('timeout', 30),
-    delay=configs.get('delay', 0),
-    foldername_format=configs.get('foldername_format', '[%i][%t]'),
-    gen_pdf=configs.get('gen_pdf', False),
-    gen_cbz=configs.get('gen_cbz', False),
-    rm_origin_dir=configs.get('rm_origin_dir', False),
-    group_by_user=configs.get('group_by_user', False),
-    album_inputs=None, user_inputs=None, read_list=False, only_favorites=False,
-    keyword=None, search_download=False, sorting='date_trending', page=1, max_pages=1
+  return Namespace(
+      output_dir=Path(os.path.normcase(configs.get('directory',
+                                                   './albums/'))).resolve(),
+      threads=configs.get('pool',
+                          os.cpu_count() or 1),
+      retries=configs.get('retries', 5),
+      timeout=configs.get('timeout', 30),
+      delay=configs.get('delay', 0),
+      foldername_format=configs.get('foldername_format', '[%i][%t]'),
+      gen_pdf=configs.get('gen_pdf', False),
+      gen_cbz=configs.get('gen_cbz', False),
+      rm_origin_dir=configs.get('rm_origin_dir', False),
+      group_by_user=configs.get('group_by_user', False),
+      album_inputs=None,
+      user_inputs=None,
+      read_list=False,
+      only_favorites=False,
+      keyword=None,
+      search_download=False,
+      sorting='date_trending',
+      page=1,
+      max_pages=1,
   )
-  return base_namespace
 
 
 class ListFilesManager:
@@ -344,10 +348,13 @@ def open_config_menu() -> None:
           sep='\n'
         )
         new_folderformat = input('\nEnter album folder format.\n> ')
-        if not any(identifier in new_folderformat for identifier in ('%i', '%t', '%a')):
-          if input('\nNo album identifiers found.\nYou sure? ("Y/N")\n> ') in 'nN':
-            print('\nAlbum folder format set to the default.\n')
-            new_folderformat = '%t'
+        if (all(
+            identifier not in new_folderformat
+            for identifier in ('%i', '%t', '%a'))
+            and input('\nNo album identifiers found.\nYou sure? ("Y/N")\n> ')
+            in 'nN'):
+          print('\nAlbum folder format set to the default.\n')
+          new_folderformat = '%t'
         data['foldername_format'] = new_folderformat
 
       elif config_menu == '0':
