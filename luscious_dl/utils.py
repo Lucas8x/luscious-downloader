@@ -7,6 +7,7 @@ from pathlib import Path
 from zipfile import ZipFile
 
 from luscious_dl import __version__
+from luscious_dl.exceptions import EmptyListTxtFile, NoValidPicturesForPDF
 from luscious_dl.logger import logger
 from luscious_dl.parser import is_a_valid_integer
 
@@ -47,14 +48,13 @@ def format_foldername(album, foldername_format: str = '%t') -> str:
   :return: formatted folder name string
   """
   album_name = re.sub(r'[^\w\-_\. ]', '_', album.title)
-  folder_name = foldername_format \
+  return foldername_format \
       .replace('%i', str(album.id_)) \
       .replace('%t', album_name) \
       .replace('%a', album.author) \
       .replace('%p', str(album.number_of_pictures)) \
       .replace('%g', str(album.number_of_animated_pictures)) \
       .replace('[]', '').strip()
-  return folder_name
 
 
 def create_folder(directory: Path) -> None:
@@ -104,15 +104,15 @@ def generate_pdf(output_dir: Path, formmatted_name: str, album_folder: Path) -> 
     pictures_path_list = list(filter(lambda file: file.suffix.lower() in valid_extensions, pictures_path_list))
 
     pictures = []
-    if len(pictures_path_list) > 0:
+    if pictures_path_list:
       for picture_path in tqdm(pictures_path_list, desc='Opening/Coverting images'):
         img = Image.open(picture_path)
         if picture_path.suffix.lower() == '.png' or img.mode == 'RGBA':
           img = img.convert('RGB')
         pictures.append(img)
 
-    if len(pictures) == 0:
-      raise Exception('Pictures list is empty, probably has no valid images [jpg, jpeg, png]')
+    if not pictures:
+      raise NoValidPicturesForPDF('Pictures list is empty, probably has no valid images [jpg, jpeg, png]')
 
     pdf_filename = f'{formmatted_name}.pdf'
     pdf_path = Path.joinpath(output_dir, pdf_filename)
@@ -159,11 +159,11 @@ def read_list(directory: Path) -> list[str]:
       if len(list_txt) > 0:
         list_txt = list_txt.split('\n')
       else:
-        raise Exception('list.txt has no data.')
+        raise EmptyListTxtFile
       logger.log(5, f'Total of Items: {len(list_txt)}.')
     return list(set(list_txt))
   except FileNotFoundError:
-    logger.error(f"The list.txt file doesn't exist in this folder.")
+    logger.error("The list.txt file doesn't exist in this folder.")
     return []
   except Exception as e:
     logger.error(f'Failed to read the list.txt\n{e} | {e.__class__.__name__}')
@@ -187,8 +187,7 @@ def get_config_data() -> dict:
   """
   try:
     with get_root_path().joinpath('config.json').open() as config:
-      data = json.load(config)
-      return data
+      return json.load(config)
   except Exception as e:
     logger.warning(f'Something went wrong loading config file: {e}')
     return {}
@@ -219,8 +218,12 @@ def create_default_files() -> None:
 
 
 def load_settings() -> Namespace:
+  """
+  Load and format config.json to Namespace
+  :return: Namespace
+  """
   configs = get_config_data()
-  base_namespace = Namespace(
+  return Namespace(
     output_dir=Path(os.path.normcase(configs.get('directory', './albums/'))).resolve(),
     threads=configs.get('pool', os.cpu_count() or 1),
     retries=configs.get('retries', 5),
@@ -234,7 +237,6 @@ def load_settings() -> Namespace:
     album_inputs=None, user_inputs=None, read_list=False, only_favorites=False,
     keyword=None, search_download=False, sorting='date_trending', page=1, max_pages=1
   )
-  return base_namespace
 
 
 class ListFilesManager:
@@ -279,36 +281,41 @@ def list_txt_organizer(items: list[str], prefix: str) -> None:
     ListFilesManager.add(f'{prefix}-{int(item)}' if is_a_valid_integer(item) else item)
 
 
-def open_config_menu() -> None:
-  """Open settings/config menu"""
-  options = {
+def show_config_menu(data: dict) -> None:
+  print(
+    f'1 - Change Directory [Current: {data.get("directory")}]',
+    f'2 - CPU Pool [Current: {data.get("pool")}]',
+    f'3 - Picture Retries [Current: {data.get("retries")}]',
+    f'4 - Picture Timeout [Current: {data.get("timeout")}]',
+    f'5 - Download Delay [Current: {data.get("delay")}]',
+    f'6 - Format output album folder name [Current: {data.get("foldername_format")}]',
+    f'7 - Generate PDF [Current: {data.get("gen_pdf")}]',
+    f'8 - Generate CBZ [Current: {data.get("gen_cbz")}]',
+    f'9 - Remove origin directory [Current: {data.get("rm_origin_dir")}]',
+    f'10 - Group Albums by Uploader name [Current: {data.get("group_by_user")}]',
+    '0 - Back.',
+    sep='\n'
+  )
+
+
+config_options = {
     '2': {'key': 'pool', 'msg': 'Enter CPU Pool for download pictures.\n> '},
-    '3': {'key': 'retries', 'msg': 'Enter CPU Pool for download pictures.\n> '},
-    '4': {'key': 'timeout', 'msg': 'Enter picture timeout.\n> '},
-    '5': {'key': 'delay', 'msg': 'Enter album download delay.\n> '},
+    '3': {'key': 'retries', 'msg': 'Enter how many attempts to download pictures.\n> '},
+    '4': {'key': 'timeout', 'msg': 'Enter picture timeout in seconds.\n> '},
+    '5': {'key': 'delay', 'msg': 'Enter album download delay in seconds.\n> '},
     '7': {'key': 'gen_pdf', 'switch': True},
     '8': {'key': 'gen_cbz', 'switch': True},
     '9': {'key': 'rm_origin_dir', 'switch': True},
     '10': {'key': 'group_by_user', 'switch': True}
   }
-  common_options = [str(x) for x in range(2, 11)]
-  common_options.remove('6')
 
+def open_config_menu() -> None:
+  """Open settings/config menu"""
   with get_root_path().joinpath('config.json').open('r+') as json_file:
     data = json.load(json_file)
     while True:
-      config_menu = input(f'1 - Change Directory [Current: {data.get("directory")}]\n'
-                          f'2 - CPU Pool [Current: {data.get("pool")}]\n'
-                          f'3 - Picture Retries [Current: {data.get("retries")}]\n'
-                          f'4 - Picture Timeout [Current: {data.get("timeout")}]\n'
-                          f'5 - Download Delay [Current: {data.get("delay")}]\n'
-                          f'6 - Format output album folder name [Current: {data.get("foldername_format")}]\n'
-                          f'7 - Generate PDF [Current: {data.get("gen_pdf")}]\n'
-                          f'8 - Generate CBZ [Current: {data.get("gen_cbz")}]\n'
-                          f'9 - Remove origin directory [Current: {data.get("rm_origin_dir")}]\n'
-                          f'10 - Group Albums by Uploader name [Current: {data.get("group_by_user")}]\n'
-                          '0 - Back.\n'
-                          '> ')
+      show_config_menu(data)
+      config_menu = input('> ')
       cls()
 
       if config_menu == '1':
@@ -321,7 +328,7 @@ def open_config_menu() -> None:
         elif new_path == '1':
           data['directory'] = './Albums/'
 
-      elif config_menu in common_options:
+      elif config_menu in config_options.keys():
         if config_menu == '2':
           print(f'You have: {os.cpu_count()} cores.')
         if config_menu == '9' and not data.get("rm_origin_dir") and not data.get("gen_pdf") and not data.get("gen_cbz"):
@@ -329,7 +336,7 @@ def open_config_menu() -> None:
                 'Without any pdf or cbz generation enabled.\n'
                 'This will delete the album when the download is complete.\n'
                 'Be careful.\n')
-        opt = options[config_menu]
+        opt = config_options[config_menu]
         key = opt.get('key')
         data[key] = not data.get(key) if opt.get('switch') else int(input(opt.get('msg')))
 

@@ -4,6 +4,7 @@ from itertools import repeat
 from pathlib import Path
 
 import requests
+from luscious_dl.exceptions import ReachedMaximunRetries, PictureZeroContent
 
 from luscious_dl.logger import logger
 from luscious_dl.utils import create_folder
@@ -50,15 +51,19 @@ class Downloader:
           response = requests.get(picture_url, stream=True, timeout=self.timeout)
           retry += 1
         if retry > self.retries:
-          raise Exception('Reached maximum number of retries')
+          raise ReachedMaximunRetries
         if len(response.content) > 0:
           with picture_path.open('wb') as image:
             image.write(response.content)
             logger.log(5, f'Completed download of: {picture_name}')
         else:
-          raise Exception('Zero content')
+          raise PictureZeroContent
       else:
         logger.warning(f'Picture already exists: {picture_name} ')
+    except ReachedMaximunRetries:
+      logger.error(f'Picture reached maxium number of retries\n{picture_url}')
+    except PictureZeroContent:
+      logger.error(f'Receive a picture with zero data content\n{picture_url}')
     except Exception as e:
       logger.error(f'Failed to download picture: {picture_url}\n{e}')
 

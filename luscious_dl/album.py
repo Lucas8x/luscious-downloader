@@ -6,6 +6,7 @@ import requests
 from tabulate import tabulate
 
 from luscious_dl.downloader import Downloader
+from luscious_dl.exceptions import NoAlbumInformation
 from luscious_dl.logger import logger
 from luscious_dl.querys import album_info_query, album_list_pictures_query, album_search_query
 
@@ -33,10 +34,9 @@ class Album:
     ]
     logger.log(5, f'Album information:\n{tabulate(table, tablefmt="jira")}')
 
-  def fetch_info(self) -> bool:
+  def fetch_info(self) -> None:
     """
     Fetch album information.
-    :return: bool - true if there are no error otherwise false
     """
     logger.log(5, 'Fetching album information...')
     response = requests.post('https://members.luscious.net/graphql/nobatch/?operationName=AlbumGet',
@@ -45,7 +45,7 @@ class Album:
     if 'errors' in data:
       logger.error(f'Something wrong with album: {self.id_}\nErrors: {data["errors"]}')
       logger.warning('Skipping...')
-      return False
+      raise NoAlbumInformation(self.id_, data.get('errors', None))
     self.title = data['title']
     self.author = data['created_by']['display_name']
     self.number_of_pictures = data['number_of_pictures']
@@ -57,7 +57,6 @@ class Album:
       'genres': [genre.get('title', '') for genre in data.get('genres', {})],
       'audiences': [audience.get('title', '') for audience in data.get('audiences', {})],
     })
-    return True
 
   def fetch_pictures(self) -> None:
     """Fetch album pictures."""

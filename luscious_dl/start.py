@@ -5,6 +5,7 @@ from pathlib import Path
 from luscious_dl.album import Album, search_albums, print_search
 from luscious_dl.command_line import command_line
 from luscious_dl.downloader import Downloader
+from luscious_dl.exceptions import NoAlbumInformation, NoUserInformation
 from luscious_dl.logger import logger
 from luscious_dl.parser import extract_ids_from_list, extract_album_id, extract_user_id
 from luscious_dl.user import User
@@ -27,23 +28,23 @@ def albums_download(albums_ids: list[int], downloader: Downloader, output_dir: P
   for id_ in albums_ids:
     album = Album(id_)
     try:
-      if album.fetch_info():
-        formmatted_foldername = format_foldername(album, foldername_format)
-        album_folder = Path.joinpath(output_dir, formmatted_foldername)
-        album.show()
-        album.fetch_pictures()
-        # album.generate_metadata(album_folder)
-        album.download(downloader, album_folder)
-        if gen_pdf:
-          generate_pdf(output_dir, formmatted_foldername, album_folder)
-        if gen_cbz:
-          generate_cbz(output_dir, formmatted_foldername, album_folder)
-        if rm_origin_dir:
-          delete_folder(album_folder, formmatted_foldername)
-      else:
-        raise Exception('Album Information not found.')
+      album.fetch_info()
+      formmatted_foldername = format_foldername(album, foldername_format)
+      album_folder = Path.joinpath(output_dir, formmatted_foldername)
+      album.show()
+      album.fetch_pictures()
+      # album.generate_metadata(album_folder)
+      album.download(downloader, album_folder)
+      if gen_pdf:
+        generate_pdf(output_dir, formmatted_foldername, album_folder)
+      if gen_cbz:
+        generate_cbz(output_dir, formmatted_foldername, album_folder)
+      if rm_origin_dir:
+        delete_folder(album_folder, formmatted_foldername)
+    except NoAlbumInformation as e:
+      logger.critical(f'Album: {id_} Error: {e.message}')
     except Exception as e:
-      logger.critical(f'Album: {id_} Error: {e}')
+      logger.critical(f'Album: {id_} Error: {e}  | {e.__class__.__name__}')
 
 
 def users_download(users_ids: list[int], downloader: Downloader, output_dir: Path, foldername_format='%t',
@@ -64,16 +65,16 @@ def users_download(users_ids: list[int], downloader: Downloader, output_dir: Pat
   for id_ in users_ids:
     user = User(id_)
     try:
-      if user.fetch_info():
-        user.fetch_albums(only_favorites)
-        user.show()
-        if group_by_user:
-          output_dir = output_dir.joinpath(os.path.normcase(user.name))
-        albums_download(user.albums_ids, downloader, output_dir, foldername_format, gen_pdf, gen_cbz, rm_origin_dir)
-      else:
-        raise Exception('User Information not found.')
+      user.fetch_info()
+      user.fetch_albums(only_favorites)
+      user.show()
+      if group_by_user:
+        output_dir = output_dir.joinpath(os.path.normcase(user.name))
+      albums_download(user.albums_ids, downloader, output_dir, foldername_format, gen_pdf, gen_cbz, rm_origin_dir)
+    except NoUserInformation as e:
+      logger.critical(f'User: {id_} Error: {e.message}')
     except Exception as e:
-      logger.critical(f'User: {id_} Error: {e}')
+      logger.critical(f'User: {id_} Error: {e} | {e.__class__.__name__}')
 
 
 def normalize_args(args: Namespace) -> Namespace:

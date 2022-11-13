@@ -1,4 +1,5 @@
 from typing import Optional, Union, Callable
+from luscious_dl.exceptions import InvalidID
 
 from luscious_dl.logger import logger
 
@@ -25,11 +26,12 @@ def extract_album_id(album_url: str) -> Optional[int]:
     split = 2 if album_url.endswith('/') else 1
     album_id = album_url.rsplit('/', split)[1].rsplit('_', 1)[1]
     if not is_a_valid_integer(album_id):
-      raise Exception('Invalid ID')
+      raise InvalidID
     return int(album_id)
+  except InvalidID:
+    logger.critical(f"Couldn't resolve album ID of {album_url}\nError: {e}")
   except Exception as e:
     logger.critical(f"Couldn't resolve album ID of {album_url}\nError: {e}")
-    return None
 
 
 def extract_user_id(user_url: str) -> Optional[int]:
@@ -42,11 +44,12 @@ def extract_user_id(user_url: str) -> Optional[int]:
     split = 2 if user_url.endswith('/') else 1
     user_id = user_url.rsplit('/', split)[1]
     if not is_a_valid_integer(user_id):
-      raise Exception('Invalid ID')
+      raise InvalidID
     return int(user_id)
+  except InvalidID:
+    logger.critical(f"Couldn't resolve user ID of {user_url}\nError: {e}")
   except Exception as e:
     logger.critical(f"Couldn't resolve user ID of {user_url}\nError: {e}")
-    return None
 
 
 def extract_ids_from_list(iterable: list[Union[str, int]], extractor: Callable[[str], Optional[int]]) -> list[int]:

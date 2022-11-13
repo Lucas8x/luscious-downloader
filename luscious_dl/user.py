@@ -3,6 +3,7 @@ from typing import Union
 import requests
 from tabulate import tabulate
 
+from luscious_dl.exceptions import NoUserInformation
 from luscious_dl.logger import logger
 from luscious_dl.querys import user_info_query, user_albums_query, user_favorites_query
 
@@ -26,10 +27,9 @@ class User:
     ]
     logger.log(5, f'User information:\n{tabulate(table, tablefmt="jira")}')
 
-  def fetch_info(self) -> bool:
+  def fetch_info(self) -> None:
     """
     Fetch user information.
-    :return: bool - true if there are no error otherwise false
     """
     logger.log(5, 'Fetching user information...')
     response = requests.post('https://members.luscious.net/graphql/nobatch/?operationName=ProfileGet',
@@ -38,11 +38,10 @@ class User:
     if "errors" in data:
       logger.error(f'Something wrong with user: {self.id_}\nErrors: {data["errors"]}')
       logger.warning('Skipping...')
-      return False
+      raise NoUserInformation(self.id_, data.get('errors', ''))
     self.name = data['user']['name']
     self.number_of_albums = data['number_of_albums']
     self.number_of_favorites = data['number_of_favorite_albums']
-    return True
 
   def fetch_albums(self, only_favorites=False):
     """Fetch user albums."""
