@@ -35,7 +35,7 @@ def inputs_string_to_list(inputs_string: str) -> list[str]:
   return [input_.strip() for input_ in inputs_string.split(',')]
 
 
-def format_foldername(album, foldername_format: str = '%t') -> str:
+def format_foldername(album, foldername_format: str = '[%i]%t') -> str:
   """
   Format album folder name.
   :param album: Album instance
@@ -203,7 +203,7 @@ def create_default_files() -> None:
       "retries": 5,
       "timeout": 30,
       "delay": 0,
-      "foldername_format": "[%i][%t]",
+      "foldername_format": "[%i]%t",
       "gen_pdf": False,
       "gen_cbz": False,
       "rm_origin_dir": False,
@@ -229,7 +229,7 @@ def load_settings() -> Namespace:
     retries=configs.get('retries', 5),
     timeout=configs.get('timeout', 30),
     delay=configs.get('delay', 0),
-    foldername_format=configs.get('foldername_format', '[%i][%t]'),
+    foldername_format=configs.get('foldername_format', '[%i]%t'),
     gen_pdf=configs.get('gen_pdf', False),
     gen_cbz=configs.get('gen_cbz', False),
     rm_origin_dir=configs.get('rm_origin_dir', False),

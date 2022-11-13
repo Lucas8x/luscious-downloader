@@ -14,7 +14,7 @@ from luscious_dl.utils import info, format_foldername, generate_pdf, inputs_stri
 
 
 def albums_download(albums_ids: list[int], downloader: Downloader, output_dir: Path,
-                    foldername_format='%t', gen_pdf=False, gen_cbz=False, rm_origin_dir=False) -> None:
+                    foldername_format='[%i]%t', gen_pdf=False, gen_cbz=False, rm_origin_dir=False) -> None:
   """
   Start albums download process.
   :param albums_ids: list of album ids
@@ -47,7 +47,7 @@ def albums_download(albums_ids: list[int], downloader: Downloader, output_dir: P
       logger.critical(f'Album: {id_} Error: {e}  | {e.__class__.__name__}')
 
 
-def users_download(users_ids: list[int], downloader: Downloader, output_dir: Path, foldername_format='%t',
+def users_download(users_ids: list[int], downloader: Downloader, output_dir: Path, foldername_format='[%i]%t',
                    only_favorites=False, gen_pdf=False, gen_cbz=False, rm_origin_dir=False, group_by_user=False) -> \
         None:
   """
