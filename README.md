@@ -22,8 +22,11 @@ python setup.py install
 
 ```bash
 pip install luscious-downloader
+```
 
-# for PDF generation support use:
+If you want album to PDF conversion use:
+
+```bash
 pip install luscious-downloader[pdf]
 ```
 
@@ -154,7 +157,7 @@ Options:
 3. Picture Retries (download attempts for each picture. Default = 5)
 4. Picture Timeout (download timeout for each picture. Default = 30)
 5. Download Delay (delay between downloading multiple albums. Default = 0)
-6. Format output album folder name (Default = %t)
+6. Format output album folder name (Default = [%i]%t)
 7. Generate PDF (Default = False)
 8. Generate CBZ (Default = False)
 9. Remove origin directory (Default = False)
